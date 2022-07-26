@@ -27,6 +27,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+
 	"github.com/spf13/viper"
 )
 
@@ -233,13 +234,13 @@ func Token(json InpToken) (errcode string, res string) {
 	lenData := len(json.Data)
 
 	if (ppl+psl > lenData) || (ppl+psl < 0) || (ppl < 0) || (psl < 0) || (ppl > lenData) || (psl > lenData) {
-		errcode = "911" 
+		errcode = "911"
 		return
 	}
 
-	data := json.Data[ppl : (lenData-psl)]
+	data := json.Data[ppl:(lenData - psl)]
 	datappl := json.Data[:ppl]
-	datapsl := json.Data[(lenData-psl):]
+	datapsl := json.Data[(lenData - psl):]
 
 	messageheader := []byte("EFF1")
 	commandcode := []byte("M0")
@@ -317,13 +318,13 @@ func Detoken(json InpDetoken) (errcode string, res string) {
 	lenData := len(json.Token)
 
 	if (ppl+psl > lenData) || (ppl+psl < 0) || (ppl < 0) || (psl < 0) || (ppl > lenData) || (psl > lenData) {
-		errcode = "911" 
+		errcode = "911"
 		return
 	}
 
-	data := json.Token[ppl : (lenData-psl)]
+	data := json.Token[ppl:(lenData - psl)]
 	datappl := json.Token[:ppl]
-	datapsl := json.Token[(lenData-psl):]
+	datapsl := json.Token[(lenData - psl):]
 
 	messageheader := []byte("EFF1")
 	commandcode := []byte("M2")
@@ -403,5 +404,78 @@ func NC() (errcode string, lmk string, firmware string) {
 		firmware = ""
 	}
 
+	return
+
+}
+
+type InpOldKey struct {
+	Key           string `json:"key"`
+	KeyTypeCode   string `json:"keytypecode"`
+	KeyUsage      string `json:"keyusage"`
+	ModeOfUse     string `json:"modeofuse"`
+	Exportability string `json:"exportability"`
+}
+
+/* Decrypt
+{"key":"S1012822AN00S000153767C37E3DD24D17D98C9EB003C8BDAAEAABD6D4E62C1288358E24E910A49D1A75B157B813DA6903BDC1A5B9EA57FA0D01F4A0E2F9544E5","ciphertext":"7ibaZ4PV0M937lTsupfhDQ=="}
+*/
+
+func BW(json InpOldKey) (errcode string, res string) {
+
+	HsmLmkKeyblock := loadConfHSMVariant()
+
+	//max buffer in payshield is 32KB
+	// data, _ := base64.URLEncoding.DecodeString(json.Ciphertext)
+	// datalen := leftPad(string(data), "0", 4)
+
+	messageheader := []byte("HEAD")
+	commandcode := []byte("BW")
+	flag2digit := []byte("FF")
+	keylenflag := []byte("1")
+	key := []byte(json.Key)
+	delim1 := []byte(";")
+	keytypecode := []byte(json.KeyTypeCode)
+	delim2 := []byte("#")
+	keyusage := []byte(json.KeyUsage)
+	modeofuse := []byte(json.ModeOfUse)
+	kvn := []byte("00")
+	exportability := []byte(json.Exportability)
+	optionalblocknumber := []byte("00")
+	delim3 := []byte("!")
+	kcvflag := []byte("1")
+	kcvtype := []byte("1")
+
+	commandMessage := Join(
+		messageheader,
+		commandcode,
+		flag2digit,
+		keylenflag,
+		key,
+		delim1,
+		keytypecode,
+		delim2,
+		keyusage,
+		modeofuse,
+		kvn,
+		exportability,
+		optionalblocknumber,
+		delim3,
+		kcvflag,
+		kcvtype,
+	)
+
+	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
+
+	//log
+	fmt.Println(hex.Dump(responseMessage))
+
+	errcode = string(responseMessage)[8:10]
+
+	if errcode == "00" {
+		res = base64.URLEncoding.EncodeToString([]byte(string(responseMessage)[14:]))
+	}
+	if errcode != "00" {
+		res = ""
+	}
 	return
 }
