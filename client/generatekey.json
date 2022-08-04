@@ -1,0 +1,32 @@
+{
+    "mode": "0",
+    "keytype": "001",
+    "keyscheme": "U",
+    "derivekeymode": "",
+    "dukptmasterkeytype": "",
+    "dukptmasterkey": "",
+    "ksn": "",
+    "zkamasterkeytype": "",
+    "zkamasterkey": "",
+    "zkaoption": "",
+    "zkarndi": "",
+    "zmk_tmkflag": "",
+    "zmk_tmk_bdk": "",
+    "iksn": "",
+    "atallavariant": "",
+    "lmkid": "",
+    "keyusage": "",
+    "algorithm": "",
+    "modeofuse": "",
+    "kvn": "",
+    "exportability": "",
+    "numberofoptionalblocks": "",
+    "optionalblocks": [
+        {
+            "optionalblockidentifier": "",
+            "optionalblocklength": "",
+            "modifiedexportvalue": "",
+            "keyblockversionid": ""
+        }
+    ]
+}

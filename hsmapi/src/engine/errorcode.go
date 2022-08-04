@@ -23,7 +23,7 @@
 
 package engine
 
-func CheckErrorCode (ec string) (desc string){
+func CheckErrorCode(ec string) (desc string) {
 	var Res string
 	switch ec {
 	case "00":
@@ -40,6 +40,12 @@ func CheckErrorCode (ec string) (desc string){
 		Res = "PIN is fewer than 4 or more than 12 digits in length"
 	case "25":
 		Res = "Decimalization Table error"
+	case "A6":
+		Res = "Invalid key usage"
+	case "A7":
+		Res = "Invalid Algorithm"
+	case "A8":
+		Res = "Invalid mode of use"
 	case "911":
 		Res = "Preserved prefix and suffix length in mask profile not consistent"
 	default:

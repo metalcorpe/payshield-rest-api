@@ -408,19 +408,24 @@ func NC() (errcode string, lmk string, firmware string) {
 
 }
 
-type InpOldKey struct {
-	Key           string `json:"key"`
-	KeyTypeCode   string `json:"keytypecode"`
-	KeyUsage      string `json:"keyusage"`
-	ModeOfUse     string `json:"modeofuse"`
-	Exportability string `json:"exportability"`
+type Migrate struct {
+	KeyTypeCode2d  string          `json:"keytypecode2d"`
+	KeyLenFlag     string          `json:"keylenflag"`
+	Key            string          `json:"key"`
+	KeyTypeCode    string          `json:"keytypecode"`
+	KeyScheme      string          `json:"keyscheme"`
+	LMKId          string          `json:"lmkid"`
+	KeyUsage       string          `json:"keyusage"`
+	ModeOfUse      string          `json:"modeofuse"`
+	Exportability  string          `json:"exportability"`
+	OptionalBlocks []OptionalBlock `json:"optionalblocks"`
 }
 
 /* Decrypt
 {"key":"S1012822AN00S000153767C37E3DD24D17D98C9EB003C8BDAAEAABD6D4E62C1288358E24E910A49D1A75B157B813DA6903BDC1A5B9EA57FA0D01F4A0E2F9544E5","ciphertext":"7ibaZ4PV0M937lTsupfhDQ=="}
 */
 
-func BW(json InpOldKey) (errcode string, res string) {
+func BW(json Migrate) (errcode string, res string) {
 
 	HsmLmkKeyblock := loadConfHSMVariant()
 
@@ -430,7 +435,7 @@ func BW(json InpOldKey) (errcode string, res string) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("BW")
-	flag2digit := []byte("FF")
+	keytypecode2d := []byte(json.KeyTypeCode2d)
 	keylenflag := []byte("1")
 	key := []byte(json.Key)
 	delim1 := []byte(";")
@@ -448,7 +453,7 @@ func BW(json InpOldKey) (errcode string, res string) {
 	commandMessage := Join(
 		messageheader,
 		commandcode,
-		flag2digit,
+		keytypecode2d,
 		keylenflag,
 		key,
 		delim1,
@@ -476,6 +481,104 @@ func BW(json InpOldKey) (errcode string, res string) {
 	}
 	if errcode != "00" {
 		res = ""
+	}
+	return
+}
+
+type OptionalBlock struct {
+	OptionalBlockIdentifier string `json:"optionalblockidentifier"`
+	OptionalBlockLenght     string `json:"optionalblocklength"`
+	ModifiedExportValue     string `json:"modifiedexportvalue"`
+	KeyBlockVersionID       string `json:"keyblockversionid"`
+}
+type GenerateKey struct {
+	Mode                   string          `json:"mode"`
+	KeyType                string          `json:"keytype"`
+	KeyScheme              string          `json:"keyscheme"`
+	DeriveKeyMode          string          `json:"derivekeymode"`
+	DUKPTMasterKeyType     string          `json:"dukptmasterkeytype"`
+	DUKPTMasterKey         string          `json:"dukptmasterkey"`
+	KSN                    string          `json:"ksn"`
+	ZKAMasterKeyType       string          `json:"zkamasterkeytype"`
+	ZKAMasterKey           string          `json:"zkamasterkey"`
+	ZKAOption              string          `json:"zkaoption"`
+	ZKARNDI                string          `json:"zkarndi"`
+	ZMK_TMKFlag            string          `json:"zmk_tmkflag"`
+	ZMK_TMK_BDK            string          `json:"zmk_tmk_bdk"`
+	IKSN                   string          `json:"iksn"`
+	AtallaVariant          string          `json:"atallavariant"`
+	LMKId                  string          `json:"lmkid"`
+	KeyUsage               string          `json:"keyusage"`
+	Algorithm              string          `json:"algorithm"`
+	ModeofUse              string          `json:"modeofuse"`
+	KVN                    string          `json:"kvn"`
+	Exportability          string          `json:"exportability"`
+	NumberofOptionalBlocks string          `json:"numberofoptionalblocks"`
+	OptionalBlocks         []OptionalBlock `json:"optionalblocks"`
+}
+type GenerateKeyResp struct {
+	Key       string `json:"key"`
+	KeyExport string `json:"keyexport"`
+	KCV       string `json:"kcv"`
+	ZKARNDI   string `json:"zkarndi"`
+}
+
+/* Decrypt
+{"key":"S1012822AN00S000153767C37E3DD24D17D98C9EB003C8BDAAEAABD6D4E62C1288358E24E910A49D1A75B157B813DA6903BDC1A5B9EA57FA0D01F4A0E2F9544E5","ciphertext":"7ibaZ4PV0M937lTsupfhDQ=="}
+*/
+
+func A0(json GenerateKey) (errcode string, res GenerateKeyResp) {
+
+	HsmLmkKeyblock := loadConfHSMVariant()
+
+	messageheader := []byte("HEAD")
+	commandcode := []byte("A0")
+	mode := []byte(json.Mode)
+	keytype := []byte(json.KeyType)
+	keyscheme := []byte(json.KeyScheme)
+
+	commandMessage := Join(
+		messageheader,
+		commandcode,
+	)
+	commandMessage = Join(
+		commandMessage,
+		mode,
+		keytype,
+		keyscheme,
+	)
+
+	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
+
+	//log
+	fmt.Println(hex.Dump(responseMessage))
+
+	errcode = string(responseMessage)[8:10]
+
+	if errcode == "00" {
+		index := 10
+		if json.KeyScheme == "U" {
+			res.Key = string(responseMessage[index : index+32+1])
+			index += 32 + 1
+		} else if json.KeyScheme == "T" {
+			res.Key = string(responseMessage[index : index+48+1])
+			index += 48 + 1
+		} else if json.KeyScheme == "S" || json.KeyScheme == "R" {
+			res.Key = string(responseMessage[index : len(responseMessage)-6])
+			index += 16
+		} else {
+			res.Key = string(responseMessage[index : index+16])
+			index += 16
+		}
+
+		if json.Mode == "1" {
+
+		}
+		res.KCV = string(responseMessage[len(responseMessage)-6:])
+
+	}
+	if errcode != "00" {
+		// res = ""
 	}
 	return
 }

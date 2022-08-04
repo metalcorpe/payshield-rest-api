@@ -190,9 +190,9 @@ func main() {
 		})
 	})
 
-	//Encrypt
+	//Migrate
 	r.POST("/migrate", func(c *gin.Context) {
-		var json engine.InpOldKey
+		var json engine.Migrate
 
 		if err := c.ShouldBindJSON(&json); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -206,6 +206,24 @@ func main() {
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{"ciphertext": res})
+	})
+
+	//Generate Key
+	r.POST("/generatekey", func(c *gin.Context) {
+		var json engine.GenerateKey
+
+		if err := c.ShouldBindJSON(&json); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		var ec, res = engine.A0(json)
+
+		if ec != "00" {
+			c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
+			return
+		}
+		c.JSON(http.StatusOK, res)
 	})
 
 	viper.SetConfigType("yaml")
