@@ -28,24 +28,180 @@ func CheckErrorCode(ec string) (desc string) {
 	switch ec {
 	case "00":
 		Res = "No error"
-	case "06":
-		Res = "Invalid Message/Data Block Length field"
+	case "01":
+		Res = "Verification failure or warning of imported key parity error"
+	case "02":
+		Res = "Key inappropriate length for algorithm"
+	case "04":
+		Res = "Invalid key type code"
+	case "05":
+		Res = "Invalid key length flag"
 	case "10":
 		Res = "Source key parity error"
 	case "11":
 		Res = "Destination key parity error or key all zeros"
+	case "12":
+		Res = "Contents of user storage not available. Reset, power-down or overwrite"
+	case "13":
+		Res = "Invalid LMK Identifier"
+	case "14":
+		Res = "PIN encrypted under LMK pair 02-03 is invalid"
 	case "15":
 		Res = "Invalid input data (invalid format, invalid characters, or not enough data provided)"
+	case "16":
+		Res = "Console or printer not ready or not connected"
+	case "17":
+		Res = "HSM not authorized, or operation prohibited by security settings"
+	case "18":
+		Res = "Document format definition not loaded"
+	case "19":
+		Res = "Specified Diebold Table is invalid"
+	case "20":
+		Res = "PIN block does not contain valid values"
+	case "21":
+		Res = "Invalid index value, or index/block count would cause an overflow condition"
+	case "22":
+		Res = "Invalid account number"
+	case "23":
+		Res = "Invalid PIN block format code. (Use includes where the security setting to implement PCI HSM limitations on PIN Block format usage is applied, and a Host command attempts to convert a PIN Block to a disallowed format.)"
 	case "24":
 		Res = "PIN is fewer than 4 or more than 12 digits in length"
 	case "25":
 		Res = "Decimalization Table error"
+	case "26":
+		Res = "Invalid key scheme"
+	case "27":
+		Res = "Incompatible key length"
+	case "28":
+		Res = "Invalid key type"
+	case "29":
+		Res = "Key function not permitted"
+	case "30":
+		Res = "Invalid reference number"
+	case "31":
+		Res = "Insufficient solicitation entries for batch"
+	case "32":
+		Res = "AES not licensed"
+	case "33":
+		Res = "LMK key change storage is corrupted"
+	case "39":
+		Res = "Fraud detection"
+	case "40":
+		Res = "Invalid checksum"
+	case "41":
+		Res = "Internal hardware/software error: bad RAM, invalid error codes, etc."
+	case "42":
+		Res = "DES failure"
+	case "43":
+		Res = "RSA Key Generation Failure"
+	case "46":
+		Res = "Invalid tag for encrypted PIN"
+	case "47":
+		Res = "Algorithm not licensed"
+	case "48":
+		Res = "Key cannot be encrypted by a 3DES LMK"
+	case "49":
+		Res = "Private key error, report to supervisor"
+	case "51":
+		Res = "Invalid message header"
+	case "65":
+		Res = "Transaction Key Scheme set to None"
+	case "67":
+		Res = "Command not licensed"
+	case "68":
+		Res = "Command has been disabled"
+	case "69":
+		Res = "PIN block format has been disabled"
+	case "74":
+		Res = "Invalid digest info syntax (no hash mode only)"
+	case "75":
+		Res = "Single length key masquerading as double or triple length key"
+	case "76":
+		Res = "RSA public key length error or RSA encrypted data length error"
+	case "77":
+		Res = "Clear data block error"
+	case "78":
+		Res = "Private key length error"
+	case "79":
+		Res = "Hash algorithm object identifier error"
+	case "80":
+		Res = "Data length error. The amount of MAC data (or other data) is greater than or less than the expected amount."
+	case "81":
+		Res = "Invalid certificate header"
+	case "82":
+		Res = "Invalid check value length"
+	case "83":
+		Res = "Key block format error"
+	case "84":
+		Res = "Key block check value error"
+	case "85":
+		Res = "Invalid OAEP Mask Generation Function"
+	case "86":
+		Res = "Invalid OAEP MGF Hash Function"
+	case "87":
+		Res = "OAEP Parameter Error"
+	case "90":
+		Res = "Data parity error in the request message received by the HSM"
+	case "A1":
+		Res = "Incompatible LMK schemes"
+	case "A2":
+		Res = "Incompatible LMK identifiers"
+	case "A3":
+		Res = "Incompatible key block LMK identifiers"
+	case "A4":
+		Res = "Key block authentication failure"
+	case "A5":
+		Res = "Incompatible key length"
 	case "A6":
 		Res = "Invalid key usage"
 	case "A7":
-		Res = "Invalid Algorithm"
+		Res = "Invalid algorithm"
 	case "A8":
 		Res = "Invalid mode of use"
+	case "A9":
+		Res = "Invalid key version number"
+	case "AA":
+		Res = "Invalid export field"
+	case "AB":
+		Res = "Invalid number of optional blocks"
+	case "AC":
+		Res = "Optional header block error"
+	case "AD":
+		Res = "Key status optional block error"
+	case "AE":
+		Res = "Invalid start date/time"
+	case "AF":
+		Res = "Invalid end date/time"
+	case "B0":
+		Res = "Invalid encryption mode"
+	case "B1":
+		Res = "Invalid authentication mode"
+	case "B2":
+		Res = "Miscellaneous key block error"
+	case "B3":
+		Res = "Invalid number of optional blocks"
+	case "B4":
+		Res = "Optional block data error"
+	case "B5":
+		Res = "Incompatible components"
+	case "B6":
+		Res = "Incompatible key status optional blocks"
+	case "B7":
+		Res = "Invalid change field"
+	case "B8":
+		Res = "Invalid old value"
+	case "B9":
+		Res = "Invalid new value"
+	case "BA":
+		Res = "No key status block in the key block"
+	case "BB":
+		Res = "Invalid wrapping key"
+	case "BC":
+		Res = "Repeated optional block"
+	case "BD":
+		Res = "Incompatible key types"
+	case "BE":
+		Res = "Invalid key block header ID"
 	case "911":
 		Res = "Preserved prefix and suffix length in mask profile not consistent"
 	default:

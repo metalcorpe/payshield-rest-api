@@ -1,0 +1,19 @@
+{
+    "keytypeindicator": "2",
+    "keylen": "2048",
+    "publickeyencoding": "02",
+    "publicexponentlen": "",
+    "publicexponent": "",
+    "lmkid": "",
+    "kvn": "",
+    "numberofoptionalblocks": "",
+    "optionalblocks": [
+        {
+            "optionalblockidentifier": "",
+            "optionalblocklength": "",
+            "modifiedexportvalue": "",
+            "keyblockversionid": ""
+        }
+    ],
+    "exportability": ""
+}

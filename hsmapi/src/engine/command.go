@@ -24,9 +24,11 @@
 package engine
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"strconv"
 
 	"github.com/spf13/viper"
 )
@@ -409,29 +411,34 @@ func NC() (errcode string, lmk string, firmware string) {
 }
 
 type Migrate struct {
-	KeyTypeCode2d  string          `json:"keytypecode2d"`
-	KeyLenFlag     string          `json:"keylenflag"`
-	Key            string          `json:"key"`
-	KeyTypeCode    string          `json:"keytypecode"`
-	KeyScheme      string          `json:"keyscheme"`
-	LMKId          string          `json:"lmkid"`
-	KeyUsage       string          `json:"keyusage"`
-	ModeOfUse      string          `json:"modeofuse"`
-	Exportability  string          `json:"exportability"`
-	OptionalBlocks []OptionalBlock `json:"optionalblocks"`
+	KeyTypeCode2d          string          `json:"keytypecode2d"`
+	KeyLenFlag             string          `json:"keylenflag"`
+	Key                    string          `json:"key"`
+	KeyTypeCode            string          `json:"keytypecode"`
+	KeyScheme              string          `json:"keyscheme"`
+	LMKId                  string          `json:"lmkid"`
+	KeyUsage               string          `json:"keyusage"`
+	ModeOfUse              string          `json:"modeofuse"`
+	KVN                    string          `json:"kvn"`
+	Exportability          string          `json:"exportability"`
+	NumberofOptionalBlocks string          `json:"numberofoptionalblocks"`
+	OptionalBlocks         []OptionalBlock `json:"optionalblocks"`
+	KCVReturnFlag          string          `json:"kcvreturnflag"`
+	KCVType                string          `json:"kcvtype"`
+}
+
+type MigrateRes struct {
+	Key string `json:"key"`
+	KCV string `json:"kcv"`
 }
 
 /* Decrypt
 {"key":"S1012822AN00S000153767C37E3DD24D17D98C9EB003C8BDAAEAABD6D4E62C1288358E24E910A49D1A75B157B813DA6903BDC1A5B9EA57FA0D01F4A0E2F9544E5","ciphertext":"7ibaZ4PV0M937lTsupfhDQ=="}
 */
 
-func BW(json Migrate) (errcode string, res string) {
+func BW(json Migrate) (errcode string, res MigrateRes) {
 
 	HsmLmkKeyblock := loadConfHSMVariant()
-
-	//max buffer in payshield is 32KB
-	// data, _ := base64.URLEncoding.DecodeString(json.Ciphertext)
-	// datalen := leftPad(string(data), "0", 4)
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("BW")
@@ -443,12 +450,12 @@ func BW(json Migrate) (errcode string, res string) {
 	delim2 := []byte("#")
 	keyusage := []byte(json.KeyUsage)
 	modeofuse := []byte(json.ModeOfUse)
-	kvn := []byte("00")
+	kvn := []byte(json.KVN)
 	exportability := []byte(json.Exportability)
-	optionalblocknumber := []byte("00")
+	optionalblocknumber := []byte(json.NumberofOptionalBlocks)
 	delim3 := []byte("!")
-	kcvflag := []byte("1")
-	kcvtype := []byte("1")
+	kcvflag := []byte(json.KCVReturnFlag)
+	kcvtype := []byte(json.KCVType)
 
 	commandMessage := Join(
 		messageheader,
@@ -464,10 +471,15 @@ func BW(json Migrate) (errcode string, res string) {
 		kvn,
 		exportability,
 		optionalblocknumber,
-		delim3,
-		kcvflag,
-		kcvtype,
 	)
+	if json.KCVReturnFlag == "1" {
+		commandMessage = Join(
+			commandMessage,
+			delim3,
+			kcvflag,
+			kcvtype,
+		)
+	}
 
 	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
 
@@ -477,10 +489,32 @@ func BW(json Migrate) (errcode string, res string) {
 	errcode = string(responseMessage)[8:10]
 
 	if errcode == "00" {
-		res = base64.URLEncoding.EncodeToString([]byte(string(responseMessage)[14:]))
-	}
-	if errcode != "00" {
-		res = ""
+		end_index := 0
+		if json.KCVReturnFlag == "1" && json.KCVType == "0" {
+			end_index = 16
+		} else if json.KCVReturnFlag == "1" && json.KCVType == "1" {
+			end_index = 6
+		} else {
+			end_index = 0
+		}
+
+		index := 10
+		res.Key = string(responseMessage[index : len(responseMessage)-end_index])
+		// if json.KeyScheme == "U" {
+		// 	res.Key = string(responseMessage[index : index+32+1])
+		// 	index += 32 + 1
+		// } else if json.KeyScheme == "T" {
+		// 	res.Key = string(responseMessage[index : index+48+1])
+		// 	index += 48 + 1
+		// } else if json.KeyScheme == "S" || json.KeyScheme == "R" {
+		// 	res.Key = string(responseMessage[index : len(responseMessage)-end_index])
+		// 	index += 16
+		// } else {
+		// 	res.Key = string(responseMessage[index : index+16])
+		// 	index += 16
+		// }
+
+		res.KCV = string(responseMessage[len(responseMessage)-end_index:])
 	}
 	return
 }
@@ -577,8 +611,175 @@ func A0(json GenerateKey) (errcode string, res GenerateKeyResp) {
 		res.KCV = string(responseMessage[len(responseMessage)-6:])
 
 	}
-	if errcode != "00" {
-		// res = ""
+	return
+}
+
+type GeneratePair struct {
+	KeyTypeIndicator       string          `json:"keytypeindicator"`
+	KeyLen                 string          `json:"keylen"`
+	PublicKeyEncoding      string          `json:"publickeyencoding"`
+	PublicExponentLen      string          `json:"publicexponentlen"`
+	PublicExponent         string          `json:"publicexponent"`
+	LMKId                  string          `json:"lmkid"`
+	KVN                    string          `json:"kvn"`
+	NumberofOptionalBlocks string          `json:"numberofoptionalblocks"`
+	OptionalBlocks         []OptionalBlock `json:"optionalblocks"`
+	Exportability          string          `json:"exportability"`
+}
+type GeneratePairResp struct {
+	PublicKey     string `json:"publickey"`
+	PrivateKeyLen int    `json:"privatekeylen"`
+	PrivateKey    string `json:"privatekey"`
+}
+
+func EI(json GeneratePair) (errcode string, res GeneratePairResp) {
+
+	HsmLmkKeyblock := loadConfHSMVariant()
+
+	messageheader := []byte("HEAD")
+	commandcode := []byte("EI")
+	keytypeindicator := []byte(json.KeyTypeIndicator)
+	keylen := []byte(json.KeyLen)
+	publickeyencoding := []byte(json.PublicKeyEncoding)
+	publicexponentlen := []byte(json.PublicExponentLen)
+	publicexponent := []byte(json.PublicExponent)
+	lmkid_delim := []byte("%")
+	lmkid := []byte(json.LMKId)
+	kvn := []byte(json.KVN)
+	numberofoptionalblocks := []byte(json.NumberofOptionalBlocks)
+	exportability := []byte(json.Exportability)
+
+	commandMessage := Join(
+		messageheader,
+		commandcode,
+	)
+	commandMessage = Join(
+		commandMessage,
+		keytypeindicator,
+		keylen,
+		publickeyencoding,
+		publicexponentlen,
+		publicexponent,
+		lmkid,
+	)
+	if json.KVN != "" {
+		commandMessage = Join(
+			commandMessage,
+			lmkid_delim,
+			lmkid,
+		)
+	}
+	commandMessage = Join(
+		commandMessage,
+		kvn,
+		numberofoptionalblocks,
+		exportability,
+	)
+
+	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
+
+	//log
+	fmt.Println(hex.Dump(responseMessage))
+
+	errcode = string(responseMessage)[8:10]
+	// hex.DecodeString("\x02\x03\x01\x00\x01")
+
+	// res.PrivateKey = string(asdf)
+	if errcode == "00" {
+		index := 10
+		index_pub := bytes.Index(responseMessage, []byte("0656")) // TODO: THis is not the correct way
+		res.PublicKey = base64.StdEncoding.EncodeToString(responseMessage[index:index_pub])
+		res.PrivateKeyLen, _ = strconv.Atoi(string(responseMessage[index_pub : index_pub+4]))
+		res.PrivateKey = base64.StdEncoding.EncodeToString(responseMessage[index_pub+4 : index_pub+4+656])
+
+	}
+	return
+	// string(responseMessage[250:283])
+
+	// "\xcbI\xe8\xc2<\x7f\xe6z\xa7w\u0096\xab⡃]\xbc\x98,\x11M\x1d\xb1\x02\x03\x01\x00\x01 0656"
+	// "dR,*\tj\x1e\xb2\xe5\xe0\xe2d\x949\xa6\xd2\n\t\xe5%\xc8\xe2\xb9\x02\x03\x01\x00\x01 0656"
+}
+
+type TranslatePrivate struct {
+	PrivateKeyLen          string          `json:"privatekeylen"`
+	PrivateKey             string          `json:"privatekey"`
+	LMKId                  string          `json:"lmkid"`
+	KVN                    string          `json:"kvn"`
+	NumberofOptionalBlocks string          `json:"numberofoptionalblocks"`
+	OptionalBlocks         []OptionalBlock `json:"optionalblocks"`
+	Exportability          string          `json:"exportability"`
+}
+type TranslatePrivateResp struct {
+	PrivateKeyLen int    `json:"privatekeylen"`
+	PrivateKey    string `json:"privatekey"`
+}
+
+func EM(json TranslatePrivate) (errcode string, res TranslatePrivateResp) {
+
+	HsmLmkKeyblock := loadConfHSMVariant()
+
+	messageheader := []byte("HEAD")
+	commandcode := []byte("EM")
+	privatekeylen := []byte(json.PrivateKeyLen)
+	privatekey, err := base64.StdEncoding.DecodeString(json.PrivateKey)
+	if err != nil {
+		panic(err)
+	}
+	if json.PrivateKeyLen == "" {
+		privatekeylen = []byte("0" + strconv.Itoa(len(privatekey)))
+	}
+	lmkid_delim := []byte("%")
+	lmkid := []byte(json.LMKId)
+	kb_delim := []byte("#")
+	kvn := []byte(json.KVN)
+	numberofoptionalblocks := []byte(json.NumberofOptionalBlocks)
+	exportability_delim := []byte("&")
+	exportability := []byte(json.Exportability)
+
+	commandMessage := Join(
+		messageheader,
+		commandcode,
+	)
+	commandMessage = Join(
+		commandMessage,
+		privatekeylen,
+		privatekey,
+	)
+	if json.LMKId != "" {
+		commandMessage = Join(
+			commandMessage,
+			lmkid_delim,
+			lmkid,
+		)
+	}
+	if json.KVN != "" {
+		commandMessage = Join(
+			commandMessage,
+			kb_delim,
+			kvn,
+			numberofoptionalblocks,
+			exportability_delim,
+			exportability,
+		)
+	}
+
+	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
+
+	//log
+	fmt.Println(hex.Dump(responseMessage))
+
+	errcode = string(responseMessage)[8:10]
+
+	if errcode == "00" {
+		index := 10
+		var err error
+		res.PrivateKeyLen, err = strconv.Atoi(string(responseMessage[index : index+4]))
+		if err == nil {
+			res.PrivateKey = base64.StdEncoding.EncodeToString(responseMessage[index+4 : index+4+res.PrivateKeyLen])
+		} else {
+			res.PrivateKey = base64.StdEncoding.EncodeToString(responseMessage[index+4:])
+		}
+
 	}
 	return
 }

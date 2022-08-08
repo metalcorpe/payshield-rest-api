@@ -7,7 +7,9 @@
     "lmkid": "",
     "keyusage": "72",
     "modeofuse": "N",
+    "kvn": "00",
     "exportability": "S",
+    "numberofoptionalblocks": "00",
     "optionalblocks": [
         {
             "optionalblockidentifier": "",
@@ -15,5 +17,7 @@
             "modifiedexportvalue": "",
             "keyblockversionid": ""
         }
-    ]
+    ],
+    "kcvreturnflag": "1",
+    "kcvtype": "1"
 }

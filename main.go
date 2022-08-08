@@ -205,7 +205,24 @@ func main() {
 			c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"ciphertext": res})
+		c.JSON(http.StatusOK, res)
+	})
+	//Migrate
+	r.POST("/migrate/private", func(c *gin.Context) {
+		var json engine.TranslatePrivate
+
+		if err := c.ShouldBindJSON(&json); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		var ec, res = engine.EM(json)
+
+		if ec != "00" {
+			c.JSON(http.StatusBadRequest, gin.H{"errorCode": engine.CheckErrorCode(ec)})
+			return
+		}
+		c.JSON(http.StatusOK, res)
 	})
 
 	//Generate Key
@@ -218,6 +235,23 @@ func main() {
 		}
 
 		var ec, res = engine.A0(json)
+
+		if ec != "00" {
+			c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
+			return
+		}
+		c.JSON(http.StatusOK, res)
+	})
+	//Generate Key
+	r.POST("/generatekey/pair", func(c *gin.Context) {
+		var json engine.GeneratePair
+
+		if err := c.ShouldBindJSON(&json); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		var ec, res = engine.EI(json)
 
 		if ec != "00" {
 			c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
