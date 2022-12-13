@@ -538,8 +538,9 @@ type GenerateKey struct {
 	ZKAOption              string          `json:"zkaoption"`
 	ZKARNDI                string          `json:"zkarndi"`
 	ZMK_TMKFlag            string          `json:"zmk_tmkflag"`
-	ZMK_TMK_BDK            string          `json:"zmk_tmk_bdk"`
+	ZmkTmkBdk              string          `json:"zmkTmkBdk"`
 	IKSN                   string          `json:"iksn"`
+	ExportKeyScheme        string          `json:"exportKeyScheme"`
 	AtallaVariant          string          `json:"atallavariant"`
 	LMKId                  string          `json:"lmkid"`
 	KeyUsage               string          `json:"keyusage"`
@@ -561,14 +562,171 @@ type GenerateKeyResp struct {
 {"key":"S1012822AN00S000153767C37E3DD24D17D98C9EB003C8BDAAEAABD6D4E62C1288358E24E910A49D1A75B157B813DA6903BDC1A5B9EA57FA0D01F4A0E2F9544E5","ciphertext":"7ibaZ4PV0M937lTsupfhDQ=="}
 */
 
+func keyExtraction(message []byte, index int) (key string, rindex int) {
+	keyPrefex := string(message[index : index+1])
+	if keyPrefex == "U" {
+		key = string(message[index : index+32+1])
+		index += 32 + 1
+	} else if keyPrefex == "T" {
+		key = string(message[index : index+48+1])
+		index += 48 + 1
+	} else if keyPrefex == "S" || keyPrefex == "R" {
+		keysize, _ := strconv.Atoi(string(message[index+3 : index+6]))
+		key = string(message[index : index+keysize+1])
+		index = index + keysize + 1
+	} else {
+		key = string(message[index : index+16])
+		index += 16
+	}
+	rindex = index
+	return key, rindex
+}
+
 func A0(json GenerateKey) (errcode string, res GenerateKeyResp) {
 
-	HsmLmkKeyblock := loadConfHSMVariant()
+	HsmLmkKeyblock := loadConfHSMKeyblock()
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("A0")
 	mode := []byte(json.Mode)
 	keytype := []byte(json.KeyType)
+	keyscheme := []byte(json.KeyScheme)
+	derivekeymode := []byte(json.DeriveKeyMode)
+	dukptmasterkeytype := []byte(json.DUKPTMasterKeyType)
+	dukptmasterkey := []byte(json.DUKPTMasterKey)
+	ksn := []byte(json.KSN)
+	zmkTmkBdk := []byte(json.ZmkTmkBdk)
+	exportKeyScheme := []byte(json.ExportKeyScheme)
+	keyusage := []byte(json.KeyUsage)
+	algorithm := []byte(json.Algorithm)
+	modeofuse := []byte(json.ModeofUse)
+	kvn := []byte(json.KVN)
+	exportability := []byte(json.Exportability)
+	numberofoptionalblocks := []byte(json.NumberofOptionalBlocks)
+
+	commandMessage := Join(
+		messageheader,
+		commandcode,
+	)
+
+	// Generate
+	if json.Mode == "0" {
+		commandMessage = Join(
+			commandMessage,
+			mode,
+			keytype,
+			keyscheme,
+		)
+		// Generate and Export
+	} else if json.Mode == "1" {
+		panic(json.Mode)
+		// Derive
+	} else if json.Mode == "A" {
+		panic(json.Mode)
+		// Derive and Export
+	} else if json.Mode == "B" {
+		commandMessage = Join(
+			commandMessage,
+			mode,
+			keytype,
+			keyscheme,
+		)
+		if json.DeriveKeyMode == "0" {
+			commandMessage = Join(
+				commandMessage,
+				derivekeymode,
+				dukptmasterkeytype,
+				dukptmasterkey,
+				ksn,
+			)
+		} else if json.DeriveKeyMode == "1" {
+			panic(json.DeriveKeyMode)
+		} else {
+			panic(json.DeriveKeyMode)
+		}
+		// Mising ZMK/TMK Flag check
+
+		commandMessage = Join(
+			commandMessage,
+			zmkTmkBdk,
+		)
+		// Missing Current BDK KSN
+
+		commandMessage = Join(
+			commandMessage,
+			exportKeyScheme,
+		)
+		kbDelim := []byte("#")
+		commandMessage = Join(
+			commandMessage,
+			kbDelim,
+			keyusage,
+			algorithm,
+			modeofuse,
+			kvn,
+			exportability,
+			numberofoptionalblocks,
+		)
+
+	} else {
+		panic(json.Mode)
+	}
+
+	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
+
+	//log
+	fmt.Println(hex.Dump(responseMessage))
+
+	errcode = string(responseMessage)[8:10]
+
+	if errcode == "00" {
+		index := 10
+		res.Key, index = keyExtraction(responseMessage, index)
+
+		if json.Mode == "1" || json.Mode == "B" {
+			res.KeyExport, index = keyExtraction(responseMessage, index)
+		}
+		res.KCV = string(responseMessage[len(responseMessage)-6:])
+
+	}
+	return
+}
+
+type ExportKey struct {
+	KeyType                string          `json:"keytype"`
+	ZMK_TMKFlag            string          `json:"zmk_tmkflag"`
+	ZMK_TMK                string          `json:"zmk_tmk"`
+	Key                    string          `json:"key"`
+	KeyScheme              string          `json:"keyscheme"`
+	IV                     string          `json:"iv"`
+	AtallaVariant          string          `json:"atallavariant"`
+	LMKId                  string          `json:"lmkid"`
+	Exportability          string          `json:"exportability"`
+	NumberofOptionalBlocks string          `json:"numberofoptionalblocks"`
+	OptionalBlocks         []OptionalBlock `json:"optionalblocks"`
+	KVN                    string          `json:"kvn"`
+
+	// ZKAOption string `json:"zkaoption"`
+	// ZKARNDI   string `json:"zkarndi"`
+	// IKSN      string `json:"iksn"`
+	// KeyUsage  string `json:"keyusage"`
+	// Algorithm string `json:"algorithm"`
+	// ModeofUse string `json:"modeofuse"`
+}
+type ExportKeyResp struct {
+	Key string `json:"key"`
+	KCV string `json:"kcv"`
+}
+
+func A8(json ExportKey) (errcode string, res ExportKeyResp) {
+
+	HsmLmkKeyblock := loadConfHSMVariant()
+
+	messageheader := []byte("HEAD")
+	commandcode := []byte("A8")
+	keytype := []byte(json.KeyType)
+	zmk_tmk := []byte(json.ZMK_TMK)
+	key := []byte(json.Key)
 	keyscheme := []byte(json.KeyScheme)
 
 	commandMessage := Join(
@@ -577,8 +735,9 @@ func A0(json GenerateKey) (errcode string, res GenerateKeyResp) {
 	)
 	commandMessage = Join(
 		commandMessage,
-		mode,
 		keytype,
+		zmk_tmk,
+		key,
 		keyscheme,
 	)
 
@@ -605,9 +764,6 @@ func A0(json GenerateKey) (errcode string, res GenerateKeyResp) {
 			index += 16
 		}
 
-		if json.Mode == "1" {
-
-		}
 		res.KCV = string(responseMessage[len(responseMessage)-6:])
 
 	}
