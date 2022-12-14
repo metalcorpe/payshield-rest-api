@@ -25,6 +25,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -37,6 +38,7 @@ import (
 // swagger embed files
 
 func main() {
+	var err error
 	r := gin.Default()
 
 	//r := rauth.Group("/rest", basicAuth())
@@ -46,13 +48,16 @@ func main() {
 	viper.AddConfigPath(".")
 	viper.SetConfigName("server.conf")
 
-	err := viper.ReadInConfig()
+	err = viper.ReadInConfig()
 	if err != nil {
 		fmt.Println("Load file config Server error")
 	}
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	r.RunTLS(":"+viper.GetString("server.port"), "server.crt", "server.key")
+	err = r.RunTLS(":"+viper.GetString("server.port"), "server.crt", "server.key")
+	if err != nil {
+		log.Fatal("TLS failed" + err.Error())
+	}
 
 	// r.Run(":8080")
 
@@ -75,10 +80,7 @@ func authenticateUserToken(username, password, profile string) bool {
 
 	err := (username == USERNAME) && (password == PASSWORD) && TOKENISE
 
-	if !err {
-		return false
-	}
-	return true
+	return err
 }
 
 func authenticateUserDetoken(username, password, profile string) bool {
@@ -98,10 +100,7 @@ func authenticateUserDetoken(username, password, profile string) bool {
 
 	err := (username == USERNAME) && (password == PASSWORD) && TOKENISE
 
-	if !err {
-		return false
-	}
-	return true
+	return err
 }
 
 func respondWithError(code int, message string, c *gin.Context) {
