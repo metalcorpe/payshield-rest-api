@@ -61,14 +61,14 @@ func main() {
 	addRoutes(rr)
 
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
+	viper.AddConfigPath("../config")
 	viper.SetConfigName("server.conf")
 
 	err := viper.ReadInConfig()
 	if err != nil {
 		fmt.Println("Load file config Server error")
 	}
-	http.ListenAndServeTLS(":"+viper.GetString("server.port"), "server.crt", "server.key", rr)
+	http.ListenAndServeTLS(":"+viper.GetString("server.port"), "../server.crt", "../server.key", rr)
 
 }
 

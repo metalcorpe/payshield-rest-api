@@ -2,7 +2,7 @@ module payshield-rest-api
 
 go 1.18
 
-replace hsmapi/src/engine => ./hsmapi/src/engine
+replace hsmapi/src/engine => ./cmd/hsmapi/src/engine
 
 require (
 	github.com/gin-gonic/gin v1.8.1
