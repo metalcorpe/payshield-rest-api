@@ -25,41 +25,50 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/render"
 	"github.com/spf13/viper"
-	swaggerfiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.uber.org/zap"
 )
 
 // gin-swagger middleware
 // swagger embed files
 
 func main() {
-	var err error
-	r := gin.Default()
+	// configure logger
+	log, _ := zap.NewProduction(zap.WithCaller(false))
+	defer func() {
+		_ = log.Sync()
+	}()
 
-	//r := rauth.Group("/rest", basicAuth())
-	addRoutes(r)
+	// print current version
+	log.Info("starting up API...")
+
+	rr := chi.NewRouter()
+
+	rr.Use(middleware.RequestID)
+	rr.Use(middleware.Logger)
+	rr.Use(middleware.Recoverer)
+	rr.Use(middleware.URLFormat)
+	rr.Use(render.SetContentType(render.ContentTypeJSON))
+	rr.Mount("/debug", middleware.Profiler())
+
+	addRoutes(rr)
 
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
 	viper.SetConfigName("server.conf")
 
-	err = viper.ReadInConfig()
+	err := viper.ReadInConfig()
 	if err != nil {
 		fmt.Println("Load file config Server error")
 	}
-
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	err = r.RunTLS(":"+viper.GetString("server.port"), "server.crt", "server.key")
-	if err != nil {
-		log.Fatal("TLS failed" + err.Error())
-	}
-
-	// r.Run(":8080")
+	http.ListenAndServeTLS(":"+viper.GetString("server.port"), "server.crt", "server.key", rr)
 
 }
 
