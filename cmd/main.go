@@ -68,9 +68,9 @@ func main() {
 	if err != nil {
 		fmt.Println("Load file config Server error")
 	}
-	err_http := http.ListenAndServeTLS(":"+viper.GetString("server.port"), "server.crt", "server.key", rr)
-	if err_http != nil {
-		log.Fatal(err_http.Error())
+	errHttp := http.ListenAndServeTLS(":"+viper.GetString("server.port"), "server.crt", "server.key", rr)
+	if errHttp != nil {
+		log.Fatal(errHttp.Error())
 		return
 	}
 
