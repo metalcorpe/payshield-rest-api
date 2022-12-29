@@ -25,9 +25,13 @@ package engine
 
 import (
 	"bytes"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/asn1"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/spf13/viper"
@@ -801,8 +805,10 @@ func EI(json GeneratePair) (errcode string, res GeneratePairResp) {
 	publicexponent := []byte(json.PublicExponent)
 	lmkidDelim := []byte("%")
 	lmkid := []byte(json.LMKId)
+	keyblockDelim := []byte("#")
 	kvn := []byte(json.KVN)
 	numberofoptionalblocks := []byte(json.NumberofOptionalBlocks)
+	exportabilityDelim := []byte("&")
 	exportability := []byte(json.Exportability)
 
 	commandMessage := Join(
@@ -816,9 +822,8 @@ func EI(json GeneratePair) (errcode string, res GeneratePairResp) {
 		publickeyencoding,
 		publicexponentlen,
 		publicexponent,
-		lmkid,
 	)
-	if json.KVN != "" {
+	if json.LMKId != "" {
 		commandMessage = Join(
 			commandMessage,
 			lmkidDelim,
@@ -827,33 +832,37 @@ func EI(json GeneratePair) (errcode string, res GeneratePairResp) {
 	}
 	commandMessage = Join(
 		commandMessage,
+		keyblockDelim,
 		kvn,
 		numberofoptionalblocks,
+		exportabilityDelim,
 		exportability,
 	)
 
 	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
 
-	//log
 	fmt.Println(hex.Dump(responseMessage))
 
 	errcode = string(responseMessage)[8:10]
-	// hex.DecodeString("\x02\x03\x01\x00\x01")
 
-	// res.PrivateKey = string(asdf)
 	if errcode == "00" {
-		index := 10
-		indexPub := bytes.Index(responseMessage, []byte("0656")) // TODO: THis is not the correct way
-		res.PublicKey = base64.StdEncoding.EncodeToString(responseMessage[index:indexPub])
-		res.PrivateKeyLen, _ = strconv.Atoi(string(responseMessage[indexPub : indexPub+4]))
-		res.PrivateKey = base64.StdEncoding.EncodeToString(responseMessage[indexPub+4 : indexPub+4+656])
-
+		var publicKey rsa.PublicKey
+		rest, err := asn1.Unmarshal(responseMessage[10:], &publicKey)
+		if err != nil {
+			log.Panic(err.Error())
+			return
+		}
+		pubBytes := x509.MarshalPKCS1PublicKey(&publicKey)
+		res.PublicKey = base64.StdEncoding.EncodeToString(pubBytes)
+		if bytes.Equal(rest[0:4], []byte("FFFF")) {
+			res.PrivateKeyLen = 0000
+			res.PrivateKey = base64.StdEncoding.EncodeToString(rest[4:])
+		} else {
+			res.PrivateKeyLen, _ = strconv.Atoi(string(rest[0:4]))
+			res.PrivateKey = base64.StdEncoding.EncodeToString(rest[4 : 4+res.PrivateKeyLen])
+		}
 	}
 	return
-	// string(responseMessage[250:283])
-
-	// "\xcbI\xe8\xc2<\x7f\xe6z\xa7w\u0096\xab⡃]\xbc\x98,\x11M\x1d\xb1\x02\x03\x01\x00\x01 0656"
-	// "dR,*\tj\x1e\xb2\xe5\xe0\xe2d\x949\xa6\xd2\n\t\xe5%\xc8\xe2\xb9\x02\x03\x01\x00\x01 0656"
 }
 
 type TranslatePrivate struct {
