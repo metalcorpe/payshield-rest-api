@@ -12,6 +12,7 @@ func verifypin(c *gin.Context) {
 	var json engine.PinVer
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
 		return
 	}
 
@@ -19,6 +20,7 @@ func verifypin(c *gin.Context) {
 
 	if ec != "00" {
 		c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
+
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"errorCode": "true"})
@@ -29,6 +31,7 @@ func generatekey(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
 		return
 	}
 
@@ -36,6 +39,7 @@ func generatekey(c *gin.Context) {
 
 	if ec != "00" {
 		c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
+
 		return
 	}
 	c.JSON(http.StatusOK, res)
@@ -46,6 +50,7 @@ func detokenise(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
 		return
 	}
 
@@ -53,6 +58,7 @@ func detokenise(c *gin.Context) {
 
 	if len(auth) != 2 || auth[0] != "Basic" {
 		respondWithError(401, "Unauthorized", c)
+
 		return
 	}
 	payload, _ := base64.StdEncoding.DecodeString(auth[1])
@@ -62,6 +68,7 @@ func detokenise(c *gin.Context) {
 
 	if len(pair) != 2 || !authenticate {
 		respondWithError(401, "Unauthorized", c)
+
 		return
 	}
 
@@ -71,12 +78,14 @@ func detokenise(c *gin.Context) {
 
 	if ec != "00" {
 		c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
+
 		return
 	}
 
 	if authenticate && checkProfileMask(json.Profile) {
 		resmask := createMask(json.Profile, res)
 		c.JSON(http.StatusOK, gin.H{"data": resmask})
+
 		return
 	}
 
@@ -88,6 +97,7 @@ func encrypt(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
 		return
 	}
 
@@ -95,6 +105,7 @@ func encrypt(c *gin.Context) {
 
 	if ec != "00" {
 		c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
+
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"ciphertext": res})
@@ -105,6 +116,7 @@ func decrypt(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
 		return
 	}
 
@@ -112,6 +124,7 @@ func decrypt(c *gin.Context) {
 
 	if ec != "00" {
 		c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
+
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"cleartext": res})
@@ -123,6 +136,7 @@ func tokenise(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
 		return
 	}
 
@@ -130,6 +144,7 @@ func tokenise(c *gin.Context) {
 
 	if len(auth) != 2 || auth[0] != "Basic" {
 		respondWithError(401, "Unauthorized", c)
+
 		return
 	}
 	payload, _ := base64.StdEncoding.DecodeString(auth[1])
@@ -137,6 +152,7 @@ func tokenise(c *gin.Context) {
 
 	if len(pair) != 2 || !authenticateUserToken(pair[0], pair[1], json.Profile) {
 		respondWithError(401, "Unauthorized", c)
+
 		return
 	}
 
@@ -146,6 +162,7 @@ func tokenise(c *gin.Context) {
 
 	if ec != "00" {
 		c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
+
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"token": res})
@@ -156,6 +173,7 @@ func version(c *gin.Context) {
 
 	if ec != "00" {
 		c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
+
 		return
 	}
 
@@ -170,6 +188,7 @@ func migrate(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
 		return
 	}
 
@@ -177,6 +196,7 @@ func migrate(c *gin.Context) {
 
 	if ec != "00" {
 		c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
+
 		return
 	}
 	c.JSON(http.StatusOK, res)
@@ -187,6 +207,7 @@ func migratePrivate(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
 		return
 	}
 
@@ -194,6 +215,7 @@ func migratePrivate(c *gin.Context) {
 
 	if ec != "00" {
 		c.JSON(http.StatusBadRequest, gin.H{"errorCode": engine.CheckErrorCode(ec)})
+
 		return
 	}
 	c.JSON(http.StatusOK, res)
@@ -204,6 +226,7 @@ func exportKey(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
 		return
 	}
 
@@ -211,6 +234,7 @@ func exportKey(c *gin.Context) {
 
 	if ec != "00" {
 		c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
+
 		return
 	}
 	c.JSON(http.StatusOK, res)
@@ -221,6 +245,7 @@ func generateKeyPair(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
 		return
 	}
 
@@ -228,6 +253,7 @@ func generateKeyPair(c *gin.Context) {
 
 	if ec != "00" {
 		c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
+
 		return
 	}
 	c.JSON(http.StatusOK, res)
