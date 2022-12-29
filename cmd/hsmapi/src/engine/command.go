@@ -489,17 +489,17 @@ func BW(json Migrate) (errcode string, res MigrateRes) {
 	errcode = string(responseMessage)[8:10]
 
 	if errcode == "00" {
-		end_index := 0
+		endIndex := 0
 		if json.KCVReturnFlag == "1" && json.KCVType == "0" {
-			end_index = 16
+			endIndex = 16
 		} else if json.KCVReturnFlag == "1" && json.KCVType == "1" {
-			end_index = 6
+			endIndex = 6
 		} else {
-			end_index = 0
+			endIndex = 0
 		}
 
 		index := 10
-		res.Key = string(responseMessage[index : len(responseMessage)-end_index])
+		res.Key = string(responseMessage[index : len(responseMessage)-endIndex])
 		// if json.KeyScheme == "U" {
 		// 	res.Key = string(responseMessage[index : index+32+1])
 		// 	index += 32 + 1
@@ -507,14 +507,14 @@ func BW(json Migrate) (errcode string, res MigrateRes) {
 		// 	res.Key = string(responseMessage[index : index+48+1])
 		// 	index += 48 + 1
 		// } else if json.KeyScheme == "S" || json.KeyScheme == "R" {
-		// 	res.Key = string(responseMessage[index : len(responseMessage)-end_index])
+		// 	res.Key = string(responseMessage[index : len(responseMessage)-endIndex])
 		// 	index += 16
 		// } else {
 		// 	res.Key = string(responseMessage[index : index+16])
 		// 	index += 16
 		// }
 
-		res.KCV = string(responseMessage[len(responseMessage)-end_index:])
+		res.KCV = string(responseMessage[len(responseMessage)-endIndex:])
 	}
 	return
 }
@@ -725,7 +725,7 @@ func A8(json ExportKey) (errcode string, res ExportKeyResp) {
 	messageheader := []byte("HEAD")
 	commandcode := []byte("A8")
 	keytype := []byte(json.KeyType)
-	zmk_tmk := []byte(json.ZMK_TMK)
+	zmkTmk := []byte(json.ZMK_TMK)
 	key := []byte(json.Key)
 	keyscheme := []byte(json.KeyScheme)
 
@@ -736,7 +736,7 @@ func A8(json ExportKey) (errcode string, res ExportKeyResp) {
 	commandMessage = Join(
 		commandMessage,
 		keytype,
-		zmk_tmk,
+		zmkTmk,
 		key,
 		keyscheme,
 	)
@@ -790,7 +790,7 @@ type GeneratePairResp struct {
 
 func EI(json GeneratePair) (errcode string, res GeneratePairResp) {
 
-	HsmLmkKeyblock := loadConfHSMVariant()
+	HsmLmkKeyblock := loadConfHSMKeyblock()
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("EI")
@@ -799,7 +799,7 @@ func EI(json GeneratePair) (errcode string, res GeneratePairResp) {
 	publickeyencoding := []byte(json.PublicKeyEncoding)
 	publicexponentlen := []byte(json.PublicExponentLen)
 	publicexponent := []byte(json.PublicExponent)
-	lmkid_delim := []byte("%")
+	lmkidDelim := []byte("%")
 	lmkid := []byte(json.LMKId)
 	kvn := []byte(json.KVN)
 	numberofoptionalblocks := []byte(json.NumberofOptionalBlocks)
@@ -821,7 +821,7 @@ func EI(json GeneratePair) (errcode string, res GeneratePairResp) {
 	if json.KVN != "" {
 		commandMessage = Join(
 			commandMessage,
-			lmkid_delim,
+			lmkidDelim,
 			lmkid,
 		)
 	}
@@ -843,10 +843,10 @@ func EI(json GeneratePair) (errcode string, res GeneratePairResp) {
 	// res.PrivateKey = string(asdf)
 	if errcode == "00" {
 		index := 10
-		index_pub := bytes.Index(responseMessage, []byte("0656")) // TODO: THis is not the correct way
-		res.PublicKey = base64.StdEncoding.EncodeToString(responseMessage[index:index_pub])
-		res.PrivateKeyLen, _ = strconv.Atoi(string(responseMessage[index_pub : index_pub+4]))
-		res.PrivateKey = base64.StdEncoding.EncodeToString(responseMessage[index_pub+4 : index_pub+4+656])
+		indexPub := bytes.Index(responseMessage, []byte("0656")) // TODO: THis is not the correct way
+		res.PublicKey = base64.StdEncoding.EncodeToString(responseMessage[index:indexPub])
+		res.PrivateKeyLen, _ = strconv.Atoi(string(responseMessage[indexPub : indexPub+4]))
+		res.PrivateKey = base64.StdEncoding.EncodeToString(responseMessage[indexPub+4 : indexPub+4+656])
 
 	}
 	return
@@ -884,12 +884,12 @@ func EM(json TranslatePrivate) (errcode string, res TranslatePrivateResp) {
 	if json.PrivateKeyLen == "" {
 		privatekeylen = []byte("0" + strconv.Itoa(len(privatekey)))
 	}
-	lmkid_delim := []byte("%")
+	lmkidDelim := []byte("%")
 	lmkid := []byte(json.LMKId)
-	kb_delim := []byte("#")
+	kbDelim := []byte("#")
 	kvn := []byte(json.KVN)
 	numberofoptionalblocks := []byte(json.NumberofOptionalBlocks)
-	exportability_delim := []byte("&")
+	exportabilityDelim := []byte("&")
 	exportability := []byte(json.Exportability)
 
 	commandMessage := Join(
@@ -904,17 +904,17 @@ func EM(json TranslatePrivate) (errcode string, res TranslatePrivateResp) {
 	if json.LMKId != "" {
 		commandMessage = Join(
 			commandMessage,
-			lmkid_delim,
+			lmkidDelim,
 			lmkid,
 		)
 	}
 	if json.KVN != "" {
 		commandMessage = Join(
 			commandMessage,
-			kb_delim,
+			kbDelim,
 			kvn,
 			numberofoptionalblocks,
-			exportability_delim,
+			exportabilityDelim,
 			exportability,
 		)
 	}
