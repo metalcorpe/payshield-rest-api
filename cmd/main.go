@@ -66,7 +66,8 @@ func main() {
 
 	err := viper.ReadInConfig()
 	if err != nil {
-		fmt.Println("Load file config Server error")
+		log.Panic(err.Error())
+		return
 	}
 	errHttp := http.ListenAndServeTLS(":"+viper.GetString("server.port"), "server.crt", "server.key", rr)
 	if errHttp != nil {
@@ -77,7 +78,6 @@ func main() {
 }
 
 func authenticateUserToken(username, password, profile string) bool {
-
 	viper.SetConfigType("json")
 	viper.AddConfigPath(".")
 	viper.SetConfigName("profile.conf")
@@ -97,7 +97,6 @@ func authenticateUserToken(username, password, profile string) bool {
 }
 
 func authenticateUserDetoken(username, password, profile string) bool {
-
 	viper.SetConfigType("json")
 	viper.AddConfigPath(".")
 	viper.SetConfigName("profile.conf")
