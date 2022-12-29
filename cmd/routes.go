@@ -192,10 +192,10 @@ func version(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, resp)
 }
 
-func NewMigrateResponse(r engine.Migrate) (*engine.MigrateRes, error) {
+func NewMigrateResponse(r engine.Migrate) (engine.MigrateRes, error) {
 	ec, resp := engine.BW(r)
 	if ec != "00" {
-		return nil, errors.New(ec)
+		return engine.MigrateRes{}, errors.New(ec)
 	}
 	return resp, nil
 }
@@ -215,10 +215,10 @@ func migrate(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, resp)
 }
 
-func NewMigratePrivateResponse(r engine.TranslatePrivate) (*engine.TranslatePrivateResp, error) {
+func NewMigratePrivateResponse(r engine.TranslatePrivate) (engine.TranslatePrivateResp, error) {
 	ec, resp := engine.EM(r)
 	if ec != "00" {
-		return nil, errors.New(ec)
+		return engine.TranslatePrivateResp{}, errors.New(ec)
 	}
 	return resp, nil
 }
@@ -238,10 +238,10 @@ func migratePrivate(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, resp)
 }
 
-func NewGenerateKeyResponse(r engine.GenerateKey) (*engine.GenerateKeyResp, error) {
+func NewGenerateKeyResponse(r engine.GenerateKey) (engine.GenerateKeyResp, error) {
 	ec, resp := engine.A0(r)
 	if ec != "00" {
-		return nil, errors.New(ec)
+		return engine.GenerateKeyResp{}, errors.New(ec)
 	}
 	return resp, nil
 }
@@ -261,10 +261,10 @@ func generatekey(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, resp)
 }
 
-func NewExportKeyResponse(r engine.ExportKey) (*engine.ExportKeyResp, error) {
+func NewExportKeyResponse(r engine.ExportKey) (engine.ExportKeyResp, error) {
 	ec, resp := engine.A8(r)
 	if ec != "00" {
-		return nil, errors.New(ec)
+		return engine.ExportKeyResp{}, errors.New(ec)
 	}
 	return resp, nil
 }
@@ -284,10 +284,10 @@ func exportKey(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, resp)
 }
 
-func NewGenerateKeyPairResponse(r engine.GeneratePair) (*engine.GeneratePairResp, error) {
+func NewGenerateKeyPairResponse(r engine.GeneratePair) (engine.GeneratePairResp, error) {
 	ec, resp := engine.EI(r)
 	if ec != "00" {
-		return nil, errors.New(ec)
+		return engine.GeneratePairResp{}, errors.New(ec)
 	}
 	return resp, nil
 }

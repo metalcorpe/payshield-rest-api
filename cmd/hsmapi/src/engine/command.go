@@ -436,7 +436,7 @@ type MigrateRes struct {
 {"key":"S1012822AN00S000153767C37E3DD24D17D98C9EB003C8BDAAEAABD6D4E62C1288358E24E910A49D1A75B157B813DA6903BDC1A5B9EA57FA0D01F4A0E2F9544E5","ciphertext":"7ibaZ4PV0M937lTsupfhDQ=="}
 */
 
-func BW(json Migrate) (errcode string, res *MigrateRes) {
+func BW(json Migrate) (errcode string, res MigrateRes) {
 
 	HsmLmkKeyblock := loadConfHSMVariant()
 
@@ -582,7 +582,7 @@ func keyExtraction(message []byte, index int) (key string, rindex int) {
 	return key, rindex
 }
 
-func A0(json GenerateKey) (errcode string, res *GenerateKeyResp) {
+func A0(json GenerateKey) (errcode string, res GenerateKeyResp) {
 
 	HsmLmkKeyblock := loadConfHSMKeyblock()
 
@@ -718,7 +718,7 @@ type ExportKeyResp struct {
 	KCV string `json:"kcv"`
 }
 
-func A8(json ExportKey) (errcode string, res *ExportKeyResp) {
+func A8(json ExportKey) (errcode string, res ExportKeyResp) {
 
 	HsmLmkKeyblock := loadConfHSMVariant()
 
@@ -788,9 +788,9 @@ type GeneratePairResp struct {
 	PrivateKey    string `json:"privatekey"`
 }
 
-func EI(json GeneratePair) (errcode string, res *GeneratePairResp) {
+func EI(json GeneratePair) (errcode string, res GeneratePairResp) {
 
-	HsmLmkKeyblock := loadConfHSMVariant()
+	HsmLmkKeyblock := loadConfHSMKeyblock()
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("EI")
@@ -870,7 +870,7 @@ type TranslatePrivateResp struct {
 	PrivateKey    string `json:"privatekey"`
 }
 
-func EM(json TranslatePrivate) (errcode string, res *TranslatePrivateResp) {
+func EM(json TranslatePrivate) (errcode string, res TranslatePrivateResp) {
 
 	HsmLmkKeyblock := loadConfHSMVariant()
 

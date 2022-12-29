@@ -91,8 +91,8 @@ func Connect(address string, commandMessage []byte) []byte {
 
 func loadConfHSMVariant() string {
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("../config")
-	viper.SetConfigName("hsm.conf")
+	viper.AddConfigPath("config")
+	viper.SetConfigName("hsm.yaml")
 
 	err := viper.ReadInConfig()
 	if err != nil {
@@ -104,8 +104,8 @@ func loadConfHSMVariant() string {
 
 func loadConfHSMKeyblock() string {
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("../config")
-	viper.SetConfigName("hsm.conf")
+	viper.AddConfigPath("config")
+	viper.SetConfigName("hsm.yaml")
 
 	err := viper.ReadInConfig()
 	if err != nil {
@@ -117,8 +117,8 @@ func loadConfHSMKeyblock() string {
 
 func loadConfHSMTLS() (bool, string, string) {
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("../config")
-	viper.SetConfigName("hsm.conf")
+	viper.AddConfigPath("config")
+	viper.SetConfigName("hsm.yaml")
 
 	err := viper.ReadInConfig()
 	if err != nil {
