@@ -50,19 +50,19 @@ func verifypin(w http.ResponseWriter, r *http.Request) {
 // 	}
 // 	payload, _ := base64.StdEncoding.DecodeString(auth[1])
 // 	pair := strings.SplitN(string(payload), ":", 2)
-// 	var authenticate bool = authenticateUserDetoken(pair[0], pair[1], json.Profile)
+// 	var authenticate bool = authenticateUserDetoken(pair[0], pair[1], input.Profile)
 // 	if len(pair) != 2 || !authenticate {
 // 		respondWithError(401, "Unauthorized", c)
 // 		return
 // 	}
 // 	c.Next()
-// 	var ec, res = engine.Detoken(json)
+// 	var ec, res = engine.Detoken(input)
 // 	if ec != "00" {
 // 		c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
 // 		return
 // 	}
-// 	if authenticate && checkProfileMask(json.Profile) {
-// 		resmask := createMask(json.Profile, res)
+// 	if authenticate && checkProfileMask(input.Profile) {
+// 		resmask := createMask(input.Profile, res)
 // 		c.JSON(http.StatusOK, gin.H{"data": resmask})
 // 		return
 // 	}
@@ -77,7 +77,7 @@ func verifypin(w http.ResponseWriter, r *http.Request) {
 // 		return
 // 	}
 
-// 	var ec, res = engine.M0(json)
+// 	var ec, res = engine.M0(input)
 
 // 	if ec != "00" {
 // 		c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
@@ -94,7 +94,7 @@ func verifypin(w http.ResponseWriter, r *http.Request) {
 // 		return
 // 	}
 
-// 	var ec, res = engine.M2(json)
+// 	var ec, res = engine.M2(input)
 
 // 	if ec != "00" {
 // 		c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
@@ -121,14 +121,14 @@ func verifypin(w http.ResponseWriter, r *http.Request) {
 // 	payload, _ := base64.StdEncoding.DecodeString(auth[1])
 // 	pair := strings.SplitN(string(payload), ":", 2)
 
-// 	if len(pair) != 2 || !authenticateUserToken(pair[0], pair[1], json.Profile) {
+// 	if len(pair) != 2 || !authenticateUserToken(pair[0], pair[1], input.Profile) {
 // 		respondWithError(401, "Unauthorized", c)
 // 		return
 // 	}
 
 // 	c.Next()
 
-// 	var ec, res = engine.Token(json)
+// 	var ec, res = engine.Token(input)
 
 // 	if ec != "00" {
 // 		c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
@@ -292,6 +292,14 @@ func NewGenerateKeyPairResponse(r engine.GeneratePair) (engine.GeneratePairResp,
 	return resp, nil
 }
 
+func ImportKeyRSAResponce(r engine.ImportKeyOrDataUnderRSAPubKey) (engine.ImportKeyOrDataUnderRSAPubKeyResp, error) {
+	ec, resp := engine.GI(r)
+	if ec != "00" {
+		return engine.ImportKeyOrDataUnderRSAPubKeyResp{}, errors.New(ec)
+	}
+	return resp, nil
+}
+
 func generateKeyPair(w http.ResponseWriter, r *http.Request) {
 	var p engine.GeneratePair
 	err := render.DecodeJSON(r.Body, &p)
@@ -300,6 +308,21 @@ func generateKeyPair(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	resp, err := NewGenerateKeyPairResponse(p)
+	if err != nil {
+		render.JSON(w, r, ErrRender(err))
+		return
+	}
+	render.JSON(w, r, resp)
+}
+
+func importKeyRSA(w http.ResponseWriter, r *http.Request) {
+	var p engine.ImportKeyOrDataUnderRSAPubKey
+	err := render.DecodeJSON(r.Body, &p)
+	if err != nil {
+		render.JSON(w, r, ErrRender(err))
+		return
+	}
+	resp, err := ImportKeyRSAResponce(p)
 	if err != nil {
 		render.JSON(w, r, ErrRender(err))
 		return
@@ -340,4 +363,7 @@ func addRoutes(r *chi.Mux) {
 
 	//Generate Key
 	r.Post("/generatekey/pair", generateKeyPair)
+
+	//Import Key or data under an RSA Public Key
+	r.Post("/import/rsa", importKeyRSA)
 }
