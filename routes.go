@@ -1,17 +1,13 @@
 package main
 
 import (
-	// "encoding/base64"
-
 	"errors"
 	"hsmapi/src/engine"
 	"net/http"
-
-	// "strings"
-
-	// "github.com/gin-gonic/gin"
+	"sync"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 )
 
@@ -36,106 +32,6 @@ func verifypin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-
-// func detokenise(w http.ResponseWriter, r *http.Request) {
-// 	var json engine.InpDetoken
-// 	if err := c.ShouldBindJSON(&json); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
-// 	auth := strings.SplitN(c.Request.Header.Get("Authorization"), " ", 2)
-// 	if len(auth) != 2 || auth[0] != "Basic" {
-// 		respondWithError(401, "Unauthorized", c)
-// 		return
-// 	}
-// 	payload, _ := base64.StdEncoding.DecodeString(auth[1])
-// 	pair := strings.SplitN(string(payload), ":", 2)
-// 	var authenticate bool = authenticateUserDetoken(pair[0], pair[1], json.Profile)
-// 	if len(pair) != 2 || !authenticate {
-// 		respondWithError(401, "Unauthorized", c)
-// 		return
-// 	}
-// 	c.Next()
-// 	var ec, res = engine.Detoken(json)
-// 	if ec != "00" {
-// 		c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
-// 		return
-// 	}
-// 	if authenticate && checkProfileMask(json.Profile) {
-// 		resmask := createMask(json.Profile, res)
-// 		c.JSON(http.StatusOK, gin.H{"data": resmask})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{"data": res})
-// }
-
-// func encrypt(w http.ResponseWriter, r *http.Request) {
-// 	var json engine.InpEnc
-
-// 	if err := c.ShouldBindJSON(&json); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	var ec, res = engine.M0(json)
-
-// 	if ec != "00" {
-// 		c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{"ciphertext": res})
-// }
-
-// func decrypt(w http.ResponseWriter, r *http.Request) {
-// 	var json engine.InpDec
-
-// 	if err := c.ShouldBindJSON(&json); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	var ec, res = engine.M2(json)
-
-// 	if ec != "00" {
-// 		c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{"cleartext": res})
-// }
-
-// func tokenise(w http.ResponseWriter, r *http.Request) {
-
-// 	var json engine.InpToken
-
-// 	if err := c.ShouldBindJSON(&json); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	auth := strings.SplitN(c.Request.Header.Get("Authorization"), " ", 2)
-
-// 	if len(auth) != 2 || auth[0] != "Basic" {
-// 		respondWithError(401, "Unauthorized", c)
-// 		return
-// 	}
-// 	payload, _ := base64.StdEncoding.DecodeString(auth[1])
-// 	pair := strings.SplitN(string(payload), ":", 2)
-
-// 	if len(pair) != 2 || !authenticateUserToken(pair[0], pair[1], json.Profile) {
-// 		respondWithError(401, "Unauthorized", c)
-// 		return
-// 	}
-
-// 	c.Next()
-
-// 	var ec, res = engine.Token(json)
-
-// 	if ec != "00" {
-// 		c.JSON(http.StatusOK, gin.H{"errorCode": engine.CheckErrorCode(ec)})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{"token": res})
-// }
 
 type VersionResponce struct {
 	LmkCheck       string `json:"lmkCheck"`
@@ -309,35 +205,54 @@ func generateKeyPair(w http.ResponseWriter, r *http.Request) {
 
 func addRoutes(r *chi.Mux) {
 
+}
+
+type IChiRouter interface {
+	InitRouter() *chi.Mux
+}
+
+type router struct{}
+
+func (router *router) InitRouter() *chi.Mux {
+	// playerController := ServiceContainer().InjectPlayerController()
+
+	// r.HandleFunc("/getScore/{player1}/vs/{player2}", playerController.GetPlayerScore)
+	r := chi.NewRouter()
+
+	r.Use(middleware.RequestID)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.URLFormat)
+	r.Use(render.SetContentType(render.ContentTypeJSON))
+	r.Mount("/debug", middleware.Profiler())
+
 	//Verify PIN
 	r.Post("/verifypin", verifypin)
-
-	// //Encrypt
-	// r.Post("/encrypt", encrypt)
-
-	// //Decrypt
-	// r.Post("/decrypt", decrypt)
-
-	// //Tokenise
-	// r.Post("/tokenise", tokenise)
-
-	// //Detokenise
-	// r.Post("/detokenise", detokenise)
-
 	//Version
 	r.Get("/version", version)
-
 	// //Migrate
 	r.Post("/migrate", migrate)
 	// //Migrate
 	r.Post("/migrate/private", migratePrivate)
-
 	// //Generate Key
 	r.Post("/generatekey", generatekey)
-
 	// //Generate Key
 	r.Post("/exportkey", exportKey)
-
 	//Generate Key
 	r.Post("/generatekey/pair", generateKeyPair)
+	return r
+}
+
+var (
+	m          *router
+	routerOnce sync.Once
+)
+
+func ChiRouter() IChiRouter {
+	if m == nil {
+		routerOnce.Do(func() {
+			m = &router{}
+		})
+	}
+	return m
 }

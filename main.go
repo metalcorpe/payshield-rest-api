@@ -29,9 +29,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/render"
+
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
@@ -49,17 +47,6 @@ func main() {
 	// print current version
 	log.Info("starting up API...")
 
-	rr := chi.NewRouter()
-
-	rr.Use(middleware.RequestID)
-	rr.Use(middleware.Logger)
-	rr.Use(middleware.Recoverer)
-	rr.Use(middleware.URLFormat)
-	rr.Use(render.SetContentType(render.ContentTypeJSON))
-	rr.Mount("/debug", middleware.Profiler())
-
-	addRoutes(rr)
-
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("config")
 	viper.SetConfigName("server.yaml")
@@ -69,7 +56,7 @@ func main() {
 		log.Panic(err.Error())
 		return
 	}
-	errHttp := http.ListenAndServeTLS(":"+viper.GetString("server.port"), "server.crt", "server.key", rr)
+	errHttp := http.ListenAndServeTLS(":"+viper.GetString("server.port"), "server.crt", "server.key", ChiRouter().InitRouter())
 	if errHttp != nil {
 		log.Fatal(errHttp.Error())
 		return
