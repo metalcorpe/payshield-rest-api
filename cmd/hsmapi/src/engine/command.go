@@ -37,16 +37,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-type PinVer struct {
-	Tpk        string `json:"tpk"`
-	Pvk        string `json:"pvk"`
-	Pinblock   string `json:"pinblock"`
-	Pan        string `json:"pan"`
-	Dectable   string `json:"dectable"`
-	Pinvaldata string `json:"pinvaldata"`
-	Pinoffset  string `json:"pinoffset"`
-}
-
 /* Verify PIN
 {"tpk": "TEFF270C330101C2D6B23DF72EA8FFEBD0E491D62E2E3D151","pvk": "9B395FB9FE5F07DA","pinblock": "EEC12744E8F13E16","pan": "923000000431","dectable": "3456789012345678","pinvaldata": "9230000N0431","pinoffset": "330309FFFFFF"}
 */
@@ -97,11 +87,6 @@ func DA(json PinVer) (errcode string) {
 		errcode = string(responseMessage)[8:]
 	}
 	return
-}
-
-type InpEnc struct {
-	Key       string `json:"key"`
-	Cleartext string `json:"cleartext"`
 }
 
 /* Encrypt
@@ -156,11 +141,6 @@ func M0(json InpEnc) (errcode string, res string) {
 
 }
 
-type InpDec struct {
-	Key        string `json:"key"`
-	Ciphertext string `json:"ciphertext"`
-}
-
 /* Decrypt
 {"key":"S1012822AN00S000153767C37E3DD24D17D98C9EB003C8BDAAEAABD6D4E62C1288358E24E910A49D1A75B157B813DA6903BDC1A5B9EA57FA0D01F4A0E2F9544E5","ciphertext":"7ibaZ4PV0M937lTsupfhDQ=="}
 */
@@ -209,11 +189,6 @@ func M2(json InpDec) (errcode string, res string) {
 		res = ""
 	}
 	return
-}
-
-type InpToken struct {
-	Profile string `json:"profile"`
-	Data    string `json:"data"`
 }
 
 /* Tokenize
@@ -293,11 +268,6 @@ func Token(json InpToken) (errcode string, res string) {
 	}
 	return
 
-}
-
-type InpDetoken struct {
-	Profile string `json:"profile"`
-	Token   string `json:"token"`
 }
 
 /* Detokenize
@@ -414,28 +384,6 @@ func NC() (errcode string, lmk string, firmware string) {
 
 }
 
-type Migrate struct {
-	KeyTypeCode2d          string          `json:"keytypecode2d"`
-	KeyLenFlag             string          `json:"keylenflag"`
-	Key                    string          `json:"key"`
-	KeyTypeCode            string          `json:"keytypecode"`
-	KeyScheme              string          `json:"keyscheme"`
-	LMKId                  string          `json:"lmkid"`
-	KeyUsage               string          `json:"keyusage"`
-	ModeOfUse              string          `json:"modeofuse"`
-	KVN                    string          `json:"kvn"`
-	Exportability          string          `json:"exportability"`
-	NumberofOptionalBlocks string          `json:"numberofoptionalblocks"`
-	OptionalBlocks         []OptionalBlock `json:"optionalblocks"`
-	KCVReturnFlag          string          `json:"kcvreturnflag"`
-	KCVType                string          `json:"kcvtype"`
-}
-
-type MigrateRes struct {
-	Key string `json:"key"`
-	KCV string `json:"kcv"`
-}
-
 /* Decrypt
 {"key":"S1012822AN00S000153767C37E3DD24D17D98C9EB003C8BDAAEAABD6D4E62C1288358E24E910A49D1A75B157B813DA6903BDC1A5B9EA57FA0D01F4A0E2F9544E5","ciphertext":"7ibaZ4PV0M937lTsupfhDQ=="}
 */
@@ -521,45 +469,6 @@ func BW(json Migrate) (errcode string, res MigrateRes) {
 		res.KCV = string(responseMessage[len(responseMessage)-endIndex:])
 	}
 	return
-}
-
-type OptionalBlock struct {
-	OptionalBlockIdentifier string `json:"optionalblockidentifier"`
-	OptionalBlockLenght     string `json:"optionalblocklength"`
-	ModifiedExportValue     string `json:"modifiedexportvalue"`
-	KeyBlockVersionID       string `json:"keyblockversionid"`
-}
-type GenerateKey struct {
-	Mode                   string          `json:"mode"`
-	KeyType                string          `json:"keytype"`
-	KeyScheme              string          `json:"keyscheme"`
-	DeriveKeyMode          string          `json:"derivekeymode"`
-	DUKPTMasterKeyType     string          `json:"dukptmasterkeytype"`
-	DUKPTMasterKey         string          `json:"dukptmasterkey"`
-	KSN                    string          `json:"ksn"`
-	ZKAMasterKeyType       string          `json:"zkamasterkeytype"`
-	ZKAMasterKey           string          `json:"zkamasterkey"`
-	ZKAOption              string          `json:"zkaoption"`
-	ZKARNDI                string          `json:"zkarndi"`
-	ZMK_TMKFlag            string          `json:"zmk_tmkflag"`
-	ZmkTmkBdk              string          `json:"zmkTmkBdk"`
-	IKSN                   string          `json:"iksn"`
-	ExportKeyScheme        string          `json:"exportKeyScheme"`
-	AtallaVariant          string          `json:"atallavariant"`
-	LMKId                  string          `json:"lmkid"`
-	KeyUsage               string          `json:"keyusage"`
-	Algorithm              string          `json:"algorithm"`
-	ModeofUse              string          `json:"modeofuse"`
-	KVN                    string          `json:"kvn"`
-	Exportability          string          `json:"exportability"`
-	NumberofOptionalBlocks string          `json:"numberofoptionalblocks"`
-	OptionalBlocks         []OptionalBlock `json:"optionalblocks"`
-}
-type GenerateKeyResp struct {
-	Key       string `json:"key"`
-	KeyExport string `json:"keyexport"`
-	KCV       string `json:"kcv"`
-	ZKARNDI   string `json:"zkarndi"`
 }
 
 /* Decrypt
@@ -696,32 +605,6 @@ func A0(json GenerateKey) (errcode string, res GenerateKeyResp) {
 	return
 }
 
-type ExportKey struct {
-	KeyType                string          `json:"keytype"`
-	ZMK_TMKFlag            string          `json:"zmk_tmkflag"`
-	ZMK_TMK                string          `json:"zmk_tmk"`
-	Key                    string          `json:"key"`
-	KeyScheme              string          `json:"keyscheme"`
-	IV                     string          `json:"iv"`
-	AtallaVariant          string          `json:"atallavariant"`
-	LMKId                  string          `json:"lmkid"`
-	Exportability          string          `json:"exportability"`
-	NumberofOptionalBlocks string          `json:"numberofoptionalblocks"`
-	OptionalBlocks         []OptionalBlock `json:"optionalblocks"`
-	KVN                    string          `json:"kvn"`
-
-	// ZKAOption string `json:"zkaoption"`
-	// ZKARNDI   string `json:"zkarndi"`
-	// IKSN      string `json:"iksn"`
-	// KeyUsage  string `json:"keyusage"`
-	// Algorithm string `json:"algorithm"`
-	// ModeofUse string `json:"modeofuse"`
-}
-type ExportKeyResp struct {
-	Key string `json:"key"`
-	KCV string `json:"kcv"`
-}
-
 func A8(json ExportKey) (errcode string, res ExportKeyResp) {
 
 	HsmLmkKeyblock := loadConfHSMVariant()
@@ -772,24 +655,6 @@ func A8(json ExportKey) (errcode string, res ExportKeyResp) {
 
 	}
 	return
-}
-
-type GeneratePair struct {
-	KeyTypeIndicator       string          `json:"keytypeindicator"`
-	KeyLen                 string          `json:"keylen"`
-	PublicKeyEncoding      string          `json:"publickeyencoding"`
-	PublicExponentLen      string          `json:"publicexponentlen"`
-	PublicExponent         string          `json:"publicexponent"`
-	LMKId                  string          `json:"lmkid"`
-	KVN                    string          `json:"kvn"`
-	NumberofOptionalBlocks string          `json:"numberofoptionalblocks"`
-	OptionalBlocks         []OptionalBlock `json:"optionalblocks"`
-	Exportability          string          `json:"exportability"`
-}
-type GeneratePairResp struct {
-	PublicKey     string `json:"publickey"`
-	PrivateKeyLen int    `json:"privatekeylen"`
-	PrivateKey    string `json:"privatekey"`
 }
 
 func EI(json GeneratePair) (errcode string, res GeneratePairResp) {
@@ -863,20 +728,6 @@ func EI(json GeneratePair) (errcode string, res GeneratePairResp) {
 		}
 	}
 	return
-}
-
-type TranslatePrivate struct {
-	PrivateKeyLen          string          `json:"privatekeylen"`
-	PrivateKey             string          `json:"privatekey"`
-	LMKId                  string          `json:"lmkid"`
-	KVN                    string          `json:"kvn"`
-	NumberofOptionalBlocks string          `json:"numberofoptionalblocks"`
-	OptionalBlocks         []OptionalBlock `json:"optionalblocks"`
-	Exportability          string          `json:"exportability"`
-}
-type TranslatePrivateResp struct {
-	PrivateKeyLen int    `json:"privatekeylen"`
-	PrivateKey    string `json:"privatekey"`
 }
 
 func EM(json TranslatePrivate) (errcode string, res TranslatePrivateResp) {
