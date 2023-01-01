@@ -4,6 +4,7 @@ import "github.com/metalcorpe/payshield-rest-api/models"
 
 type IHsmService interface {
 	NewVersionResponse() (models.VersionResponse, error)
+	NewVerifypinResponse(r models.PinVer) error
 	NewGenerateKeyPairResponse(p models.GeneratePair) (models.GeneratePairResp, error)
 	NewMigrateResponse(r models.Migrate) (models.MigrateRes, error)
 	NewMigratePrivateResponse(r models.TranslatePrivate) (models.TranslatePrivateResp, error)

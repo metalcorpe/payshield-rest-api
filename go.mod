@@ -2,15 +2,12 @@ module github.com/metalcorpe/payshield-rest-api
 
 go 1.18
 
-replace hsmapi/src/engine => ./cmd/hsmapi/src/engine
-
 require (
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-chi/render v1.0.2
 	github.com/spf13/viper v1.12.0
 	github.com/swaggo/swag v1.8.8
 	go.uber.org/zap v1.17.0
-	hsmapi/src/engine v0.0.0-00010101000000-000000000000
 )
 
 require (

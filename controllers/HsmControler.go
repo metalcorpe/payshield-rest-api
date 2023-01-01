@@ -2,19 +2,19 @@ package controllers
 
 import (
 	"net/http"
-	"github.co/metalcorpe/payshield-rest-api/interfaces"
+
+	"github.com/metalcorpe/payshield-rest-api/engine"
+	"github.com/metalcorpe/payshield-rest-api/interfaces"
+	"github.com/metalcorpe/payshield-rest-api/models"
 
 	"github.com/go-chi/render"
 )
 
-ype ErrResponse struct {
-	Err            error `jsn:"-"` // low-level runtime error
+type ErrResponse struct {
+	Err            error `js:"-"`   // low-level runtime error
 	HTTPStatusCode int   `json:"-"` // http response status coe
 
-StatusText string `json:"status"`          // user-level status message
-	AppCode    int64  `json:"code,omitempty"`  // application-specific erro
-	AppCode    int64  `json:"code,omitempty"`  // application-specific error code
-	ErrorText  string `json:"error,omitempty"` // application-level error message, for debugging
+	ErrorText string `json:"error,omitempty"` // application-level error message, for debugging
 }
 
 func (e *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
@@ -36,7 +36,7 @@ type HsmController struct {
 }
 
 func (controller *HsmController) VerifyPin(w http.ResponseWriter, r *http.Request) {
-	var p engine.PinVer
+	var p models.PinVer
 	err := render.DecodeJSON(r.Body, &p)
 	if err != nil {
 		render.JSON(w, r, ErrRender(err))
@@ -58,7 +58,7 @@ func (controller *HsmController) Version(w http.ResponseWriter, r *http.Request)
 }
 
 func (controller *HsmController) Migrate(w http.ResponseWriter, r *http.Request) {
-	var p engine.Migrate
+	var p models.Migrate
 	err := render.DecodeJSON(r.Body, &p)
 	if err != nil {
 		render.JSON(w, r, ErrRender(err))
@@ -72,7 +72,7 @@ func (controller *HsmController) Migrate(w http.ResponseWriter, r *http.Request)
 	render.JSON(w, r, resp)
 }
 func (controller *HsmController) MigratePrivate(w http.ResponseWriter, r *http.Request) {
-	var p engine.TranslatePrivate
+	var p models.TranslatePrivate
 	err := render.DecodeJSON(r.Body, &p)
 	if err != nil {
 		render.JSON(w, r, ErrRender(err))
@@ -87,7 +87,7 @@ func (controller *HsmController) MigratePrivate(w http.ResponseWriter, r *http.R
 }
 
 func (controller *HsmController) Generatekey(w http.ResponseWriter, r *http.Request) {
-	var p engine.GenerateKey
+	var p models.GenerateKey
 	err := render.DecodeJSON(r.Body, &p)
 	if err != nil {
 		render.JSON(w, r, ErrRender(err))
@@ -101,7 +101,7 @@ func (controller *HsmController) Generatekey(w http.ResponseWriter, r *http.Requ
 	render.JSON(w, r, resp)
 }
 func (controller *HsmController) ExportKey(w http.ResponseWriter, r *http.Request) {
-	var p engine.ExportKey
+	var p models.ExportKey
 	err := render.DecodeJSON(r.Body, &p)
 	if err != nil {
 		render.JSON(w, r, ErrRender(err))
@@ -115,16 +115,17 @@ func (controller *HsmController) ExportKey(w http.ResponseWriter, r *http.Reques
 	render.JSON(w, r, resp)
 }
 func (controller *HsmController) GenerateKeyPair(w http.ResponseWriter, r *http.Request) {
-	var p engine.GeneratePair
-	err := render.DecodeJSON(.Body, &p)
+	var p models.GeneratePair
+	err := render.DecodeJSON(r.Body, p)
 	if err != nil {
-		render.JSON(w,r, ErrRender(err))
+		render.JSON(w, r, ErrRender(err))
 		return
 	}
-	rsp, err := controller.NewGenerateKeyPairResponse(p)
+	resp, err := controller.NewGenerateKeyPairResponse(p)
 	if err != nil {
-		render.JSON(w,r, ErrRender(err))
+		render.JSON(w, r, ErrRender(err))
 		return
+
+		render.JSON(w, r, resp)
 	}
-	rnder.JSON(w, r, resp)
 }
