@@ -24,124 +24,76 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
-	"strings"
-
-	"github.com/gin-gonic/gin"
 
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
-// gin-swagger middleware
-// swagger embed files
+// Create private data struct to hold config options.
+type server struct {
+	Host       string
+	Port       string
+	Tls        bool
+	ServerCert string
+	ServerKey  string
+}
+type hsm struct {
+	Ip           string
+	Port         int
+	PortVariant  int
+	PortKeyBlock int
+	Tls          bool
+	ClientCert   string
+	ClientKey    string
+}
+type config struct {
+	Server server
+	Hsm    hsm
+}
 
 func main() {
 	// configure logger
-	log, _ := zap.NewProduction(zap.WithCaller(false))
+	log, _ := zap.NewProduction(zap.WithCaller(true))
 	defer func() {
 		_ = log.Sync()
 	}()
 
-	// print current version
-	log.Info("starting up API...")
-
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("config")
-	viper.SetConfigName("server.yaml")
+	viper.SetConfigName("service.yaml")
 
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Panic(err.Error())
 		return
 	}
-	errHttp := http.ListenAndServeTLS(":"+viper.GetString("server.port"), "server.crt", "server.key", ChiRouter().InitRouter())
+
+	conf := &config{}
+	err = viper.Unmarshal(conf)
+	if err != nil {
+		log.Panic(err.Error())
+		return
+	}
+
+	addr := conf.Server.Host + ":" + conf.Server.Port
+	log.Info("starting up API at: " + func(a bool) string {
+		if a {
+			return "https://"
+		} else {
+			return "http://"
+		}
+	}(conf.Server.Tls) + addr)
+
+	var errHttp error
+	if conf.Server.Tls {
+		errHttp = http.ListenAndServeTLS(addr, conf.Server.ServerCert, conf.Server.ServerKey, ChiRouter().InitRouter())
+	} else {
+		errHttp = http.ListenAndServe(addr, ChiRouter().InitRouter())
+	}
+
 	if errHttp != nil {
 		log.Fatal(errHttp.Error())
 		return
 	}
-
-}
-
-func authenticateUserToken(username, password, profile string) bool {
-	viper.SetConfigType("json")
-	viper.AddConfigPath(".")
-	viper.SetConfigName("profile.conf")
-
-	errconf := viper.ReadInConfig()
-	if errconf != nil {
-		fmt.Println("Load file config profile error")
-	}
-
-	USERNAME := viper.GetString(profile + "." + "username")
-	PASSWORD := viper.GetString(profile + "." + "password")
-	TOKENISE := viper.GetBool(profile + "." + "tokenise")
-
-	err := (username == USERNAME) && (password == PASSWORD) && TOKENISE
-
-	return err
-}
-
-func authenticateUserDetoken(username, password, profile string) bool {
-	viper.SetConfigType("json")
-	viper.AddConfigPath(".")
-	viper.SetConfigName("profile.conf")
-
-	errconf := viper.ReadInConfig()
-	if errconf != nil {
-		fmt.Println("Load file config profile error")
-	}
-
-	USERNAME := viper.GetString(profile + "." + "username")
-	PASSWORD := viper.GetString(profile + "." + "password")
-	TOKENISE := viper.GetBool(profile + "." + "detokenise")
-
-	err := (username == USERNAME) && (password == PASSWORD) && TOKENISE
-
-	return err
-}
-
-func respondWithError(code int, message string, c *gin.Context) {
-	resp := map[string]string{"error": message}
-
-	c.JSON(code, resp)
-	c.Abort()
-}
-
-func checkProfileMask(profile string) bool {
-	viper.SetConfigType("json")
-	viper.AddConfigPath(".")
-	viper.SetConfigName("profile.conf")
-
-	errconf := viper.ReadInConfig()
-	if errconf != nil {
-		fmt.Println("Load file config profile error")
-	}
-
-	return viper.GetBool(profile + ".mask")
-}
-
-func createMask(profile, data string) string {
-	viper.SetConfigType("json")
-	viper.AddConfigPath(".")
-	viper.SetConfigName("profile.conf")
-
-	errconf := viper.ReadInConfig()
-	if errconf != nil {
-		fmt.Println("Load file config profile error")
-	}
-
-	ppl := viper.GetInt(profile + ".maskProfile." + "preservedPrefixLength")
-	psl := viper.GetInt(profile + ".maskProfile." + "preservedSuffixLength")
-	lenData := len(data)
-	if (ppl+psl > lenData) || (ppl+psl < 0) || (ppl < 0) || (psl < 0) || (ppl > lenData) || (psl > lenData) {
-		err := "Preserved prefix and suffix length in mask profile not consistent"
-		return err
-	}
-
-	datappl := data[:ppl]
-	datapsl := data[(len(data) - psl):]
-	maskchar := viper.GetString(profile + ".maskProfile." + "maskChar")
-	return datappl + strings.Repeat(maskchar, len(data[ppl:len(data)-psl])) + datapsl
 }

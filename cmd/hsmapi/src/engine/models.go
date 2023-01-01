@@ -9,7 +9,10 @@ type PinVer struct {
 	Pinvaldata string `json:"pinvaldata"`
 	Pinoffset  string `json:"pinoffset"`
 }
-
+type VersionResponse struct {
+	LmkCheck       string `json:"lmkCheck"`
+	FirmwareNumber string `json:"firmwareNumber"`
+}
 type InpEnc struct {
 	Key       string `json:"key"`
 	Cleartext string `json:"cleartext"`
