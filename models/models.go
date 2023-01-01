@@ -1,4 +1,4 @@
-package engine
+package models
 
 type PinVer struct {
 	Tpk        string `json:"tpk"`

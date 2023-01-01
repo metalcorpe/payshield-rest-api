@@ -1,9 +1,10 @@
 package main
 
 import (
-	"payshield-rest-api/controllers"
-	"payshield-rest-api/services"
 	"sync"
+
+	"github.com/metalcorpe/payshield-rest-api/controllers"
+	"github.com/metalcorpe/payshield-rest-api/services"
 )
 
 type IServiceContainer interface {

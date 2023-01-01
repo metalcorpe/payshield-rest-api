@@ -34,14 +34,21 @@ import (
 	"log"
 	"strconv"
 
+	"github.com/metalcorpe/payshield-rest-api/interfaces"
+	"github.com/metalcorpe/payshield-rest-api/models"
+
 	"github.com/spf13/viper"
 )
+
+type HsmRepository struct {
+	interfaces.IConnectionHandler
+}
 
 /* Verify PIN
 {"tpk": "TEFF270C330101C2D6B23DF72EA8FFEBD0E491D62E2E3D151","pvk": "9B395FB9FE5F07DA","pinblock": "EEC12744E8F13E16","pan": "923000000431","dectable": "3456789012345678","pinvaldata": "9230000N0431","pinoffset": "330309FFFFFF"}
 */
 
-func DA(json PinVer) (errcode string) {
+func (repository *HsmRepository) DA(json models.PinVer) (errcode string) {
 
 	HsmLmkVariant := loadConfHSMVariant()
 
@@ -93,7 +100,7 @@ func DA(json PinVer) (errcode string) {
 {"key": "S1012822AN00S000153767C37E3DD24D17D98C9EB003C8BDAAEAABD6D4E62C1288358E24E910A49D1A75B157B813DA6903BDC1A5B9EA57FA0D01F4A0E2F9544E5", "cleartext": "aGVsbG8gd29ybGQhISEAAA=="}
 */
 
-func M0(json InpEnc) (errcode string, res string) {
+func (repository *HsmRepository) M0(json models.InpEnc) (errcode string, res string) {
 
 	HsmLmkKeyblock := loadConfHSMKeyblock()
 
@@ -145,7 +152,7 @@ func M0(json InpEnc) (errcode string, res string) {
 {"key":"S1012822AN00S000153767C37E3DD24D17D98C9EB003C8BDAAEAABD6D4E62C1288358E24E910A49D1A75B157B813DA6903BDC1A5B9EA57FA0D01F4A0E2F9544E5","ciphertext":"7ibaZ4PV0M937lTsupfhDQ=="}
 */
 
-func M2(json InpDec) (errcode string, res string) {
+func (repository *HsmRepository) M2(json models.InpDec) (errcode string, res string) {
 
 	HsmLmkKeyblock := loadConfHSMKeyblock()
 
@@ -195,7 +202,7 @@ func M2(json InpDec) (errcode string, res string) {
 {"profile":"creditcard","data": "9453677629008564"}
 */
 
-func Token(json InpToken) (errcode string, res string) {
+func (repository *HsmRepository) Token(json models.InpToken) (errcode string, res string) {
 
 	HsmLmkKeyblock := loadConfHSMKeyblock()
 
@@ -274,7 +281,7 @@ func Token(json InpToken) (errcode string, res string) {
 {"profile":"creditcard","token": "6288248669598239"}
 */
 
-func Detoken(json InpDetoken) (errcode string, res string) {
+func (repository *HsmRepository) Detoken(json models.InpDetoken) (errcode string, res string) {
 
 	HsmLmkKeyblock := loadConfHSMKeyblock()
 
@@ -352,7 +359,7 @@ func Detoken(json InpDetoken) (errcode string, res string) {
 /* Check Version
  */
 
-func NC() (errcode string, lmk string, firmware string) {
+func (repository *HsmRepository) NC() (errcode string, lmk string, firmware string) {
 
 	HsmLmkVariant := loadConfHSMVariant()
 
@@ -388,7 +395,7 @@ func NC() (errcode string, lmk string, firmware string) {
 {"key":"S1012822AN00S000153767C37E3DD24D17D98C9EB003C8BDAAEAABD6D4E62C1288358E24E910A49D1A75B157B813DA6903BDC1A5B9EA57FA0D01F4A0E2F9544E5","ciphertext":"7ibaZ4PV0M937lTsupfhDQ=="}
 */
 
-func BW(json Migrate) (errcode string, res MigrateRes) {
+func (repository *HsmRepository) BW(json models.Migrate) (errcode string, res models.MigrateRes) {
 
 	HsmLmkKeyblock := loadConfHSMVariant()
 
@@ -495,7 +502,7 @@ func keyExtraction(message []byte, index int) (key string, rindex int) {
 	return key, rindex
 }
 
-func A0(json GenerateKey) (errcode string, res GenerateKeyResp) {
+func (repository *HsmRepository) A0(json models.GenerateKey) (errcode string, res models.GenerateKeyResp) {
 
 	HsmLmkKeyblock := loadConfHSMKeyblock()
 
@@ -605,7 +612,7 @@ func A0(json GenerateKey) (errcode string, res GenerateKeyResp) {
 	return
 }
 
-func A8(json ExportKey) (errcode string, res ExportKeyResp) {
+func (repository *HsmRepository) A8(json models.ExportKey) (errcode string, res models.ExportKeyResp) {
 
 	HsmLmkKeyblock := loadConfHSMVariant()
 
@@ -657,7 +664,7 @@ func A8(json ExportKey) (errcode string, res ExportKeyResp) {
 	return
 }
 
-func EI(json GeneratePair) (errcode string, res GeneratePairResp) {
+func (repository *HsmRepository) EI(json models.GeneratePair) (errcode string, res models.GeneratePairResp) {
 
 	HsmLmkKeyblock := loadConfHSMKeyblock()
 
@@ -730,7 +737,7 @@ func EI(json GeneratePair) (errcode string, res GeneratePairResp) {
 	return
 }
 
-func EM(json TranslatePrivate) (errcode string, res TranslatePrivateResp) {
+func (repository *HsmRepository) EM(json models.TranslatePrivate) (errcode string, res models.TranslatePrivateResp) {
 
 	HsmLmkKeyblock := loadConfHSMVariant()
 

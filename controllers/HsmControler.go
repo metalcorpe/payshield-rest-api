@@ -1,27 +1,18 @@
 package controllers
 
 import (
-	"errors"
-	"hsmapi/src/engine"
 	"net/http"
-	"payshield-rest-api/interfaces"
+	"github.co/metalcorpe/payshield-rest-api/interfaces"
 
 	"github.com/go-chi/render"
 )
 
-func NewVerifypinResponse(r engine.PinVer) error {
-	ec := engine.DA(r)
-	if ec != "00" {
-		return errors.New(ec)
-	}
-	return nil
-}
+ype ErrResponse struct {
+	Err            error `jsn:"-"` // low-level runtime error
+	HTTPStatusCode int   `json:"-"` // http response status coe
 
-type ErrResponse struct {
-	Err            error `json:"-"` // low-level runtime error
-	HTTPStatusCode int   `json:"-"` // http response status code
-
-	StatusText string `json:"status"`          // user-level status message
+StatusText string `json:"status"`          // user-level status message
+	AppCode    int64  `json:"code,omitempty"`  // application-specific erro
 	AppCode    int64  `json:"code,omitempty"`  // application-specific error code
 	ErrorText  string `json:"error,omitempty"` // application-level error message, for debugging
 }
@@ -123,18 +114,17 @@ func (controller *HsmController) ExportKey(w http.ResponseWriter, r *http.Reques
 	}
 	render.JSON(w, r, resp)
 }
-
 func (controller *HsmController) GenerateKeyPair(w http.ResponseWriter, r *http.Request) {
 	var p engine.GeneratePair
-	err := render.DecodeJSON(r.Body, &p)
+	err := render.DecodeJSON(.Body, &p)
 	if err != nil {
-		render.JSON(w, r, ErrRender(err))
+		render.JSON(w,r, ErrRender(err))
 		return
 	}
-	resp, err := controller.NewGenerateKeyPairResponse(p)
+	rsp, err := controller.NewGenerateKeyPairResponse(p)
 	if err != nil {
-		render.JSON(w, r, ErrRender(err))
+		render.JSON(w,r, ErrRender(err))
 		return
 	}
-	render.JSON(w, r, resp)
+	rnder.JSON(w, r, resp)
 }
