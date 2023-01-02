@@ -19,14 +19,11 @@ type kernel struct {
 
 func (k *kernel) InjectHsmController() controllers.HsmController {
 	cert, _ := tls.LoadX509KeyPair(k.conf.Hsm.ClientCert, k.conf.Hsm.ClientKey)
-
 	config := tls.Config{Certificates: []tls.Certificate{cert}, InsecureSkipVerify: true}
-
 	tcpConfig := engine.TcpConfig{Host: k.conf.Hsm.Ip, Port: k.conf.Hsm.Port, TlsConfig: &config, MaxIdleConns: 2, MaxOpenConn: 64}
 	connectionPool, _ := engine.CreateTcpConnPool(&tcpConfig)
-
-	hsmRepository := &engine.HsmRepository{connectionPool}
-	hsmService := &services.HsmService{hsmRepository}
+	hsmRepository := &engine.HsmRepository{IConnectionHandler: connectionPool}
+	hsmService := &services.HsmService{IHsmRepository: hsmRepository}
 	hsmController := controllers.HsmController{IHsmService: hsmService}
 	return hsmController
 }

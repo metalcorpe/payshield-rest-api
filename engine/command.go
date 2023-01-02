@@ -80,9 +80,6 @@ func (repository *HsmRepository) DA(json models.PinVer) (errcode string) {
 
 	responseMessage := repository.WriteRequest(commandMessage)
 
-	//log
-	fmt.Println(hex.Dump(responseMessage))
-
 	errcode = string(responseMessage)[8:10]
 
 	if errcode == "00" {
@@ -129,9 +126,6 @@ func (repository *HsmRepository) M0(json models.InpEnc) (errcode string, res str
 
 	responseMessage := repository.WriteRequest(commandMessage)
 
-	//log
-	fmt.Println(hex.Dump(responseMessage))
-
 	errcode = string(responseMessage)[8:10]
 
 	if errcode == "00" {
@@ -177,9 +171,6 @@ func (repository *HsmRepository) M2(json models.InpDec) (errcode string, res str
 	)
 
 	responseMessage := repository.WriteRequest(commandMessage)
-
-	//log
-	fmt.Println(hex.Dump(responseMessage))
 
 	errcode = string(responseMessage)[8:10]
 
@@ -253,9 +244,6 @@ func (repository *HsmRepository) Token(json models.InpToken) (errcode string, re
 	)
 
 	responseMessage := repository.WriteRequest(commandMessage)
-
-	//log
-	fmt.Println(hex.Dump(responseMessage))
 
 	errcode = string(responseMessage)[8:10]
 
@@ -331,9 +319,6 @@ func (repository *HsmRepository) Detoken(json models.InpDetoken) (errcode string
 
 	responseMessage := repository.WriteRequest(commandMessage)
 
-	//log
-	fmt.Println(hex.Dump(responseMessage))
-
 	errcode = string(responseMessage)[8:10]
 
 	if errcode == "00" {
@@ -362,9 +347,6 @@ func (repository *HsmRepository) NC() (errcode string, lmk string, firmware stri
 	)
 
 	responseMessage := Connect(HsmLmkVariant, commandMessage)
-
-	//log
-	fmt.Println(hex.Dump(responseMessage))
 
 	errcode = string(responseMessage)[8:10]
 
@@ -429,9 +411,6 @@ func (repository *HsmRepository) BW(json models.Migrate) (errcode string, res mo
 	}
 
 	responseMessage := repository.WriteRequest(commandMessage)
-
-	//log
-	fmt.Println(hex.Dump(responseMessage))
 
 	errcode = string(responseMessage)[8:10]
 
@@ -580,9 +559,6 @@ func (repository *HsmRepository) A0(json models.GenerateKey) (errcode string, re
 
 	responseMessage := repository.WriteRequest(commandMessage)
 
-	//log
-	fmt.Println(hex.Dump(responseMessage))
-
 	errcode = string(responseMessage)[8:10]
 
 	if errcode == "00" {
@@ -620,9 +596,6 @@ func (repository *HsmRepository) A8(json models.ExportKey) (errcode string, res 
 	)
 
 	responseMessage := repository.WriteRequest(commandMessage)
-
-	//log
-	fmt.Println(hex.Dump(responseMessage))
 
 	errcode = string(responseMessage)[8:10]
 
@@ -767,9 +740,6 @@ func (repository *HsmRepository) EM(json models.TranslatePrivate) (errcode strin
 	}
 
 	responseMessage := repository.WriteRequest(commandMessage)
-
-	//log
-	fmt.Println(hex.Dump(responseMessage))
 
 	errcode = string(responseMessage)[8:10]
 

@@ -12,10 +12,12 @@ type IChiRouter interface {
 	InitRouter() *chi.Mux
 }
 
-type router struct{}
+type router struct {
+	conf config
+}
 
 func (router *router) InitRouter() *chi.Mux {
-	hsmController := ServiceContainer().InjectHsmController()
+	hsmController := ServiceContainer(router.conf).InjectHsmController()
 
 	r := chi.NewRouter()
 
@@ -49,10 +51,10 @@ var (
 	routerOnce sync.Once
 )
 
-func ChiRouter() IChiRouter {
+func ChiRouter(conf config) IChiRouter {
 	if m == nil {
 		routerOnce.Do(func() {
-			m = &router{}
+			m = &router{conf: conf}
 		})
 	}
 	return m
