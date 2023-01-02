@@ -50,8 +50,6 @@ type HsmRepository struct {
 
 func (repository *HsmRepository) DA(json models.PinVer) (errcode string) {
 
-	HsmLmkVariant := loadConfHSMVariant()
-
 	messageheader := []byte("HEAD")
 	commandcode := []byte("DA")
 	tpk := []byte(json.Tpk)
@@ -80,7 +78,7 @@ func (repository *HsmRepository) DA(json models.PinVer) (errcode string) {
 		pinoffset,
 	)
 
-	responseMessage := Connect(HsmLmkVariant, commandMessage)
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	//log
 	fmt.Println(hex.Dump(responseMessage))
@@ -101,8 +99,6 @@ func (repository *HsmRepository) DA(json models.PinVer) (errcode string) {
 */
 
 func (repository *HsmRepository) M0(json models.InpEnc) (errcode string, res string) {
-
-	HsmLmkKeyblock := loadConfHSMKeyblock()
 
 	//max buffer in payshield is 32KB
 	data, _ := base64.URLEncoding.DecodeString(json.Cleartext)
@@ -131,7 +127,7 @@ func (repository *HsmRepository) M0(json models.InpEnc) (errcode string, res str
 		message,
 	)
 
-	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	//log
 	fmt.Println(hex.Dump(responseMessage))
@@ -153,8 +149,6 @@ func (repository *HsmRepository) M0(json models.InpEnc) (errcode string, res str
 */
 
 func (repository *HsmRepository) M2(json models.InpDec) (errcode string, res string) {
-
-	HsmLmkKeyblock := loadConfHSMKeyblock()
 
 	//max buffer in payshield is 32KB
 	data, _ := base64.URLEncoding.DecodeString(json.Ciphertext)
@@ -182,7 +176,7 @@ func (repository *HsmRepository) M2(json models.InpDec) (errcode string, res str
 		message,
 	)
 
-	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	//log
 	fmt.Println(hex.Dump(responseMessage))
@@ -203,8 +197,6 @@ func (repository *HsmRepository) M2(json models.InpDec) (errcode string, res str
 */
 
 func (repository *HsmRepository) Token(json models.InpToken) (errcode string, res string) {
-
-	HsmLmkKeyblock := loadConfHSMKeyblock()
 
 	profile := json.Profile
 
@@ -260,7 +252,7 @@ func (repository *HsmRepository) Token(json models.InpToken) (errcode string, re
 		message,
 	)
 
-	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	//log
 	fmt.Println(hex.Dump(responseMessage))
@@ -282,8 +274,6 @@ func (repository *HsmRepository) Token(json models.InpToken) (errcode string, re
 */
 
 func (repository *HsmRepository) Detoken(json models.InpDetoken) (errcode string, res string) {
-
-	HsmLmkKeyblock := loadConfHSMKeyblock()
 
 	profile := json.Profile
 
@@ -339,7 +329,7 @@ func (repository *HsmRepository) Detoken(json models.InpDetoken) (errcode string
 		message,
 	)
 
-	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	//log
 	fmt.Println(hex.Dump(responseMessage))
@@ -397,8 +387,6 @@ func (repository *HsmRepository) NC() (errcode string, lmk string, firmware stri
 
 func (repository *HsmRepository) BW(json models.Migrate) (errcode string, res models.MigrateRes) {
 
-	HsmLmkKeyblock := loadConfHSMVariant()
-
 	messageheader := []byte("HEAD")
 	commandcode := []byte("BW")
 	keytypecode2d := []byte(json.KeyTypeCode2d)
@@ -440,7 +428,7 @@ func (repository *HsmRepository) BW(json models.Migrate) (errcode string, res mo
 		)
 	}
 
-	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	//log
 	fmt.Println(hex.Dump(responseMessage))
@@ -503,8 +491,6 @@ func keyExtraction(message []byte, index int) (key string, rindex int) {
 }
 
 func (repository *HsmRepository) A0(json models.GenerateKey) (errcode string, res models.GenerateKeyResp) {
-
-	HsmLmkKeyblock := loadConfHSMKeyblock()
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("A0")
@@ -592,7 +578,7 @@ func (repository *HsmRepository) A0(json models.GenerateKey) (errcode string, re
 		panic(json.Mode)
 	}
 
-	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	//log
 	fmt.Println(hex.Dump(responseMessage))
@@ -614,8 +600,6 @@ func (repository *HsmRepository) A0(json models.GenerateKey) (errcode string, re
 
 func (repository *HsmRepository) A8(json models.ExportKey) (errcode string, res models.ExportKeyResp) {
 
-	HsmLmkKeyblock := loadConfHSMVariant()
-
 	messageheader := []byte("HEAD")
 	commandcode := []byte("A8")
 	keytype := []byte(json.KeyType)
@@ -635,7 +619,7 @@ func (repository *HsmRepository) A8(json models.ExportKey) (errcode string, res 
 		keyscheme,
 	)
 
-	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	//log
 	fmt.Println(hex.Dump(responseMessage))
@@ -665,8 +649,6 @@ func (repository *HsmRepository) A8(json models.ExportKey) (errcode string, res 
 }
 
 func (repository *HsmRepository) EI(json models.GeneratePair) (errcode string, res models.GeneratePairResp) {
-
-	HsmLmkKeyblock := loadConfHSMKeyblock()
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("EI")
@@ -711,7 +693,7 @@ func (repository *HsmRepository) EI(json models.GeneratePair) (errcode string, r
 		exportability,
 	)
 
-	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	fmt.Println(hex.Dump(responseMessage))
 
@@ -738,8 +720,6 @@ func (repository *HsmRepository) EI(json models.GeneratePair) (errcode string, r
 }
 
 func (repository *HsmRepository) EM(json models.TranslatePrivate) (errcode string, res models.TranslatePrivateResp) {
-
-	HsmLmkKeyblock := loadConfHSMVariant()
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("EM")
@@ -786,7 +766,7 @@ func (repository *HsmRepository) EM(json models.TranslatePrivate) (errcode strin
 		)
 	}
 
-	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	//log
 	fmt.Println(hex.Dump(responseMessage))

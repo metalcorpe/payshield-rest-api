@@ -87,9 +87,9 @@ func main() {
 
 	var errHttp error
 	if conf.Server.Tls {
-		errHttp = http.ListenAndServeTLS(addr, conf.Server.ServerCert, conf.Server.ServerKey, ChiRouter().InitRouter())
+		errHttp = http.ListenAndServeTLS(addr, conf.Server.ServerCert, conf.Server.ServerKey, ChiRouter(*conf).InitRouter())
 	} else {
-		errHttp = http.ListenAndServe(addr, ChiRouter().InitRouter())
+		errHttp = http.ListenAndServe(addr, ChiRouter(*conf).InitRouter())
 	}
 
 	if errHttp != nil {

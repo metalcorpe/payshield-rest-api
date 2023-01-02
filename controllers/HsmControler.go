@@ -12,9 +12,11 @@ import (
 
 type ErrResponse struct {
 	Err            error `js:"-"`   // low-level runtime error
-	HTTPStatusCode int   `json:"-"` // http response status coe
+	HTTPStatusCode int   `json:"-"` // http response status code
 
-	ErrorText string `json:"error,omitempty"` // application-level error message, for debugging
+	StatusText string `json:"status"`          // user-level status message
+	AppCode    int64  `json:"code,omitempty"`  // application-specific error code
+	ErrorText  string `json:"error,omitempty"` // application-level error message, for debugging
 }
 
 func (e *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
@@ -42,7 +44,7 @@ func (controller *HsmController) VerifyPin(w http.ResponseWriter, r *http.Reques
 		render.JSON(w, r, ErrRender(err))
 		return
 	}
-	err = NewVerifypinResponse(p)
+	err = controller.NewVerifypinResponse(p)
 	if err != nil {
 		render.JSON(w, r, ErrRender(err))
 		return
