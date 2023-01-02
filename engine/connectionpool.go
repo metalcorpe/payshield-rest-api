@@ -273,18 +273,18 @@ func (p *TcpConnPool) WriteRequest(buff []byte) []byte {
 	if err != nil {
 		println(err.Error())
 	}
-	concon := conn.conn
 	commandLength := calculateCommandLen(&buff)
 
 	tcpCommandMessage := append(commandLength, buff...)
 	fmt.Println(hex.Dump(tcpCommandMessage))
 
-	concon.Write(tcpCommandMessage)
+	conn.conn.Write(tcpCommandMessage)
 	result := make([]byte, 2048)
-	n, err := concon.Read(result)
+	n, err := conn.conn.Read(result)
 	if err != nil {
 		println(err.Error())
 	}
+	p.put(conn)
 
 	//log
 	fmt.Println(hex.Dump(result[:n]))
