@@ -3,15 +3,15 @@ package services
 import (
 	"errors"
 
-	"github.com/metalcorpe/payshield-rest-api/interfaces"
-	"github.com/metalcorpe/payshield-rest-api/models"
+	"github.com/metalcorpe/payshield-rest-gopher/interfaces"
+	"github.com/metalcorpe/payshield-rest-gopher/models"
 )
 
 type HsmService struct {
 	interfaces.IHsmRepository
 }
 
-func (service *HsmService) NewVerifypinResponse(r models.PinVer) error {
+func (service *HsmService) NewVerifyPinResponse(r models.PinVer) error {
 	ec := service.DA(r)
 	if ec != "00" {
 		return errors.New(ec)
@@ -68,7 +68,7 @@ func (service *HsmService) NewExportKeyResponse(r models.ExportKey) (models.Expo
 	return resp, nil
 }
 
-func (service *HsmService) ImportKeyRSAResponce(r models.ImportKeyOrDataUnderRSAPubKey) (models.ImportKeyOrDataUnderRSAPubKeyResp, error) {
+func (service *HsmService) ImportKeyRSAResponse(r models.ImportKeyOrDataUnderRSAPubKey) (models.ImportKeyOrDataUnderRSAPubKeyResp, error) {
 	resp, ec := service.GI(r)
 	if ec != "00" {
 		return models.ImportKeyOrDataUnderRSAPubKeyResp{}, errors.New(ec)

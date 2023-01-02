@@ -34,8 +34,8 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/metalcorpe/payshield-rest-api/interfaces"
-	"github.com/metalcorpe/payshield-rest-api/models"
+	"github.com/metalcorpe/payshield-rest-gopher/interfaces"
+	"github.com/metalcorpe/payshield-rest-gopher/models"
 )
 
 type HsmRepository struct {
@@ -43,7 +43,7 @@ type HsmRepository struct {
 }
 
 // Verify PIN
-func (repository *HsmRepository) DA(input models.PinVer) (errcode string) {
+func (repository *HsmRepository) DA(input models.PinVer) (errCode string) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("DA")
@@ -75,19 +75,19 @@ func (repository *HsmRepository) DA(input models.PinVer) (errcode string) {
 
 	responseMessage := repository.WriteRequest(commandMessage)
 
-	errcode = string(responseMessage)[8:10]
+	errCode = string(responseMessage)[8:10]
 
-	if errcode == "00" {
-		errcode = string(responseMessage)[8:]
+	if errCode == "00" {
+		errCode = string(responseMessage)[8:]
 	}
-	if errcode != "00" {
-		errcode = string(responseMessage)[8:]
+	if errCode != "00" {
+		errCode = string(responseMessage)[8:]
 	}
 	return
 }
 
 // Encrypt
-func (repository *HsmRepository) M0(input models.InpEnc) (res string, errcode string) {
+func (repository *HsmRepository) M0(input models.InpEnc) (res string, errCode string) {
 
 	//max buffer in payshield is 32KB
 	data, _ := base64.URLEncoding.DecodeString(input.Cleartext)
@@ -118,12 +118,12 @@ func (repository *HsmRepository) M0(input models.InpEnc) (res string, errcode st
 
 	responseMessage := repository.WriteRequest(commandMessage)
 
-	errcode = string(responseMessage)[8:10]
+	errCode = string(responseMessage)[8:10]
 
-	if errcode == "00" {
+	if errCode == "00" {
 		res = base64.URLEncoding.EncodeToString([]byte(string(responseMessage)[14:]))
 	}
-	if errcode != "00" {
+	if errCode != "00" {
 		res = ""
 	}
 	return
@@ -131,7 +131,7 @@ func (repository *HsmRepository) M0(input models.InpEnc) (res string, errcode st
 }
 
 // Decrypt
-func (repository *HsmRepository) M2(input models.InpDec) (res string, errcode string) {
+func (repository *HsmRepository) M2(input models.InpDec) (res string, errCode string) {
 
 	//max buffer in payshield is 32KB
 	data, _ := base64.URLEncoding.DecodeString(input.Ciphertext)
@@ -161,19 +161,19 @@ func (repository *HsmRepository) M2(input models.InpDec) (res string, errcode st
 
 	responseMessage := repository.WriteRequest(commandMessage)
 
-	errcode = string(responseMessage)[8:10]
+	errCode = string(responseMessage)[8:10]
 
-	if errcode == "00" {
+	if errCode == "00" {
 		res = base64.URLEncoding.EncodeToString([]byte(string(responseMessage)[14:]))
 	}
-	if errcode != "00" {
+	if errCode != "00" {
 		res = ""
 	}
 	return
 }
 
 // Check Version
-func (repository *HsmRepository) NC() (lmk string, firmware string, errcode string) {
+func (repository *HsmRepository) NC() (lmk string, firmware string, errCode string) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("NC")
@@ -185,13 +185,13 @@ func (repository *HsmRepository) NC() (lmk string, firmware string, errcode stri
 
 	responseMessage := repository.WriteRequest(commandMessage)
 
-	errcode = string(responseMessage)[8:10]
+	errCode = string(responseMessage)[8:10]
 
-	if errcode == "00" {
+	if errCode == "00" {
 		lmk = string(responseMessage)[10 : 10+16]
 		firmware = string(responseMessage)[26:]
 	}
-	if errcode != "00" {
+	if errCode != "00" {
 		lmk = ""
 		firmware = ""
 	}
@@ -201,7 +201,7 @@ func (repository *HsmRepository) NC() (lmk string, firmware string, errcode stri
 }
 
 // Decrypt
-func (repository *HsmRepository) BW(input models.Migrate) (res models.MigrateRes, errcode string) {
+func (repository *HsmRepository) BW(input models.Migrate) (res models.MigrateRes, errCode string) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("BW")
@@ -246,9 +246,9 @@ func (repository *HsmRepository) BW(input models.Migrate) (res models.MigrateRes
 
 	responseMessage := repository.WriteRequest(commandMessage)
 
-	errcode = string(responseMessage)[8:10]
+	errCode = string(responseMessage)[8:10]
 
-	if errcode == "00" {
+	if errCode == "00" {
 		endIndex := 0
 		if input.KCVReturnFlag == "1" && input.KCVType == "0" {
 			endIndex = 16
@@ -300,7 +300,7 @@ func keyExtraction(message []byte, index int) (key string, rindex int) {
 }
 
 // Generate Key
-func (repository *HsmRepository) A0(input models.GenerateKey) (res models.GenerateKeyResp, errcode string) {
+func (repository *HsmRepository) A0(input models.GenerateKey) (res models.GenerateKeyResp, errCode string) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("A0")
@@ -390,9 +390,9 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 
 	responseMessage := repository.WriteRequest(commandMessage)
 
-	errcode = string(responseMessage)[8:10]
+	errCode = string(responseMessage)[8:10]
 
-	if errcode == "00" {
+	if errCode == "00" {
 		index := 10
 		res.Key, index = keyExtraction(responseMessage, index)
 
@@ -405,7 +405,7 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 	return
 }
 
-func (repository *HsmRepository) A8(input models.ExportKey) (res models.ExportKeyResp, errcode string) {
+func (repository *HsmRepository) A8(input models.ExportKey) (res models.ExportKeyResp, errCode string) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("A8")
@@ -428,9 +428,9 @@ func (repository *HsmRepository) A8(input models.ExportKey) (res models.ExportKe
 
 	responseMessage := repository.WriteRequest(commandMessage)
 
-	errcode = string(responseMessage)[8:10]
+	errCode = string(responseMessage)[8:10]
 
-	if errcode == "00" {
+	if errCode == "00" {
 		index := 10
 		if input.KeyScheme == "U" {
 			res.Key = string(responseMessage[index : index+32+1])
@@ -451,7 +451,7 @@ func (repository *HsmRepository) A8(input models.ExportKey) (res models.ExportKe
 	}
 	return
 }
-func (repository *HsmRepository) GI(input models.ImportKeyOrDataUnderRSAPubKey) (res models.ImportKeyOrDataUnderRSAPubKeyResp, errcode string) {
+func (repository *HsmRepository) GI(input models.ImportKeyOrDataUnderRSAPubKey) (res models.ImportKeyOrDataUnderRSAPubKeyResp, errCode string) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("GI")
@@ -561,7 +561,7 @@ func (repository *HsmRepository) GI(input models.ImportKeyOrDataUnderRSAPubKey) 
 
 	responseMessage := repository.WriteRequest(commandMessage)
 
-	errcode = string(responseMessage[8:10])
+	errCode = string(responseMessage[8:10])
 	index := 10
 	if input.KeyDataBlockType == "01" {
 		switch input.ImportKeyType {
@@ -581,7 +581,7 @@ func (repository *HsmRepository) GI(input models.ImportKeyOrDataUnderRSAPubKey) 
 	return
 }
 
-func (repository *HsmRepository) EI(input models.GeneratePair) (res models.GeneratePairResp, errcode string) {
+func (repository *HsmRepository) EI(input models.GeneratePair) (res models.GeneratePairResp, errCode string) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("EI")
@@ -630,9 +630,9 @@ func (repository *HsmRepository) EI(input models.GeneratePair) (res models.Gener
 
 	fmt.Println(hex.Dump(responseMessage))
 
-	errcode = string(responseMessage)[8:10]
+	errCode = string(responseMessage)[8:10]
 
-	if errcode == "00" {
+	if errCode == "00" {
 		var publicKey rsa.PublicKey
 		rest, err := asn1.Unmarshal(responseMessage[10:], &publicKey)
 		if err != nil {
@@ -651,7 +651,7 @@ func (repository *HsmRepository) EI(input models.GeneratePair) (res models.Gener
 	}
 	return
 }
-func (repository *HsmRepository) EM(input models.TranslatePrivate) (res models.TranslatePrivateResp, errcode string) {
+func (repository *HsmRepository) EM(input models.TranslatePrivate) (res models.TranslatePrivateResp, errCode string) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("EM")
@@ -700,9 +700,9 @@ func (repository *HsmRepository) EM(input models.TranslatePrivate) (res models.T
 
 	responseMessage := repository.WriteRequest(commandMessage)
 
-	errcode = string(responseMessage)[8:10]
+	errCode = string(responseMessage)[8:10]
 
-	if errcode == "00" {
+	if errCode == "00" {
 		index := 10
 		var err error
 		res.PrivateKeyLen, err = strconv.Atoi(string(responseMessage[index : index+4]))

@@ -1,4 +1,4 @@
-module github.com/metalcorpe/payshield-rest-api
+module github.com/metalcorpe/payshield-rest-gopher
 
 go 1.19
 

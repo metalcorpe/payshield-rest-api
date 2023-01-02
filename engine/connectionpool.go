@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/metalcorpe/payshield-rest-api/interfaces"
+	"github.com/metalcorpe/payshield-rest-gopher/interfaces"
 )
 
 const maxQueueLength = 10_000

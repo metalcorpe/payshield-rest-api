@@ -26,7 +26,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/metalcorpe/payshield-rest-api/misc"
+	"github.com/metalcorpe/payshield-rest-gopher/misc"
 
 	"go.uber.org/zap"
 )

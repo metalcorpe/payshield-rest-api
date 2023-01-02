@@ -3,8 +3,8 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/metalcorpe/payshield-rest-api/interfaces"
-	"github.com/metalcorpe/payshield-rest-api/models"
+	"github.com/metalcorpe/payshield-rest-gopher/interfaces"
+	"github.com/metalcorpe/payshield-rest-gopher/models"
 
 	"github.com/go-chi/render"
 )
@@ -20,7 +20,7 @@ func (controller *HsmController) VerifyPin(w http.ResponseWriter, r *http.Reques
 		render.JSON(w, r, ErrRender(err))
 		return
 	}
-	err = controller.NewVerifypinResponse(p)
+	err = controller.NewVerifyPinResponse(p)
 	if err != nil {
 		render.JSON(w, r, ErrRender(err))
 		return
@@ -113,7 +113,7 @@ func (controller *HsmController) ImportKeyRSA(w http.ResponseWriter, r *http.Req
 		render.JSON(w, r, ErrRender(err))
 		return
 	}
-	resp, err := controller.ImportKeyRSAResponce(p)
+	resp, err := controller.ImportKeyRSAResponse(p)
 	if err != nil {
 		render.JSON(w, r, ErrRender(err))
 		return

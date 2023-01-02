@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/render"
-	"github.com/metalcorpe/payshield-rest-api/engine"
+	"github.com/metalcorpe/payshield-rest-gopher/engine"
 )
 
 type ErrResponse struct {

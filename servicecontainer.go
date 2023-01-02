@@ -4,10 +4,10 @@ import (
 	"crypto/tls"
 	"sync"
 
-	"github.com/metalcorpe/payshield-rest-api/controllers"
-	"github.com/metalcorpe/payshield-rest-api/engine"
-	"github.com/metalcorpe/payshield-rest-api/misc"
-	"github.com/metalcorpe/payshield-rest-api/services"
+	"github.com/metalcorpe/payshield-rest-gopher/controllers"
+	"github.com/metalcorpe/payshield-rest-gopher/engine"
+	"github.com/metalcorpe/payshield-rest-gopher/misc"
+	"github.com/metalcorpe/payshield-rest-gopher/services"
 	"go.uber.org/zap"
 )
 
