@@ -34,14 +34,16 @@ func (router *router) InitRouter() *chi.Mux {
 	r.Get("/version", hsmController.Version)
 	//Migrate
 	r.Post("/migrate", hsmController.Migrate)
-	//Migrate
+	//Migrate Private
 	r.Post("/migrate/private", hsmController.MigratePrivate)
 	//Generate Key
 	r.Post("/generatekey", hsmController.Generatekey)
-	//Generate Key
+	//Export Key
 	r.Post("/exportkey", hsmController.ExportKey)
-	//Generate Key
+	//Generate Key Pair
 	r.Post("/generatekey/pair", hsmController.GenerateKeyPair)
+	//Import Key or data under an RSA Public Key
+	r.Post("/import/rsa", hsmController.ImportKeyRSA)
 
 	return r
 }

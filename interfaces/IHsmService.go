@@ -10,4 +10,5 @@ type IHsmService interface {
 	NewMigratePrivateResponse(r models.TranslatePrivate) (models.TranslatePrivateResp, error)
 	NewGenerateKeyResponse(r models.GenerateKey) (models.GenerateKeyResp, error)
 	NewExportKeyResponse(r models.ExportKey) (models.ExportKeyResp, error)
+	ImportKeyRSAResponce(r models.ImportKeyOrDataUnderRSAPubKey) (models.ImportKeyOrDataUnderRSAPubKeyResp, error)
 }

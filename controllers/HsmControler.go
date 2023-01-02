@@ -3,35 +3,11 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/metalcorpe/payshield-rest-api/engine"
 	"github.com/metalcorpe/payshield-rest-api/interfaces"
 	"github.com/metalcorpe/payshield-rest-api/models"
 
 	"github.com/go-chi/render"
 )
-
-type ErrResponse struct {
-	Err            error `js:"-"`   // low-level runtime error
-	HTTPStatusCode int   `json:"-"` // http response status code
-
-	StatusText string `json:"status"`          // user-level status message
-	AppCode    int64  `json:"code,omitempty"`  // application-specific error code
-	ErrorText  string `json:"error,omitempty"` // application-level error message, for debugging
-}
-
-func (e *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
-	render.Status(r, e.HTTPStatusCode)
-	return nil
-}
-
-func ErrRender(err error) render.Renderer {
-	return &ErrResponse{
-		Err:            err,
-		HTTPStatusCode: 422,
-		StatusText:     engine.CheckErrorCode(err.Error()),
-		ErrorText:      err.Error(),
-	}
-}
 
 type HsmController struct {
 	interfaces.IHsmService
@@ -58,7 +34,6 @@ func (controller *HsmController) Version(w http.ResponseWriter, r *http.Request)
 	}
 	render.JSON(w, r, resp)
 }
-
 func (controller *HsmController) Migrate(w http.ResponseWriter, r *http.Request) {
 	var p models.Migrate
 	err := render.DecodeJSON(r.Body, &p)
@@ -128,6 +103,20 @@ func (controller *HsmController) GenerateKeyPair(w http.ResponseWriter, r *http.
 		render.JSON(w, r, ErrRender(err))
 		return
 
-		render.JSON(w, r, resp)
 	}
+	render.JSON(w, r, resp)
+}
+func (controller *HsmController) ImportKeyRSA(w http.ResponseWriter, r *http.Request) {
+	var p models.ImportKeyOrDataUnderRSAPubKey
+	err := render.DecodeJSON(r.Body, &p)
+	if err != nil {
+		render.JSON(w, r, ErrRender(err))
+		return
+	}
+	resp, err := controller.ImportKeyRSAResponce(p)
+	if err != nil {
+		render.JSON(w, r, ErrRender(err))
+		return
+	}
+	render.JSON(w, r, resp)
 }

@@ -67,3 +67,11 @@ func (service *HsmService) NewExportKeyResponse(r models.ExportKey) (models.Expo
 	}
 	return resp, nil
 }
+
+func (service *HsmService) ImportKeyRSAResponce(r models.ImportKeyOrDataUnderRSAPubKey) (models.ImportKeyOrDataUnderRSAPubKeyResp, error) {
+	ec, resp := service.GI(r)
+	if ec != "00" {
+		return models.ImportKeyOrDataUnderRSAPubKeyResp{}, errors.New(ec)
+	}
+	return resp, nil
+}

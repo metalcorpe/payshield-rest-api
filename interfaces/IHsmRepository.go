@@ -14,4 +14,5 @@ type IHsmRepository interface {
 	A8(models.ExportKey) (errcode string, res models.ExportKeyResp)
 	EI(models.GeneratePair) (errcode string, res models.GeneratePairResp)
 	EM(models.TranslatePrivate) (errcode string, res models.TranslatePrivateResp)
+	GI(models.ImportKeyOrDataUnderRSAPubKey) (errcode string, res models.ImportKeyOrDataUnderRSAPubKeyResp)
 }

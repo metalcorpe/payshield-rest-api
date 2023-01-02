@@ -149,3 +149,42 @@ type TranslatePrivateResp struct {
 	PrivateKeyLen int    `json:"privatekeylen"`
 	PrivateKey    string `json:"privatekey"`
 }
+
+type ImportKeyOrDataUnderRSAPubKey struct {
+	EncryptionId string `json:"encryptionId"`
+	PadModeId    string `json:"padModeId"`
+	MaskGenFunc  string `json:"maskGenFunc"`
+	MGFHashFunc  string `json:"mgfHashFunc"`
+	//OAEPEncodingParamLen string `json:"oaepEncodingParamLen"`
+	OAEPEncodingParam string `json:"oaepEncodingParam"`
+	KeyType           string `json:"keyType"`
+	//SignatureHashId   string `json:"signatureHashId"`
+	//SignatureId       string `json:"signatureId"`
+	//SignaturePadMode  string `json:"signaturePadMode"`
+	//EncrKeyOffset     string `json:"encrKeyOffset"`
+	//EncrKeyLen        string `json:"encrKeyLen"`
+	//SigLen            string `json:"sigLen"`
+	//Signature         string `json:"signature"`
+	//PubKey                 string          `json:"pubKey"`
+	DataBlock              string          `json:"dataBlock"`
+	PrivateKeyFlag         string          `json:"privateKeyFlag"`
+	PrivateKeyLen          string          `json:"privateKeyLen"`
+	PrivateKey             string          `json:"privateKey"`
+	ImportKeyType          string          `json:"importKeyType"`
+	KeySchemeLMK           string          `json:"keySchemeLMK"`
+	KCVType                string          `json:"kcvType"`
+	KeyDataBlockType       string          `json:"keyDataBlockType"`
+	KcvLen                 string          `json:"kcvLen"`
+	LMKId                  string          `json:"lmkid"`
+	KeyUsage               string          `json:"keyUsage"`
+	ModeOfUse              string          `json:"modeOfUse"`
+	KVN                    string          `json:"kvn"`
+	Exportability          string          `json:"exportability"`
+	NumberOfOptionalBlocks string          `json:"numberofoptionalblocks"`
+	OptionalBlocks         []OptionalBlock `json:"optionalblocks"`
+}
+type ImportKeyOrDataUnderRSAPubKeyResp struct {
+	InitializationValue string `json:"initializationValue"`
+	Key                 string `json:"key"`
+	KCV                 string `json:"kcv"`
+}

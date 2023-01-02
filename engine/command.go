@@ -620,6 +620,135 @@ func (repository *HsmRepository) A8(json models.ExportKey) (errcode string, res 
 	}
 	return
 }
+func (repository *HsmRepository) GI(input models.ImportKeyOrDataUnderRSAPubKey) (errcode string, res models.ImportKeyOrDataUnderRSAPubKeyResp) {
+
+	messageheader := []byte("HEAD")
+	commandcode := []byte("GI")
+	encryptionId := []byte(input.EncryptionId)
+	padModeId := []byte(input.PadModeId)
+	maskGenFunc := []byte(input.MaskGenFunc)
+	//mgfHashFunc := []byte(input.MGFHashFunc)
+	oaepEncodingParams := []byte(input.OAEPEncodingParam)
+	oaepEncodingParamsDelim := []byte(";")
+	keyType := []byte(input.KeyType)
+	//pubKey := []byte(input.PubKey)
+	dataBlock, _ := hex.DecodeString(input.DataBlock)
+	dataBlockDelim := []byte(";")
+	privateKeyFlag := []byte(input.PrivateKeyFlag)
+	privateKey, _ := base64.StdEncoding.DecodeString(input.PrivateKey)
+	desAesKeyDelim := []byte(";")
+	importKeyType := []byte(input.ImportKeyType)
+	keySchemeLMK := []byte(input.KeySchemeLMK)
+	kcvType := []byte(input.KCVType)
+	dataBlockTypeDelim := []byte("=")
+	keyDataBlockType := []byte(input.KeyDataBlockType)
+	//kcvLen := []byte(input.KcvLen)
+	kbDelim := []byte("#")
+	keyUsage := []byte(input.KeyUsage)
+	modeOfUse := []byte(input.ModeOfUse)
+	kvn := []byte(input.KVN)
+	exportability := []byte(input.Exportability)
+	numberOfOptionalBlocks := []byte(input.NumberOfOptionalBlocks)
+
+	var commandMessage []byte
+
+	// Message Header + CC
+	commandMessage = Join(
+		messageheader,
+		commandcode,
+	)
+	// Identifier of algorithm used to decrypt the key: 01: RSA
+	commandMessage = Join(
+		commandMessage,
+		encryptionId,
+	)
+
+	// Identifier of the Pad Mode used in the encryption process
+	switch input.PadModeId {
+	case "01":
+		commandMessage = Join(
+			commandMessage,
+			padModeId,
+		)
+	case "02":
+		oaepEncodingParamsLen := []byte("00")
+		commandMessage = Join(
+			commandMessage,
+			padModeId,
+			maskGenFunc,
+			oaepEncodingParamsLen,
+			oaepEncodingParams,
+			oaepEncodingParamsDelim,
+		)
+	default:
+		log.Panicf("Wrong Pad Mod Id: %s", input.PadModeId)
+	}
+	// Key Type. FFFF for KB
+	commandMessage = Join(
+		commandMessage,
+		keyType,
+	)
+
+	// Misc
+	dataBlockLen := []byte("0256")
+	privateKeyLen := []byte("FFFF")
+	commandMessage = Join(
+		commandMessage,
+		dataBlockLen,
+		dataBlock,
+		dataBlockDelim,
+		privateKeyFlag,
+		privateKeyLen,
+		privateKey,
+	)
+	// The following 4 fields are only required when importing a DES/AES Key
+	commandMessage = Join(
+		commandMessage,
+		desAesKeyDelim,
+		importKeyType,
+		keySchemeLMK,
+		kcvType,
+	)
+	commandMessage = Join(
+		commandMessage,
+		dataBlockTypeDelim,
+		keyDataBlockType,
+	)
+	//commandMessage = Join(
+	//	commandMessage,
+	//	kcvLen,
+	//)
+	commandMessage = Join(
+		commandMessage,
+		kbDelim,
+		keyUsage,
+		modeOfUse,
+		kvn,
+		exportability,
+		numberOfOptionalBlocks,
+	)
+
+	responseMessage := repository.WriteRequest(commandMessage)
+
+	errcode = string(responseMessage[8:10])
+	index := 10
+	if input.KeyDataBlockType == "01" {
+		switch input.ImportKeyType {
+		case "0":
+			endIndex := index + 16
+			res.InitializationValue = string(responseMessage[index:endIndex])
+			index = endIndex
+		case "1":
+			endIndex := index + 32
+			res.InitializationValue = string(responseMessage[index:endIndex])
+			index = endIndex
+		}
+	}
+	res.Key, index = keyExtraction(responseMessage, index)
+	res.KCV = string(responseMessage[index : index+6])
+
+	return
+}
 
 func (repository *HsmRepository) EI(json models.GeneratePair) (errcode string, res models.GeneratePairResp) {
 
