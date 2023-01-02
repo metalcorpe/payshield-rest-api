@@ -34,26 +34,21 @@ import (
 	"log"
 	"strconv"
 
+	"github.com/metalcorpe/payshield-rest-api/interfaces"
+	"github.com/metalcorpe/payshield-rest-api/models"
+
 	"github.com/spf13/viper"
 )
 
-type PinVer struct {
-	Tpk        string `json:"tpk"`
-	Pvk        string `json:"pvk"`
-	Pinblock   string `json:"pinblock"`
-	Pan        string `json:"pan"`
-	Dectable   string `json:"dectable"`
-	Pinvaldata string `json:"pinvaldata"`
-	Pinoffset  string `json:"pinoffset"`
+type HsmRepository struct {
+	interfaces.IConnectionHandler
 }
 
 /* Verify PIN
 {"tpk": "TEFF270C330101C2D6B23DF72EA8FFEBD0E491D62E2E3D151","pvk": "9B395FB9FE5F07DA","pinblock": "EEC12744E8F13E16","pan": "923000000431","dectable": "3456789012345678","pinvaldata": "9230000N0431","pinoffset": "330309FFFFFF"}
 */
 
-func DA(input PinVer) (errcode string) {
-
-	HsmLmkVariant := loadConfHSMVariant()
+func (repository *HsmRepository) DA(input models.PinVer) (errcode string) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("DA")
@@ -83,10 +78,7 @@ func DA(input PinVer) (errcode string) {
 		pinoffset,
 	)
 
-	responseMessage := Connect(HsmLmkVariant, commandMessage)
-
-	//log
-	fmt.Println(hex.Dump(responseMessage))
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	errcode = string(responseMessage)[8:10]
 
@@ -99,18 +91,11 @@ func DA(input PinVer) (errcode string) {
 	return
 }
 
-type InpEnc struct {
-	Key       string `json:"key"`
-	Cleartext string `json:"cleartext"`
-}
-
 /* Encrypt
 {"key": "S1012822AN00S000153767C37E3DD24D17D98C9EB003C8BDAAEAABD6D4E62C1288358E24E910A49D1A75B157B813DA6903BDC1A5B9EA57FA0D01F4A0E2F9544E5", "cleartext": "aGVsbG8gd29ybGQhISEAAA=="}
 */
 
-func M0(input InpEnc) (errcode string, res string) {
-
-	HsmLmkKeyblock := loadConfHSMKeyblock()
+func (repository *HsmRepository) M0(input models.InpEnc) (errcode string, res string) {
 
 	//max buffer in payshield is 32KB
 	data, _ := base64.URLEncoding.DecodeString(input.Cleartext)
@@ -139,10 +124,7 @@ func M0(input InpEnc) (errcode string, res string) {
 		message,
 	)
 
-	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
-
-	//log
-	fmt.Println(hex.Dump(responseMessage))
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	errcode = string(responseMessage)[8:10]
 
@@ -156,18 +138,11 @@ func M0(input InpEnc) (errcode string, res string) {
 
 }
 
-type InpDec struct {
-	Key        string `json:"key"`
-	Ciphertext string `json:"ciphertext"`
-}
-
 /* Decrypt
 {"key":"S1012822AN00S000153767C37E3DD24D17D98C9EB003C8BDAAEAABD6D4E62C1288358E24E910A49D1A75B157B813DA6903BDC1A5B9EA57FA0D01F4A0E2F9544E5","ciphertext":"7ibaZ4PV0M937lTsupfhDQ=="}
 */
 
-func M2(input InpDec) (errcode string, res string) {
-
-	HsmLmkKeyblock := loadConfHSMKeyblock()
+func (repository *HsmRepository) M2(input models.InpDec) (errcode string, res string) {
 
 	//max buffer in payshield is 32KB
 	data, _ := base64.URLEncoding.DecodeString(input.Ciphertext)
@@ -195,10 +170,7 @@ func M2(input InpDec) (errcode string, res string) {
 		message,
 	)
 
-	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
-
-	//log
-	fmt.Println(hex.Dump(responseMessage))
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	errcode = string(responseMessage)[8:10]
 
@@ -211,18 +183,11 @@ func M2(input InpDec) (errcode string, res string) {
 	return
 }
 
-type InpToken struct {
-	Profile string `json:"profile"`
-	Data    string `json:"data"`
-}
-
 /* Tokenize
 {"profile":"creditcard","data": "9453677629008564"}
 */
 
-func Token(input InpToken) (errcode string, res string) {
-
-	HsmLmkKeyblock := loadConfHSMKeyblock()
+func (repository *HsmRepository) Token(input models.InpToken) (errcode string, res string) {
 
 	profile := input.Profile
 
@@ -278,10 +243,7 @@ func Token(input InpToken) (errcode string, res string) {
 		message,
 	)
 
-	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
-
-	//log
-	fmt.Println(hex.Dump(responseMessage))
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	errcode = string(responseMessage)[8:10]
 
@@ -295,18 +257,11 @@ func Token(input InpToken) (errcode string, res string) {
 
 }
 
-type InpDetoken struct {
-	Profile string `json:"profile"`
-	Token   string `json:"token"`
-}
-
 /* Detokenize
 {"profile":"creditcard","token": "6288248669598239"}
 */
 
-func Detoken(input InpDetoken) (errcode string, res string) {
-
-	HsmLmkKeyblock := loadConfHSMKeyblock()
+func (repository *HsmRepository) Detoken(input models.InpDetoken) (errcode string, res string) {
 
 	profile := input.Profile
 
@@ -362,10 +317,7 @@ func Detoken(input InpDetoken) (errcode string, res string) {
 		message,
 	)
 
-	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
-
-	//log
-	fmt.Println(hex.Dump(responseMessage))
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	errcode = string(responseMessage)[8:10]
 
@@ -382,7 +334,7 @@ func Detoken(input InpDetoken) (errcode string, res string) {
 /* Check Version
  */
 
-func NC() (errcode string, lmk string, firmware string) {
+func (repository *HsmRepository) NC() (errcode string, lmk string, firmware string) {
 
 	HsmLmkVariant := loadConfHSMVariant()
 
@@ -395,9 +347,6 @@ func NC() (errcode string, lmk string, firmware string) {
 	)
 
 	responseMessage := Connect(HsmLmkVariant, commandMessage)
-
-	//log
-	fmt.Println(hex.Dump(responseMessage))
 
 	errcode = string(responseMessage)[8:10]
 
@@ -414,35 +363,11 @@ func NC() (errcode string, lmk string, firmware string) {
 
 }
 
-type Migrate struct {
-	KeyTypeCode2d          string          `json:"keytypecode2d"`
-	KeyLenFlag             string          `json:"keylenflag"`
-	Key                    string          `json:"key"`
-	KeyTypeCode            string          `json:"keytypecode"`
-	KeyScheme              string          `json:"keyscheme"`
-	LMKId                  string          `json:"lmkid"`
-	KeyUsage               string          `json:"keyusage"`
-	ModeOfUse              string          `json:"modeofuse"`
-	KVN                    string          `json:"kvn"`
-	Exportability          string          `json:"exportability"`
-	NumberOfOptionalBlocks string          `json:"numberofoptionalblocks"`
-	OptionalBlocks         []OptionalBlock `json:"optionalblocks"`
-	KCVReturnFlag          string          `json:"kcvreturnflag"`
-	KCVType                string          `json:"kcvtype"`
-}
-
-type MigrateRes struct {
-	Key string `json:"key"`
-	KCV string `json:"kcv"`
-}
-
 /* Decrypt
 {"key":"S1012822AN00S000153767C37E3DD24D17D98C9EB003C8BDAAEAABD6D4E62C1288358E24E910A49D1A75B157B813DA6903BDC1A5B9EA57FA0D01F4A0E2F9544E5","ciphertext":"7ibaZ4PV0M937lTsupfhDQ=="}
 */
 
-func BW(input Migrate) (errcode string, res MigrateRes) {
-
-	HsmLmkKeyblock := loadConfHSMVariant()
+func (repository *HsmRepository) BW(input models.Migrate) (errcode string, res models.MigrateRes) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("BW")
@@ -485,10 +410,7 @@ func BW(input Migrate) (errcode string, res MigrateRes) {
 		)
 	}
 
-	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
-
-	//log
-	fmt.Println(hex.Dump(responseMessage))
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	errcode = string(responseMessage)[8:10]
 
@@ -523,45 +445,6 @@ func BW(input Migrate) (errcode string, res MigrateRes) {
 	return
 }
 
-type OptionalBlock struct {
-	OptionalBlockIdentifier string `json:"optionalblockidentifier"`
-	OptionalBlockLenght     string `json:"optionalblocklength"`
-	ModifiedExportValue     string `json:"modifiedexportvalue"`
-	KeyBlockVersionID       string `json:"keyblockversionid"`
-}
-type GenerateKey struct {
-	Mode                   string          `json:"mode"`
-	KeyType                string          `json:"keytype"`
-	KeyScheme              string          `json:"keyscheme"`
-	DeriveKeyMode          string          `json:"derivekeymode"`
-	DUKPTMasterKeyType     string          `json:"dukptmasterkeytype"`
-	DUKPTMasterKey         string          `json:"dukptmasterkey"`
-	KSN                    string          `json:"ksn"`
-	ZKAMasterKeyType       string          `json:"zkamasterkeytype"`
-	ZKAMasterKey           string          `json:"zkamasterkey"`
-	ZKAOption              string          `json:"zkaoption"`
-	ZKARNDI                string          `json:"zkarndi"`
-	ZMK_TMKFlag            string          `json:"zmk_tmkflag"`
-	ZmkTmkBdk              string          `json:"zmkTmkBdk"`
-	IKSN                   string          `json:"iksn"`
-	ExportKeyScheme        string          `json:"exportKeyScheme"`
-	AtallaVariant          string          `json:"atallavariant"`
-	LMKId                  string          `json:"lmkid"`
-	KeyUsage               string          `json:"keyusage"`
-	Algorithm              string          `json:"algorithm"`
-	ModeofUse              string          `json:"modeofuse"`
-	KVN                    string          `json:"kvn"`
-	Exportability          string          `json:"exportability"`
-	NumberOfOptionalBlocks string          `json:"numberofoptionalblocks"`
-	OptionalBlocks         []OptionalBlock `json:"optionalblocks"`
-}
-type GenerateKeyResp struct {
-	Key       string `json:"key"`
-	KeyExport string `json:"keyexport"`
-	KCV       string `json:"kcv"`
-	ZKARNDI   string `json:"zkarndi"`
-}
-
 /* Decrypt
 {"key":"S1012822AN00S000153767C37E3DD24D17D98C9EB003C8BDAAEAABD6D4E62C1288358E24E910A49D1A75B157B813DA6903BDC1A5B9EA57FA0D01F4A0E2F9544E5","ciphertext":"7ibaZ4PV0M937lTsupfhDQ=="}
 */
@@ -586,9 +469,7 @@ func keyExtraction(message []byte, index int) (key string, rindex int) {
 	return key, rindex
 }
 
-func A0(input GenerateKey) (errcode string, res GenerateKeyResp) {
-
-	HsmLmkKeyblock := loadConfHSMKeyblock()
+func (repository *HsmRepository) A0(input models.GenerateKey) (errcode string, res models.GenerateKeyResp) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("A0")
@@ -676,10 +557,7 @@ func A0(input GenerateKey) (errcode string, res GenerateKeyResp) {
 		panic(input.Mode)
 	}
 
-	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
-
-	//log
-	fmt.Println(hex.Dump(responseMessage))
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	errcode = string(responseMessage)[8:10]
 
@@ -696,35 +574,7 @@ func A0(input GenerateKey) (errcode string, res GenerateKeyResp) {
 	return
 }
 
-type ExportKey struct {
-	KeyType                string          `json:"keytype"`
-	ZMK_TMKFlag            string          `json:"zmk_tmkflag"`
-	ZMK_TMK                string          `json:"zmk_tmk"`
-	Key                    string          `json:"key"`
-	KeyScheme              string          `json:"keyscheme"`
-	IV                     string          `json:"iv"`
-	AtallaVariant          string          `json:"atallavariant"`
-	LMKId                  string          `json:"lmkid"`
-	Exportability          string          `json:"exportability"`
-	NumberOfOptionalBlocks string          `json:"numberofoptionalblocks"`
-	OptionalBlocks         []OptionalBlock `json:"optionalblocks"`
-	KVN                    string          `json:"kvn"`
-
-	// ZKAOption string `json:"zkaoption"`
-	// ZKARNDI   string `json:"zkarndi"`
-	// IKSN      string `json:"iksn"`
-	// KeyUsage  string `json:"keyusage"`
-	// Algorithm string `json:"algorithm"`
-	// ModeofUse string `json:"modeofuse"`
-}
-type ExportKeyResp struct {
-	Key string `json:"key"`
-	KCV string `json:"kcv"`
-}
-
-func A8(input ExportKey) (errcode string, res ExportKeyResp) {
-
-	HsmLmkKeyblock := loadConfHSMVariant()
+func (repository *HsmRepository) A8(input models.ExportKey) (errcode string, res models.ExportKeyResp) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("A8")
@@ -745,10 +595,7 @@ func A8(input ExportKey) (errcode string, res ExportKeyResp) {
 		keyscheme,
 	)
 
-	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
-
-	//log
-	fmt.Println(hex.Dump(responseMessage))
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	errcode = string(responseMessage)[8:10]
 
@@ -773,139 +620,7 @@ func A8(input ExportKey) (errcode string, res ExportKeyResp) {
 	}
 	return
 }
-
-type GeneratePair struct {
-	KeyTypeIndicator       string          `json:"keytypeindicator"`
-	KeyLen                 string          `json:"keylen"`
-	PublicKeyEncoding      string          `json:"publickeyencoding"`
-	PublicExponentLen      string          `json:"publicexponentlen"`
-	PublicExponent         string          `json:"publicexponent"`
-	LMKId                  string          `json:"lmkid"`
-	KVN                    string          `json:"kvn"`
-	NumberOfOptionalBlocks string          `json:"numberofoptionalblocks"`
-	OptionalBlocks         []OptionalBlock `json:"optionalblocks"`
-	Exportability          string          `json:"exportability"`
-}
-type GeneratePairResp struct {
-	PublicKey     string `json:"publickey"`
-	PrivateKeyLen int    `json:"privatekeylen"`
-	PrivateKey    string `json:"privatekey"`
-}
-
-func EI(input GeneratePair) (errcode string, res GeneratePairResp) {
-
-	HsmLmkKeyblock := loadConfHSMKeyblock()
-
-	messageheader := []byte("HEAD")
-	commandcode := []byte("EI")
-	keytypeindicator := []byte(input.KeyTypeIndicator)
-	keylen := []byte(input.KeyLen)
-	publickeyencoding := []byte(input.PublicKeyEncoding)
-	publicexponentlen := []byte(input.PublicExponentLen)
-	publicexponent := []byte(input.PublicExponent)
-	lmkidDelim := []byte("%")
-	lmkid := []byte(input.LMKId)
-	keyblockDelim := []byte("#")
-	kvn := []byte(input.KVN)
-	numberofoptionalblocks := []byte(input.NumberOfOptionalBlocks)
-	exportabilityDelim := []byte("&")
-	exportability := []byte(input.Exportability)
-
-	commandMessage := Join(
-		messageheader,
-		commandcode,
-	)
-	commandMessage = Join(
-		commandMessage,
-		keytypeindicator,
-		keylen,
-		publickeyencoding,
-		publicexponentlen,
-		publicexponent,
-	)
-	if input.LMKId != "" {
-		commandMessage = Join(
-			commandMessage,
-			lmkidDelim,
-			lmkid,
-		)
-	}
-	commandMessage = Join(
-		commandMessage,
-		keyblockDelim,
-		kvn,
-		numberofoptionalblocks,
-		exportabilityDelim,
-		exportability,
-	)
-
-	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
-
-	fmt.Println(hex.Dump(responseMessage))
-
-	errcode = string(responseMessage)[8:10]
-
-	if errcode == "00" {
-		var publicKey rsa.PublicKey
-		rest, err := asn1.Unmarshal(responseMessage[10:], &publicKey)
-		if err != nil {
-			log.Panic(err.Error())
-			return
-		}
-		pubBytes := x509.MarshalPKCS1PublicKey(&publicKey)
-		res.PublicKey = base64.StdEncoding.EncodeToString(pubBytes)
-		if bytes.Equal(rest[0:4], []byte("FFFF")) {
-			res.PrivateKeyLen = 0000
-			res.PrivateKey = base64.StdEncoding.EncodeToString(rest[4:])
-		} else {
-			res.PrivateKeyLen, _ = strconv.Atoi(string(rest[0:4]))
-			res.PrivateKey = base64.StdEncoding.EncodeToString(rest[4 : 4+res.PrivateKeyLen])
-		}
-	}
-	return
-}
-
-type ImportKeyOrDataUnderRSAPubKey struct {
-	EncryptionId string `json:"encryptionId"`
-	PadModeId    string `json:"padModeId"`
-	MaskGenFunc  string `json:"maskGenFunc"`
-	MGFHashFunc  string `json:"mgfHashFunc"`
-	//OAEPEncodingParamLen string `json:"oaepEncodingParamLen"`
-	OAEPEncodingParam string `json:"oaepEncodingParam"`
-	KeyType           string `json:"keyType"`
-	//SignatureHashId   string `json:"signatureHashId"`
-	//SignatureId       string `json:"signatureId"`
-	//SignaturePadMode  string `json:"signaturePadMode"`
-	//EncrKeyOffset     string `json:"encrKeyOffset"`
-	//EncrKeyLen        string `json:"encrKeyLen"`
-	//SigLen            string `json:"sigLen"`
-	//Signature         string `json:"signature"`
-	//PubKey                 string          `json:"pubKey"`
-	DataBlock              string          `json:"dataBlock"`
-	PrivateKeyFlag         string          `json:"privateKeyFlag"`
-	PrivateKeyLen          string          `json:"privateKeyLen"`
-	PrivateKey             string          `json:"privateKey"`
-	ImportKeyType          string          `json:"importKeyType"`
-	KeySchemeLMK           string          `json:"keySchemeLMK"`
-	KCVType                string          `json:"kcvType"`
-	KeyDataBlockType       string          `json:"keyDataBlockType"`
-	KcvLen                 string          `json:"kcvLen"`
-	LMKId                  string          `json:"lmkid"`
-	KeyUsage               string          `json:"keyUsage"`
-	ModeOfUse              string          `json:"modeOfUse"`
-	KVN                    string          `json:"kvn"`
-	Exportability          string          `json:"exportability"`
-	NumberOfOptionalBlocks string          `json:"numberofoptionalblocks"`
-	OptionalBlocks         []OptionalBlock `json:"optionalblocks"`
-}
-type ImportKeyOrDataUnderRSAPubKeyResp struct {
-	InitializationValue string `json:"initializationValue"`
-	Key                 string `json:"key"`
-	KCV                 string `json:"kcv"`
-}
-
-func GI(input ImportKeyOrDataUnderRSAPubKey) (errcode string, res ImportKeyOrDataUnderRSAPubKeyResp) {
-	HsmLmkKeyblock := loadConfHSMKeyblock()
+func (repository *HsmRepository) GI(input models.ImportKeyOrDataUnderRSAPubKey) (errcode string, res models.ImportKeyOrDataUnderRSAPubKeyResp) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("GI")
@@ -1013,10 +728,7 @@ func GI(input ImportKeyOrDataUnderRSAPubKey) (errcode string, res ImportKeyOrDat
 		numberOfOptionalBlocks,
 	)
 
-	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
-
-	//log
-	fmt.Println(hex.Dump(responseMessage))
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	errcode = string(responseMessage[8:10])
 	index := 10
@@ -1038,23 +750,77 @@ func GI(input ImportKeyOrDataUnderRSAPubKey) (errcode string, res ImportKeyOrDat
 	return
 }
 
-type TranslatePrivate struct {
-	PrivateKeyLen          string          `json:"privatekeylen"`
-	PrivateKey             string          `json:"privatekey"`
-	LMKId                  string          `json:"lmkid"`
-	KVN                    string          `json:"kvn"`
-	NumberOfOptionalBlocks string          `json:"numberofoptionalblocks"`
-	OptionalBlocks         []OptionalBlock `json:"optionalblocks"`
-	Exportability          string          `json:"exportability"`
-}
-type TranslatePrivateResp struct {
-	PrivateKeyLen int    `json:"privatekeylen"`
-	PrivateKey    string `json:"privatekey"`
-}
+func (repository *HsmRepository) EI(input models.GeneratePair) (errcode string, res models.GeneratePairResp) {
 
-func EM(input TranslatePrivate) (errcode string, res TranslatePrivateResp) {
+	messageheader := []byte("HEAD")
+	commandcode := []byte("EI")
+	keytypeindicator := []byte(input.KeyTypeIndicator)
+	keylen := []byte(input.KeyLen)
+	publickeyencoding := []byte(input.PublicKeyEncoding)
+	publicexponentlen := []byte(input.PublicExponentLen)
+	publicexponent := []byte(input.PublicExponent)
+	lmkidDelim := []byte("%")
+	lmkid := []byte(input.LMKId)
+	keyblockDelim := []byte("#")
+	kvn := []byte(input.KVN)
+	numberofoptionalblocks := []byte(input.NumberOfOptionalBlocks)
+	exportabilityDelim := []byte("&")
+	exportability := []byte(input.Exportability)
 
-	HsmLmkKeyblock := loadConfHSMVariant()
+	commandMessage := Join(
+		messageheader,
+		commandcode,
+	)
+	commandMessage = Join(
+		commandMessage,
+		keytypeindicator,
+		keylen,
+		publickeyencoding,
+		publicexponentlen,
+		publicexponent,
+	)
+	if input.LMKId != "" {
+		commandMessage = Join(
+			commandMessage,
+			lmkidDelim,
+			lmkid,
+		)
+	}
+	commandMessage = Join(
+		commandMessage,
+		keyblockDelim,
+		kvn,
+		numberofoptionalblocks,
+		exportabilityDelim,
+		exportability,
+	)
+
+	responseMessage := repository.WriteRequest(commandMessage)
+
+	fmt.Println(hex.Dump(responseMessage))
+
+	errcode = string(responseMessage)[8:10]
+
+	if errcode == "00" {
+		var publicKey rsa.PublicKey
+		rest, err := asn1.Unmarshal(responseMessage[10:], &publicKey)
+		if err != nil {
+			log.Panic(err.Error())
+			return
+		}
+		pubBytes := x509.MarshalPKCS1PublicKey(&publicKey)
+		res.PublicKey = base64.StdEncoding.EncodeToString(pubBytes)
+		if bytes.Equal(rest[0:4], []byte("FFFF")) {
+			res.PrivateKeyLen = 0000
+			res.PrivateKey = base64.StdEncoding.EncodeToString(rest[4:])
+		} else {
+			res.PrivateKeyLen, _ = strconv.Atoi(string(rest[0:4]))
+			res.PrivateKey = base64.StdEncoding.EncodeToString(rest[4 : 4+res.PrivateKeyLen])
+		}
+	}
+	return
+}
+func (repository *HsmRepository) EM(input models.TranslatePrivate) (errcode string, res models.TranslatePrivateResp) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("EM")
@@ -1101,10 +867,7 @@ func EM(input TranslatePrivate) (errcode string, res TranslatePrivateResp) {
 		)
 	}
 
-	responseMessage := Connect(HsmLmkKeyblock, commandMessage)
-
-	//log
-	fmt.Println(hex.Dump(responseMessage))
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	errcode = string(responseMessage)[8:10]
 

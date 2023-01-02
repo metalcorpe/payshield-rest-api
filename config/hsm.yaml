@@ -1,8 +1,0 @@
-#hsm configuration
-hsm:
-    ip: 192.168.1.1
-    portvariant: 2500
-    portkeyblock: 2502
-    tls: true
-    clientcert: certs/client.pem
-    clientkey: certs/client.key

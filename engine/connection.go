@@ -45,7 +45,17 @@ func Join(s ...[]byte) []byte {
 	}
 	return b
 }
-
+func calculateCommandLen(commandMessage *[]byte) []byte {
+	commandLength := make([]byte, 2)
+	if len(*commandMessage) > 255 {
+		commandLength[0] = byte(len(*commandMessage) / 256)
+		commandLength[1] = byte(len(*commandMessage) % 256)
+	} else {
+		commandLength[0] = byte(0)
+		commandLength[1] = byte(len(*commandMessage))
+	}
+	return commandLength
+}
 func Connect(address string, commandMessage []byte) []byte {
 
 	tls_b, cert, key := loadConfHSMTLS()
@@ -68,17 +78,9 @@ func Connect(address string, commandMessage []byte) []byte {
 
 	defer conn.Close()
 
-	commandLength := make([]byte, 2)
-	if len(commandMessage) > 255 {
-		commandLength[0] = byte(len(commandMessage) / 256)
-		commandLength[1] = byte(len(commandMessage) % 256)
-	} else {
-		commandLength[0] = byte(0)
-		commandLength[1] = byte(len(commandMessage))
-	}
+	commandLength := calculateCommandLen(&commandMessage)
 
-	var tcpCommandMessage []byte
-	tcpCommandMessage = append(commandLength, commandMessage...)
+	tcpCommandMessage := append(commandLength, commandMessage...)
 
 	fmt.Println(hex.Dump(tcpCommandMessage))
 
