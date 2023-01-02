@@ -31,6 +31,7 @@ import (
 	"net"
 )
 
+// This a copy of the original bytes.Join with separator removed. https://stackoverflow.com/a/32371421/12932866
 func Join(s ...[]byte) []byte {
 	n := 0
 	for _, v := range s {
