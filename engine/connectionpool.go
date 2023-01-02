@@ -148,6 +148,39 @@ func (p *TcpConnPool) openNewTcpConnection() (*tcpConn, error) {
 	}, nil
 }
 
+func (p *TcpConnPool) defaulthandleConnectionRequestCase(req *connRequest, requestDone *bool) {
+	p.mu.Lock()
+
+	// First, we try to get an idle conn.
+	// If fail, we try to open a new conn.
+	// If both does not work, we try again in the next loop until timeout.
+	numIdle := len(p.idleConns)
+	if numIdle > 0 {
+		for _, c := range p.idleConns {
+			delete(p.idleConns, c.id)
+			p.mu.Unlock()
+			req.connChan <- c // give conn
+			*requestDone = true
+			break
+		}
+	} else if p.maxOpenCount > 0 && p.numOpen < p.maxOpenCount {
+		p.numOpen++
+		p.mu.Unlock()
+
+		c, err := p.openNewTcpConnection()
+		if err != nil {
+			p.mu.Lock()
+			p.numOpen--
+			p.mu.Unlock()
+		} else {
+			req.connChan <- c // give conn
+			*requestDone = true
+		}
+	} else {
+		p.mu.Unlock()
+	}
+}
+
 // handleConnectionRequest() listens to the request queue
 // and attempts to fulfil any incoming requests
 func (p *TcpConnPool) handleConnectionRequest() {
@@ -170,37 +203,7 @@ func (p *TcpConnPool) handleConnectionRequest() {
 				hasTimeout = true
 				req.errChan <- errors.New("connection request timeout")
 			default:
-				p.mu.Lock()
-
-				// First, we try to get an idle conn.
-				// If fail, we try to open a new conn.
-				// If both does not work, we try again in the next loop until timeout.
-				numIdle := len(p.idleConns)
-				if numIdle > 0 {
-					for _, c := range p.idleConns {
-						delete(p.idleConns, c.id)
-						p.mu.Unlock()
-						req.connChan <- c // give conn
-						requestDone = true
-						break
-					}
-				} else if p.maxOpenCount > 0 && p.numOpen < p.maxOpenCount {
-					p.numOpen++
-					p.mu.Unlock()
-
-					c, err := p.openNewTcpConnection()
-					if err != nil {
-						p.mu.Lock()
-						p.numOpen--
-						p.mu.Unlock()
-					} else {
-						req.connChan <- c // give conn
-						requestDone = true
-					}
-				} else {
-					p.mu.Unlock()
-				}
-
+				p.defaulthandleConnectionRequestCase(req, &requestDone)
 			}
 		}
 	}
