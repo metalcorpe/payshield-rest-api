@@ -44,10 +44,7 @@ type HsmRepository struct {
 	interfaces.IConnectionHandler
 }
 
-/* Verify PIN
-{"tpk": "TEFF270C330101C2D6B23DF72EA8FFEBD0E491D62E2E3D151","pvk": "9B395FB9FE5F07DA","pinblock": "EEC12744E8F13E16","pan": "923000000431","dectable": "3456789012345678","pinvaldata": "9230000N0431","pinoffset": "330309FFFFFF"}
-*/
-
+// Verify PIN
 func (repository *HsmRepository) DA(input models.PinVer) (errcode string) {
 
 	messageheader := []byte("HEAD")
@@ -91,10 +88,7 @@ func (repository *HsmRepository) DA(input models.PinVer) (errcode string) {
 	return
 }
 
-/* Encrypt
-{"key": "S1012822AN00S000153767C37E3DD24D17D98C9EB003C8BDAAEAABD6D4E62C1288358E24E910A49D1A75B157B813DA6903BDC1A5B9EA57FA0D01F4A0E2F9544E5", "cleartext": "aGVsbG8gd29ybGQhISEAAA=="}
-*/
-
+// Encrypt
 func (repository *HsmRepository) M0(input models.InpEnc) (errcode string, res string) {
 
 	//max buffer in payshield is 32KB
@@ -138,10 +132,7 @@ func (repository *HsmRepository) M0(input models.InpEnc) (errcode string, res st
 
 }
 
-/* Decrypt
-{"key":"S1012822AN00S000153767C37E3DD24D17D98C9EB003C8BDAAEAABD6D4E62C1288358E24E910A49D1A75B157B813DA6903BDC1A5B9EA57FA0D01F4A0E2F9544E5","ciphertext":"7ibaZ4PV0M937lTsupfhDQ=="}
-*/
-
+// Decrypt
 func (repository *HsmRepository) M2(input models.InpDec) (errcode string, res string) {
 
 	//max buffer in payshield is 32KB
@@ -183,10 +174,7 @@ func (repository *HsmRepository) M2(input models.InpDec) (errcode string, res st
 	return
 }
 
-/* Tokenize
-{"profile":"creditcard","data": "9453677629008564"}
-*/
-
+// Tokenize
 func (repository *HsmRepository) Token(input models.InpToken) (errcode string, res string) {
 
 	profile := input.Profile
@@ -257,10 +245,7 @@ func (repository *HsmRepository) Token(input models.InpToken) (errcode string, r
 
 }
 
-/* Detokenize
-{"profile":"creditcard","token": "6288248669598239"}
-*/
-
+// Detokenize
 func (repository *HsmRepository) Detoken(input models.InpDetoken) (errcode string, res string) {
 
 	profile := input.Profile
@@ -331,9 +316,7 @@ func (repository *HsmRepository) Detoken(input models.InpDetoken) (errcode strin
 
 }
 
-/* Check Version
- */
-
+// Check Version
 func (repository *HsmRepository) NC() (errcode string, lmk string, firmware string) {
 
 	messageheader := []byte("HEAD")
@@ -361,10 +344,7 @@ func (repository *HsmRepository) NC() (errcode string, lmk string, firmware stri
 
 }
 
-/* Decrypt
-{"key":"S1012822AN00S000153767C37E3DD24D17D98C9EB003C8BDAAEAABD6D4E62C1288358E24E910A49D1A75B157B813DA6903BDC1A5B9EA57FA0D01F4A0E2F9544E5","ciphertext":"7ibaZ4PV0M937lTsupfhDQ=="}
-*/
-
+// Decrypt
 func (repository *HsmRepository) BW(input models.Migrate) (errcode string, res models.MigrateRes) {
 
 	messageheader := []byte("HEAD")
@@ -443,10 +423,6 @@ func (repository *HsmRepository) BW(input models.Migrate) (errcode string, res m
 	return
 }
 
-/* Decrypt
-{"key":"S1012822AN00S000153767C37E3DD24D17D98C9EB003C8BDAAEAABD6D4E62C1288358E24E910A49D1A75B157B813DA6903BDC1A5B9EA57FA0D01F4A0E2F9544E5","ciphertext":"7ibaZ4PV0M937lTsupfhDQ=="}
-*/
-
 func keyExtraction(message []byte, index int) (key string, rindex int) {
 	keyPrefex := string(message[index : index+1])
 	if keyPrefex == "U" {
@@ -467,6 +443,7 @@ func keyExtraction(message []byte, index int) (key string, rindex int) {
 	return key, rindex
 }
 
+// Generate Key
 func (repository *HsmRepository) A0(input models.GenerateKey) (errcode string, res models.GenerateKeyResp) {
 
 	messageheader := []byte("HEAD")
