@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"net/http"
 	"sync"
 
 	"github.com/go-chi/chi/v5"
@@ -48,6 +50,12 @@ func (router *router) InitRouter() *chi.Mux {
 	r.Post("/generatekey/pair", hsmController.GenerateKeyPair)
 	//Import Key or data under an RSA Public Key
 	r.Post("/import/rsa", hsmController.ImportKeyRSA)
+
+	//the walking function
+	chi.Walk(r, func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
+		fmt.Printf("[%s]: '%s' has %d middlewares\n", method, route, len(middlewares))
+		return nil
+	})
 
 	return r
 }
