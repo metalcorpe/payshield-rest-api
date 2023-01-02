@@ -29,7 +29,7 @@ func (service *HsmService) NewVersionResponse() (models.VersionResponse, error) 
 	return resp, nil
 }
 func (service *HsmService) NewGenerateKeyPairResponse(r models.GeneratePair) (models.GeneratePairResp, error) {
-	ec, resp := service.EI(r)
+	resp, ec := service.EI(r)
 	if ec != "00" {
 		return models.GeneratePairResp{}, errors.New(ec)
 	}
@@ -37,7 +37,7 @@ func (service *HsmService) NewGenerateKeyPairResponse(r models.GeneratePair) (mo
 }
 
 func (service *HsmService) NewMigrateResponse(r models.Migrate) (models.MigrateRes, error) {
-	ec, resp := service.BW(r)
+	resp, ec := service.BW(r)
 	if ec != "00" {
 		return models.MigrateRes{}, errors.New(ec)
 	}
@@ -45,7 +45,7 @@ func (service *HsmService) NewMigrateResponse(r models.Migrate) (models.MigrateR
 }
 
 func (service *HsmService) NewMigratePrivateResponse(r models.TranslatePrivate) (models.TranslatePrivateResp, error) {
-	ec, resp := service.EM(r)
+	resp, ec := service.EM(r)
 	if ec != "00" {
 		return models.TranslatePrivateResp{}, errors.New(ec)
 	}
@@ -53,7 +53,7 @@ func (service *HsmService) NewMigratePrivateResponse(r models.TranslatePrivate) 
 }
 
 func (service *HsmService) NewGenerateKeyResponse(r models.GenerateKey) (models.GenerateKeyResp, error) {
-	ec, resp := service.A0(r)
+	resp, ec := service.A0(r)
 	if ec != "00" {
 		return models.GenerateKeyResp{}, errors.New(ec)
 	}
@@ -61,7 +61,7 @@ func (service *HsmService) NewGenerateKeyResponse(r models.GenerateKey) (models.
 }
 
 func (service *HsmService) NewExportKeyResponse(r models.ExportKey) (models.ExportKeyResp, error) {
-	ec, resp := service.A8(r)
+	resp, ec := service.A8(r)
 	if ec != "00" {
 		return models.ExportKeyResp{}, errors.New(ec)
 	}
@@ -69,7 +69,7 @@ func (service *HsmService) NewExportKeyResponse(r models.ExportKey) (models.Expo
 }
 
 func (service *HsmService) ImportKeyRSAResponce(r models.ImportKeyOrDataUnderRSAPubKey) (models.ImportKeyOrDataUnderRSAPubKeyResp, error) {
-	ec, resp := service.GI(r)
+	resp, ec := service.GI(r)
 	if ec != "00" {
 		return models.ImportKeyOrDataUnderRSAPubKeyResp{}, errors.New(ec)
 	}

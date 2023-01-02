@@ -87,7 +87,7 @@ func (repository *HsmRepository) DA(input models.PinVer) (errcode string) {
 }
 
 // Encrypt
-func (repository *HsmRepository) M0(input models.InpEnc) (errcode string, res string) {
+func (repository *HsmRepository) M0(input models.InpEnc) (res string, errcode string) {
 
 	//max buffer in payshield is 32KB
 	data, _ := base64.URLEncoding.DecodeString(input.Cleartext)
@@ -131,7 +131,7 @@ func (repository *HsmRepository) M0(input models.InpEnc) (errcode string, res st
 }
 
 // Decrypt
-func (repository *HsmRepository) M2(input models.InpDec) (errcode string, res string) {
+func (repository *HsmRepository) M2(input models.InpDec) (res string, errcode string) {
 
 	//max buffer in payshield is 32KB
 	data, _ := base64.URLEncoding.DecodeString(input.Ciphertext)
@@ -173,7 +173,7 @@ func (repository *HsmRepository) M2(input models.InpDec) (errcode string, res st
 }
 
 // Check Version
-func (repository *HsmRepository) NC() (errcode string, lmk string, firmware string) {
+func (repository *HsmRepository) NC() (lmk string, firmware string, errcode string) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("NC")
@@ -201,7 +201,7 @@ func (repository *HsmRepository) NC() (errcode string, lmk string, firmware stri
 }
 
 // Decrypt
-func (repository *HsmRepository) BW(input models.Migrate) (errcode string, res models.MigrateRes) {
+func (repository *HsmRepository) BW(input models.Migrate) (res models.MigrateRes, errcode string) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("BW")
@@ -300,7 +300,7 @@ func keyExtraction(message []byte, index int) (key string, rindex int) {
 }
 
 // Generate Key
-func (repository *HsmRepository) A0(input models.GenerateKey) (errcode string, res models.GenerateKeyResp) {
+func (repository *HsmRepository) A0(input models.GenerateKey) (res models.GenerateKeyResp, errcode string) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("A0")
@@ -405,7 +405,7 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (errcode string, r
 	return
 }
 
-func (repository *HsmRepository) A8(input models.ExportKey) (errcode string, res models.ExportKeyResp) {
+func (repository *HsmRepository) A8(input models.ExportKey) (res models.ExportKeyResp, errcode string) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("A8")
@@ -451,7 +451,7 @@ func (repository *HsmRepository) A8(input models.ExportKey) (errcode string, res
 	}
 	return
 }
-func (repository *HsmRepository) GI(input models.ImportKeyOrDataUnderRSAPubKey) (errcode string, res models.ImportKeyOrDataUnderRSAPubKeyResp) {
+func (repository *HsmRepository) GI(input models.ImportKeyOrDataUnderRSAPubKey) (res models.ImportKeyOrDataUnderRSAPubKeyResp, errcode string) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("GI")
@@ -581,7 +581,7 @@ func (repository *HsmRepository) GI(input models.ImportKeyOrDataUnderRSAPubKey) 
 	return
 }
 
-func (repository *HsmRepository) EI(input models.GeneratePair) (errcode string, res models.GeneratePairResp) {
+func (repository *HsmRepository) EI(input models.GeneratePair) (res models.GeneratePairResp, errcode string) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("EI")
@@ -651,7 +651,7 @@ func (repository *HsmRepository) EI(input models.GeneratePair) (errcode string, 
 	}
 	return
 }
-func (repository *HsmRepository) EM(input models.TranslatePrivate) (errcode string, res models.TranslatePrivateResp) {
+func (repository *HsmRepository) EM(input models.TranslatePrivate) (res models.TranslatePrivateResp, errcode string) {
 
 	messageheader := []byte("HEAD")
 	commandcode := []byte("EM")

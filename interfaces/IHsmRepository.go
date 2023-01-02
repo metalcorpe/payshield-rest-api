@@ -3,14 +3,14 @@ package interfaces
 import "github.com/metalcorpe/payshield-rest-api/models"
 
 type IHsmRepository interface {
-	A0(models.GenerateKey) (errcode string, res models.GenerateKeyResp)
-	A8(models.ExportKey) (errcode string, res models.ExportKeyResp)
-	BW(models.Migrate) (errcode string, res models.MigrateRes)
+	A0(models.GenerateKey) (res models.GenerateKeyResp, errcode string)
+	A8(models.ExportKey) (res models.ExportKeyResp, errcode string)
+	BW(models.Migrate) (res models.MigrateRes, errcode string)
 	DA(models.PinVer) string
-	EI(models.GeneratePair) (errcode string, res models.GeneratePairResp)
-	EM(models.TranslatePrivate) (errcode string, res models.TranslatePrivateResp)
-	GI(models.ImportKeyOrDataUnderRSAPubKey) (errcode string, res models.ImportKeyOrDataUnderRSAPubKeyResp)
-	M0(models.InpEnc) (errcode string, res string)
-	M2(models.InpDec) (errcode string, res string)
-	NC() (errcode string, lmk string, firmware string)
+	EI(models.GeneratePair) (res models.GeneratePairResp, errcode string)
+	EM(models.TranslatePrivate) (res models.TranslatePrivateResp, errcode string)
+	GI(models.ImportKeyOrDataUnderRSAPubKey) (res models.ImportKeyOrDataUnderRSAPubKeyResp, errcode string)
+	M0(models.InpEnc) (res string, errcode string)
+	M2(models.InpDec) (res string, errcode string)
+	NC() (lmk string, firmware string, errcode string)
 }
