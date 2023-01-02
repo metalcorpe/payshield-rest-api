@@ -336,8 +336,6 @@ func (repository *HsmRepository) Detoken(input models.InpDetoken) (errcode strin
 
 func (repository *HsmRepository) NC() (errcode string, lmk string, firmware string) {
 
-	HsmLmkVariant := loadConfHSMVariant()
-
 	messageheader := []byte("HEAD")
 	commandcode := []byte("NC")
 
@@ -346,7 +344,7 @@ func (repository *HsmRepository) NC() (errcode string, lmk string, firmware stri
 		commandcode,
 	)
 
-	responseMessage := Connect(HsmLmkVariant, commandMessage)
+	responseMessage := repository.WriteRequest(commandMessage)
 
 	errcode = string(responseMessage)[8:10]
 
@@ -566,7 +564,7 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (errcode string, r
 		res.Key, index = keyExtraction(responseMessage, index)
 
 		if input.Mode == "1" || input.Mode == "B" {
-			res.KeyExport, index = keyExtraction(responseMessage, index)
+			res.KeyExport, _ = keyExtraction(responseMessage, index)
 		}
 		res.KCV = string(responseMessage[len(responseMessage)-6:])
 

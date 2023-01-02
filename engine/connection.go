@@ -29,8 +29,6 @@ import (
 	"fmt"
 	"log"
 	"net"
-
-	"github.com/spf13/viper"
 )
 
 func Join(s ...[]byte) []byte {
@@ -58,7 +56,7 @@ func calculateCommandLen(commandMessage *[]byte) []byte {
 }
 func Connect(address string, commandMessage []byte) []byte {
 
-	tls_b, cert, key := loadConfHSMTLS()
+	tls_b, cert, key := true, "mockA", "mockB"
 
 	// net.Conn is an interface, tls.Conn is a struct, so a pointer to tls.Conn is perfectly assignable to net.Conn, see: http://play.golang.org/p/eM_33Bud-c
 	var conn net.Conn
@@ -89,43 +87,4 @@ func Connect(address string, commandMessage []byte) []byte {
 	n, _ := conn.Read(buff)
 
 	return buff[:n]
-}
-
-func loadConfHSMVariant() string {
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath("config")
-	viper.SetConfigName("hsm.yaml")
-
-	err := viper.ReadInConfig()
-	if err != nil {
-		fmt.Println("Load file config HSM keyblock error")
-	}
-
-	return viper.GetString("hsm.ip") + ":" + viper.GetString("hsm.portvariant")
-}
-
-func loadConfHSMKeyblock() string {
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath("config")
-	viper.SetConfigName("hsm.yaml")
-
-	err := viper.ReadInConfig()
-	if err != nil {
-		fmt.Println("Load file config HSM keyblock error")
-	}
-
-	return viper.GetString("hsm.ip") + ":" + viper.GetString("hsm.portkeyblock")
-}
-
-func loadConfHSMTLS() (bool, string, string) {
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath("config")
-	viper.SetConfigName("hsm.yaml")
-
-	err := viper.ReadInConfig()
-	if err != nil {
-		fmt.Println("Load file config TLS error")
-	}
-
-	return viper.GetBool("hsm.tls"), viper.GetString("hsm.clientcert"), viper.GetString("hsm.clientkey")
 }
