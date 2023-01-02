@@ -19,13 +19,13 @@ func main() {
 	conf := misc.GetConfig()
 
 	addr := conf.Server.Host + ":" + conf.Server.Port
-	log.Info("starting up API at: " + func(a bool) string {
+	log.Info("starting up API at: " + func(a bool, address string) string {
 		if a {
-			return "https://"
+			return "https://" + address
 		} else {
-			return "http://"
+			return "http://" + address
 		}
-	}(conf.Server.Tls) + addr)
+	}(conf.Server.Tls, addr))
 
 	var errHttp error
 	if conf.Server.Tls {
