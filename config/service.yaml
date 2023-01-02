@@ -3,8 +3,8 @@ server:
     host: 0.0.0.0
     port: 8080
     tls: true
-    servercert: "server.crt"
-    serverkey: "server.key"
+    servercert: certs/server.crt
+    serverkey: certs/server.key
 #hsm configuration
 hsm:
     ip: 192.168.1.1
@@ -12,5 +12,5 @@ hsm:
     portvariant: 2500
     portkeyblock: 2502
     tls: true
-    clientcert: certs/client.pem
-    clientkey: certs/client.key
+    clientcert: certs/hsmclient.pem
+    clientkey: certs/hsmclient.key
