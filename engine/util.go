@@ -25,8 +25,6 @@ package engine
 
 import (
 	"bytes"
-	"encoding/hex"
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -52,52 +50,4 @@ func zeroPadding(data []byte, blockSize int) []byte {
 func IntToHex(nn int) string {
 	n := int64(nn)
 	return string([]byte(strconv.FormatInt(n, 16)))
-}
-
-func reverse(str string) string {
-	s, _ := hex.DecodeString(str)
-	res := make([]byte, len(s))
-	prevPos, resPos := 0, len(s)
-	for pos := range s {
-		resPos -= pos - prevPos
-		copy(res[resPos:], s[prevPos:pos])
-		prevPos = pos
-	}
-	copy(res[0:], s[prevPos:])
-	return string(hex.EncodeToString(res))
-}
-
-func tweak(str string) string {
-	bytes := []byte(str)
-
-	var res int = 65537
-	for i := 0; i < len(str); i++ {
-		res = res*3 + int(bytes[i])
-	}
-
-	x := fmt.Sprintf("%02x", res)
-
-	return strings.ToUpper(reverse(fmt.Sprintf("%016s", x)))
-}
-
-func dectohex(s string) string {
-	bytes := []byte(s)
-	var str strings.Builder
-	for i := 0; i < len(s); i++ {
-		var hexa string = strings.ToUpper(fmt.Sprintf("%02c", int(bytes[i])))
-		str.WriteString(hexa)
-	}
-	return str.String()
-}
-
-func hextodec(s string) string {
-	bytes := []byte(s)
-	var str strings.Builder
-	for i := 0; i < len(s); i++ {
-		a := fmt.Sprintf("%s", string(bytes[i+1]))
-		str.WriteString(a)
-		i++
-
-	}
-	return str.String()
 }
