@@ -1,35 +1,4 @@
-// Copyright PT Dymar Jaya Indonesia
-// Date February 2020
-// RestAPI Thales payShield HSM using Golang
-// Code by Mudito Adi Pranowo
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
-// OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 package engine
-
-import (
-	"crypto/tls"
-	"encoding/hex"
-	"fmt"
-	"log"
-	"net"
-)
 
 // This a copy of the original bytes.Join with separator removed. https://stackoverflow.com/a/32371421/12932866
 func Join(s ...[]byte) []byte {
@@ -54,38 +23,4 @@ func calculateCommandLen(commandMessage *[]byte) []byte {
 		commandLength[1] = byte(len(*commandMessage))
 	}
 	return commandLength
-}
-func Connect(address string, commandMessage []byte) []byte {
-
-	tls_b, cert, key := true, "mockA", "mockB"
-
-	// net.Conn is an interface, tls.Conn is a struct, so a pointer to tls.Conn is perfectly assignable to net.Conn, see: http://play.golang.org/p/eM_33Bud-c
-	var conn net.Conn
-
-	if tls_b {
-		cert, err := tls.LoadX509KeyPair(cert, key)
-		if err != nil {
-			log.Fatalf("server: loadkeys: %s", err)
-		}
-		config := tls.Config{Certificates: []tls.Certificate{cert}, InsecureSkipVerify: true}
-
-		conn, _ = tls.Dial("tcp", address, &config)
-
-	} else {
-		conn, _ = net.Dial("tcp", address)
-	}
-
-	defer conn.Close()
-
-	commandLength := calculateCommandLen(&commandMessage)
-
-	tcpCommandMessage := append(commandLength, commandMessage...)
-
-	fmt.Println(hex.Dump(tcpCommandMessage))
-
-	conn.Write([]byte(tcpCommandMessage))
-	buff := make([]byte, 2048)
-	n, _ := conn.Read(buff)
-
-	return buff[:n]
 }
