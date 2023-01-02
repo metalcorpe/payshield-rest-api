@@ -6,6 +6,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
+	"github.com/metalcorpe/payshield-rest-api/misc"
+	"go.uber.org/zap"
 )
 
 type IChiRouter interface {
@@ -13,14 +15,15 @@ type IChiRouter interface {
 }
 
 type router struct {
-	conf config
+	log  *zap.Logger
+	conf misc.Config
 }
 
 func (router *router) InitRouter() *chi.Mux {
-	hsmController := ServiceContainer(router.conf).InjectHsmController()
-
+	hsmController := ServiceContainer(router.log, router.conf).InjectHsmController()
 	r := chi.NewRouter()
 
+	router.log.Debug("Attaching middlewares")
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
@@ -28,6 +31,7 @@ func (router *router) InitRouter() *chi.Mux {
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 	r.Mount("/debug", middleware.Profiler())
 
+	router.log.Debug("Registering Controllers")
 	//Verify PIN
 	r.Post("/verifypin", hsmController.VerifyPin)
 	//Version
@@ -53,10 +57,10 @@ var (
 	routerOnce sync.Once
 )
 
-func ChiRouter(conf config) IChiRouter {
+func ChiRouter(log *zap.Logger, conf misc.Config) IChiRouter {
 	if m == nil {
 		routerOnce.Do(func() {
-			m = &router{conf: conf}
+			m = &router{log: log, conf: conf}
 		})
 	}
 	return m

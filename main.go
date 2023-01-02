@@ -26,55 +26,19 @@ package main
 import (
 	"net/http"
 
-	"github.com/spf13/viper"
+	"github.com/metalcorpe/payshield-rest-api/misc"
+
 	"go.uber.org/zap"
 )
 
-// Create private data struct to hold config options.
-type server struct {
-	Host       string
-	Port       string
-	Tls        bool
-	ServerCert string
-	ServerKey  string
-}
-type hsm struct {
-	Ip           string
-	Port         int
-	PortVariant  int
-	PortKeyBlock int
-	Tls          bool
-	ClientCert   string
-	ClientKey    string
-}
-type config struct {
-	Server server
-	Hsm    hsm
-}
-
 func main() {
-	// configure logger
-	log, _ := zap.NewProduction(zap.WithCaller(true))
+	// configure log
+	log, _ := zap.NewDevelopment(zap.WithCaller(true))
 	defer func() {
 		_ = log.Sync()
 	}()
 
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath("config")
-	viper.SetConfigName("service.yaml")
-
-	err := viper.ReadInConfig()
-	if err != nil {
-		log.Panic(err.Error())
-		return
-	}
-
-	conf := &config{}
-	err = viper.Unmarshal(conf)
-	if err != nil {
-		log.Panic(err.Error())
-		return
-	}
+	conf := misc.GetConfig()
 
 	addr := conf.Server.Host + ":" + conf.Server.Port
 	log.Info("starting up API at: " + func(a bool) string {
@@ -87,9 +51,9 @@ func main() {
 
 	var errHttp error
 	if conf.Server.Tls {
-		errHttp = http.ListenAndServeTLS(addr, conf.Server.ServerCert, conf.Server.ServerKey, ChiRouter(*conf).InitRouter())
+		errHttp = http.ListenAndServeTLS(addr, conf.Server.ServerCert, conf.Server.ServerKey, ChiRouter(log, conf).InitRouter())
 	} else {
-		errHttp = http.ListenAndServe(addr, ChiRouter(*conf).InitRouter())
+		errHttp = http.ListenAndServe(addr, ChiRouter(log, conf).InitRouter())
 	}
 
 	if errHttp != nil {
