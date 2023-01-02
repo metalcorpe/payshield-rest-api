@@ -23,7 +23,7 @@ func (router *router) InitRouter() *chi.Mux {
 	hsmController := ServiceContainer(router.log, router.conf).InjectHsmController()
 	r := chi.NewRouter()
 
-	router.log.Debug("Attaching middlewares")
+	router.log.Debug("Attaching middleware")
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)

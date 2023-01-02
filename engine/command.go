@@ -45,32 +45,32 @@ type HsmRepository struct {
 // Verify PIN
 func (repository *HsmRepository) DA(input models.PinVer) (errCode string) {
 
-	messageheader := []byte("HEAD")
-	commandcode := []byte("DA")
+	messageHeader := []byte("HEAD")
+	commandCode := []byte("DA")
 	tpk := []byte(input.Tpk)
 	pvk := []byte(input.Pvk)
-	pinlen := []byte("12")
-	pinblock := []byte(input.Pinblock)
-	pinblockformat := []byte("01")
-	checklen := []byte("06")
+	pinLen := []byte("12")
+	pinBlock := []byte(input.PinBlock)
+	pinBlockFormat := []byte("01")
+	checkLen := []byte("06")
 	pan := []byte(input.Pan)
-	dectable := []byte(input.Dectable)
-	pinvaldata := []byte(input.Pinvaldata)
-	pinoffset := []byte(input.Pinoffset)
+	decimalizationTable := []byte(input.DecimalizationTable)
+	pinValidationData := []byte(input.PinValidationData)
+	pinOffset := []byte(input.PinOffset)
 
 	commandMessage := Join(
-		messageheader,
-		commandcode,
+		messageHeader,
+		commandCode,
 		tpk,
 		pvk,
-		pinlen,
-		pinblock,
-		pinblockformat,
-		checklen,
+		pinLen,
+		pinBlock,
+		pinBlockFormat,
+		checkLen,
 		pan,
-		dectable,
-		pinvaldata,
-		pinoffset,
+		decimalizationTable,
+		pinValidationData,
+		pinOffset,
 	)
 
 	responseMessage := repository.WriteRequest(commandMessage)
@@ -90,29 +90,29 @@ func (repository *HsmRepository) DA(input models.PinVer) (errCode string) {
 func (repository *HsmRepository) M0(input models.InpEnc) (res string, errCode string) {
 
 	//max buffer in payshield is 32KB
-	data, _ := base64.URLEncoding.DecodeString(input.Cleartext)
-	datapad := zeroPadding([]byte(data), 8)
-	datalen := leftPad(string(datapad), "0", 4)
+	data, _ := base64.URLEncoding.DecodeString(input.ClearText)
+	dataPad := zeroPadding([]byte(data), 8)
+	dataLen := leftPad(string(dataPad), "0", 4)
 
-	messageheader := []byte("HEAD")
-	commandcode := []byte("M0")
-	modeflag := []byte("00")
-	inputformatflag := []byte("0")
-	outputformatflag := []byte("0")
-	keytype := []byte("FFF")
+	messageHeader := []byte("HEAD")
+	commandCode := []byte("M0")
+	modeFlag := []byte("00")
+	inputFormatFlag := []byte("0")
+	outputFormatFlag := []byte("0")
+	keyType := []byte("FFF")
 	key := []byte(input.Key)
-	messagelen := []byte(datalen)
-	message := datapad
+	messageLen := []byte(dataLen)
+	message := dataPad
 
 	commandMessage := Join(
-		messageheader,
-		commandcode,
-		modeflag,
-		inputformatflag,
-		outputformatflag,
-		keytype,
+		messageHeader,
+		commandCode,
+		modeFlag,
+		inputFormatFlag,
+		outputFormatFlag,
+		keyType,
 		key,
-		messagelen,
+		messageLen,
 		message,
 	)
 
@@ -134,28 +134,28 @@ func (repository *HsmRepository) M0(input models.InpEnc) (res string, errCode st
 func (repository *HsmRepository) M2(input models.InpDec) (res string, errCode string) {
 
 	//max buffer in payshield is 32KB
-	data, _ := base64.URLEncoding.DecodeString(input.Ciphertext)
-	datalen := leftPad(string(data), "0", 4)
+	data, _ := base64.URLEncoding.DecodeString(input.CipherText)
+	dataLen := leftPad(string(data), "0", 4)
 
-	messageheader := []byte("HEAD")
-	commandcode := []byte("M2")
-	modeflag := []byte("00")
-	inputformatflag := []byte("0")
-	outputformatflag := []byte("0")
-	keytype := []byte("FFF")
+	messageHeader := []byte("HEAD")
+	commandCode := []byte("M2")
+	modeFlag := []byte("00")
+	inputFormatFlag := []byte("0")
+	outputFormatFlag := []byte("0")
+	keyType := []byte("FFF")
 	key := []byte(input.Key)
-	messagelen := []byte(datalen)
+	messageLen := []byte(dataLen)
 	message := data
 
 	commandMessage := Join(
-		messageheader,
-		commandcode,
-		modeflag,
-		inputformatflag,
-		outputformatflag,
-		keytype,
+		messageHeader,
+		commandCode,
+		modeFlag,
+		inputFormatFlag,
+		outputFormatFlag,
+		keyType,
 		key,
-		messagelen,
+		messageLen,
 		message,
 	)
 
@@ -175,12 +175,12 @@ func (repository *HsmRepository) M2(input models.InpDec) (res string, errCode st
 // Check Version
 func (repository *HsmRepository) NC() (lmk string, firmware string, errCode string) {
 
-	messageheader := []byte("HEAD")
-	commandcode := []byte("NC")
+	messageHeader := []byte("HEAD")
+	commandCode := []byte("NC")
 
 	commandMessage := Join(
-		messageheader,
-		commandcode,
+		messageHeader,
+		commandCode,
 	)
 
 	responseMessage := repository.WriteRequest(commandMessage)
@@ -203,44 +203,44 @@ func (repository *HsmRepository) NC() (lmk string, firmware string, errCode stri
 // Decrypt
 func (repository *HsmRepository) BW(input models.Migrate) (res models.MigrateRes, errCode string) {
 
-	messageheader := []byte("HEAD")
-	commandcode := []byte("BW")
-	keytypecode2d := []byte(input.KeyTypeCode2d)
-	keylenflag := []byte("1")
+	messageHeader := []byte("HEAD")
+	commandCode := []byte("BW")
+	keyTypeCode2d2d := []byte(input.KeyTypeCode2d)
+	keyLenFlag := []byte("1")
 	key := []byte(input.Key)
 	delim1 := []byte(";")
-	keytypecode := []byte(input.KeyTypeCode)
+	keyTypeCode2d := []byte(input.KeyTypeCode)
 	delim2 := []byte("#")
 	keyusage := []byte(input.KeyUsage)
-	modeofuse := []byte(input.ModeOfUse)
+	modeOfUse := []byte(input.ModeOfUse)
 	kvn := []byte(input.KVN)
 	exportability := []byte(input.Exportability)
-	optionalblocknumber := []byte(input.NumberOfOptionalBlocks)
+	optionalBlockNumber := []byte(input.NumberOfOptionalBlocks)
 	delim3 := []byte("!")
-	kcvflag := []byte(input.KCVReturnFlag)
-	kcvtype := []byte(input.KCVType)
+	kcvFlag := []byte(input.KCVReturnFlag)
+	kcvType := []byte(input.KCVType)
 
 	commandMessage := Join(
-		messageheader,
-		commandcode,
-		keytypecode2d,
-		keylenflag,
+		messageHeader,
+		commandCode,
+		keyTypeCode2d2d,
+		keyLenFlag,
 		key,
 		delim1,
-		keytypecode,
+		keyTypeCode2d,
 		delim2,
 		keyusage,
-		modeofuse,
+		modeOfUse,
 		kvn,
 		exportability,
-		optionalblocknumber,
+		optionalBlockNumber,
 	)
 	if input.KCVReturnFlag == "1" {
 		commandMessage = Join(
 			commandMessage,
 			delim3,
-			kcvflag,
-			kcvtype,
+			kcvFlag,
+			kcvType,
 		)
 	}
 
@@ -279,15 +279,15 @@ func (repository *HsmRepository) BW(input models.Migrate) (res models.MigrateRes
 	return
 }
 
-func keyExtraction(message []byte, index int) (key string, rindex int) {
-	keyPrefex := string(message[index : index+1])
-	if keyPrefex == "U" {
+func keyExtraction(message []byte, index int) (key string, endIndex int) {
+	keyPrefix := string(message[index : index+1])
+	if keyPrefix == "U" {
 		key = string(message[index : index+32+1])
 		index += 32 + 1
-	} else if keyPrefex == "T" {
+	} else if keyPrefix == "T" {
 		key = string(message[index : index+48+1])
 		index += 48 + 1
-	} else if keyPrefex == "S" || keyPrefex == "R" {
+	} else if keyPrefix == "S" || keyPrefix == "R" {
 		keysize, _ := strconv.Atoi(string(message[index+3 : index+6]))
 		key = string(message[index : index+keysize+1])
 		index = index + keysize + 1
@@ -295,34 +295,34 @@ func keyExtraction(message []byte, index int) (key string, rindex int) {
 		key = string(message[index : index+16])
 		index += 16
 	}
-	rindex = index
-	return key, rindex
+	endIndex = index
+	return key, endIndex
 }
 
 // Generate Key
 func (repository *HsmRepository) A0(input models.GenerateKey) (res models.GenerateKeyResp, errCode string) {
 
-	messageheader := []byte("HEAD")
-	commandcode := []byte("A0")
+	messageHeader := []byte("HEAD")
+	commandCode := []byte("A0")
 	mode := []byte(input.Mode)
-	keytype := []byte(input.KeyType)
-	keyscheme := []byte(input.KeyScheme)
-	derivekeymode := []byte(input.DeriveKeyMode)
-	dukptmasterkeytype := []byte(input.DUKPTMasterKeyType)
-	dukptmasterkey := []byte(input.DUKPTMasterKey)
+	keyType := []byte(input.KeyType)
+	keyScheme := []byte(input.KeyScheme)
+	deriveKeyMode := []byte(input.DeriveKeyMode)
+	dukptMasterKeyType := []byte(input.DUKPTMasterKeyType)
+	dukptMasterKey := []byte(input.DUKPTMasterKey)
 	ksn := []byte(input.KSN)
 	zmkTmkBdk := []byte(input.ZmkTmkBdk)
 	exportKeyScheme := []byte(input.ExportKeyScheme)
 	keyusage := []byte(input.KeyUsage)
 	algorithm := []byte(input.Algorithm)
-	modeofuse := []byte(input.ModeofUse)
+	modeOfUse := []byte(input.ModeOfUse)
 	kvn := []byte(input.KVN)
 	exportability := []byte(input.Exportability)
-	numberofoptionalblocks := []byte(input.NumberOfOptionalBlocks)
+	numberOfOptionalBlocks := []byte(input.NumberOfOptionalBlocks)
 
 	commandMessage := Join(
-		messageheader,
-		commandcode,
+		messageHeader,
+		commandCode,
 	)
 
 	// Generate
@@ -330,8 +330,8 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 		commandMessage = Join(
 			commandMessage,
 			mode,
-			keytype,
-			keyscheme,
+			keyType,
+			keyScheme,
 		)
 		// Generate and Export
 	} else if input.Mode == "1" {
@@ -344,15 +344,15 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 		commandMessage = Join(
 			commandMessage,
 			mode,
-			keytype,
-			keyscheme,
+			keyType,
+			keyScheme,
 		)
 		if input.DeriveKeyMode == "0" {
 			commandMessage = Join(
 				commandMessage,
-				derivekeymode,
-				dukptmasterkeytype,
-				dukptmasterkey,
+				deriveKeyMode,
+				dukptMasterKeyType,
+				dukptMasterKey,
 				ksn,
 			)
 		} else if input.DeriveKeyMode == "1" {
@@ -360,7 +360,7 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 		} else {
 			panic(input.DeriveKeyMode)
 		}
-		// Mising ZMK/TMK Flag check
+		// Missing ZMK/TMK Flag check
 
 		commandMessage = Join(
 			commandMessage,
@@ -378,10 +378,10 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 			kbDelim,
 			keyusage,
 			algorithm,
-			modeofuse,
+			modeOfUse,
 			kvn,
 			exportability,
-			numberofoptionalblocks,
+			numberOfOptionalBlocks,
 		)
 
 	} else {
@@ -407,23 +407,23 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 
 func (repository *HsmRepository) A8(input models.ExportKey) (res models.ExportKeyResp, errCode string) {
 
-	messageheader := []byte("HEAD")
-	commandcode := []byte("A8")
-	keytype := []byte(input.KeyType)
+	messageHeader := []byte("HEAD")
+	commandCode := []byte("A8")
+	keyType := []byte(input.KeyType)
 	zmkTmk := []byte(input.ZMK_TMK)
 	key := []byte(input.Key)
-	keyscheme := []byte(input.KeyScheme)
+	keyScheme := []byte(input.KeyScheme)
 
 	commandMessage := Join(
-		messageheader,
-		commandcode,
+		messageHeader,
+		commandCode,
 	)
 	commandMessage = Join(
 		commandMessage,
-		keytype,
+		keyType,
 		zmkTmk,
 		key,
-		keyscheme,
+		keyScheme,
 	)
 
 	responseMessage := repository.WriteRequest(commandMessage)
@@ -453,8 +453,8 @@ func (repository *HsmRepository) A8(input models.ExportKey) (res models.ExportKe
 }
 func (repository *HsmRepository) GI(input models.ImportKeyOrDataUnderRSAPubKey) (res models.ImportKeyOrDataUnderRSAPubKeyResp, errCode string) {
 
-	messageheader := []byte("HEAD")
-	commandcode := []byte("GI")
+	messageHeader := []byte("HEAD")
+	commandCode := []byte("GI")
 	encryptionId := []byte(input.EncryptionId)
 	padModeId := []byte(input.PadModeId)
 	maskGenFunc := []byte(input.MaskGenFunc)
@@ -485,8 +485,8 @@ func (repository *HsmRepository) GI(input models.ImportKeyOrDataUnderRSAPubKey) 
 
 	// Message Header + CC
 	commandMessage = Join(
-		messageheader,
-		commandcode,
+		messageHeader,
+		commandCode,
 	)
 	// Identifier of algorithm used to decrypt the key: 01: RSA
 	commandMessage = Join(
@@ -583,45 +583,45 @@ func (repository *HsmRepository) GI(input models.ImportKeyOrDataUnderRSAPubKey) 
 
 func (repository *HsmRepository) EI(input models.GeneratePair) (res models.GeneratePairResp, errCode string) {
 
-	messageheader := []byte("HEAD")
-	commandcode := []byte("EI")
-	keytypeindicator := []byte(input.KeyTypeIndicator)
-	keylen := []byte(input.KeyLen)
-	publickeyencoding := []byte(input.PublicKeyEncoding)
-	publicexponentlen := []byte(input.PublicExponentLen)
-	publicexponent := []byte(input.PublicExponent)
-	lmkidDelim := []byte("%")
-	lmkid := []byte(input.LMKId)
-	keyblockDelim := []byte("#")
+	messageHeader := []byte("HEAD")
+	commandCode := []byte("EI")
+	keyTypeIndicator := []byte(input.KeyTypeIndicator)
+	keyLen := []byte(input.KeyLen)
+	publicKeyEncoding := []byte(input.PublicKeyEncoding)
+	publicExponentLen := []byte(input.PublicExponentLen)
+	publicExponent := []byte(input.PublicExponent)
+	lmkIdDelim := []byte("%")
+	lmkId := []byte(input.LMKId)
+	keyBlockDelim := []byte("#")
 	kvn := []byte(input.KVN)
-	numberofoptionalblocks := []byte(input.NumberOfOptionalBlocks)
+	numberOfOptionalBlocks := []byte(input.NumberOfOptionalBlocks)
 	exportabilityDelim := []byte("&")
 	exportability := []byte(input.Exportability)
 
 	commandMessage := Join(
-		messageheader,
-		commandcode,
+		messageHeader,
+		commandCode,
 	)
 	commandMessage = Join(
 		commandMessage,
-		keytypeindicator,
-		keylen,
-		publickeyencoding,
-		publicexponentlen,
-		publicexponent,
+		keyTypeIndicator,
+		keyLen,
+		publicKeyEncoding,
+		publicExponentLen,
+		publicExponent,
 	)
 	if input.LMKId != "" {
 		commandMessage = Join(
 			commandMessage,
-			lmkidDelim,
-			lmkid,
+			lmkIdDelim,
+			lmkId,
 		)
 	}
 	commandMessage = Join(
 		commandMessage,
-		keyblockDelim,
+		keyBlockDelim,
 		kvn,
-		numberofoptionalblocks,
+		numberOfOptionalBlocks,
 		exportabilityDelim,
 		exportability,
 	)
@@ -653,38 +653,38 @@ func (repository *HsmRepository) EI(input models.GeneratePair) (res models.Gener
 }
 func (repository *HsmRepository) EM(input models.TranslatePrivate) (res models.TranslatePrivateResp, errCode string) {
 
-	messageheader := []byte("HEAD")
-	commandcode := []byte("EM")
-	privatekeylen := []byte(input.PrivateKeyLen)
+	messageHeader := []byte("HEAD")
+	commandCode := []byte("EM")
+	privateKeyLen := []byte(input.PrivateKeyLen)
 	privatekey, err := base64.StdEncoding.DecodeString(input.PrivateKey)
 	if err != nil {
 		panic(err)
 	}
 	if input.PrivateKeyLen == "" {
-		privatekeylen = []byte("0" + strconv.Itoa(len(privatekey)))
+		privateKeyLen = []byte("0" + strconv.Itoa(len(privatekey)))
 	}
-	lmkidDelim := []byte("%")
-	lmkid := []byte(input.LMKId)
+	lmkIdDelim := []byte("%")
+	lmkId := []byte(input.LMKId)
 	kbDelim := []byte("#")
 	kvn := []byte(input.KVN)
-	numberofoptionalblocks := []byte(input.NumberOfOptionalBlocks)
+	numberOfOptionalBlocks := []byte(input.NumberOfOptionalBlocks)
 	exportabilityDelim := []byte("&")
 	exportability := []byte(input.Exportability)
 
 	commandMessage := Join(
-		messageheader,
-		commandcode,
+		messageHeader,
+		commandCode,
 	)
 	commandMessage = Join(
 		commandMessage,
-		privatekeylen,
+		privateKeyLen,
 		privatekey,
 	)
 	if input.LMKId != "" {
 		commandMessage = Join(
 			commandMessage,
-			lmkidDelim,
-			lmkid,
+			lmkIdDelim,
+			lmkId,
 		)
 	}
 	if input.KVN != "" {
@@ -692,7 +692,7 @@ func (repository *HsmRepository) EM(input models.TranslatePrivate) (res models.T
 			commandMessage,
 			kbDelim,
 			kvn,
-			numberofoptionalblocks,
+			numberOfOptionalBlocks,
 			exportabilityDelim,
 			exportability,
 		)

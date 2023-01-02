@@ -1,13 +1,13 @@
 package models
 
 type PinVer struct {
-	Tpk        string `json:"tpk"`
-	Pvk        string `json:"pvk"`
-	Pinblock   string `json:"pinblock"`
-	Pan        string `json:"pan"`
-	Dectable   string `json:"dectable"`
-	Pinvaldata string `json:"pinvaldata"`
-	Pinoffset  string `json:"pinoffset"`
+	Tpk                 string `json:"tpk"`
+	Pvk                 string `json:"pvk"`
+	PinBlock            string `json:"pinblock"`
+	Pan                 string `json:"pan"`
+	DecimalizationTable string `json:"dectable"`
+	PinValidationData   string `json:"pinvaldata"`
+	PinOffset           string `json:"pinoffset"`
 }
 type VersionResponse struct {
 	LmkCheck       string `json:"lmkCheck"`
@@ -15,21 +15,11 @@ type VersionResponse struct {
 }
 type InpEnc struct {
 	Key       string `json:"key"`
-	Cleartext string `json:"cleartext"`
+	ClearText string `json:"cleartext"`
 }
 type InpDec struct {
 	Key        string `json:"key"`
-	Ciphertext string `json:"ciphertext"`
-}
-
-type InpToken struct {
-	Profile string `json:"profile"`
-	Data    string `json:"data"`
-}
-
-type InpDetoken struct {
-	Profile string `json:"profile"`
-	Token   string `json:"token"`
+	CipherText string `json:"ciphertext"`
 }
 
 type Migrate struct {
@@ -79,7 +69,7 @@ type GenerateKey struct {
 	LMKId                  string          `json:"lmkid"`
 	KeyUsage               string          `json:"keyusage"`
 	Algorithm              string          `json:"algorithm"`
-	ModeofUse              string          `json:"modeofuse"`
+	ModeOfUse              string          `json:"modeofuse"`
 	KVN                    string          `json:"kvn"`
 	Exportability          string          `json:"exportability"`
 	NumberOfOptionalBlocks string          `json:"NumberOfOptionalBlocks"`
@@ -111,7 +101,7 @@ type ExportKey struct {
 	// IKSN      string `json:"iksn"`
 	// KeyUsage  string `json:"keyusage"`
 	// Algorithm string `json:"algorithm"`
-	// ModeofUse string `json:"modeofuse"`
+	// ModeOfUse string `json:"modeofuse"`
 }
 type ExportKeyResp struct {
 	Key string `json:"key"`
