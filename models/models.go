@@ -81,7 +81,7 @@ type GenerateKey struct {
 }
 type GenerateKeyResp struct {
 	Key       string `json:"key"`
-	KeyExport string `json:"keyexport"`
+	KeyExport string `json:"keyExport"`
 	KCV       string `json:"kcv"`
 	ZkaRndi   string `json:"zkaRndi"`
 }
