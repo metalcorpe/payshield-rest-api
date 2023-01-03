@@ -1,23 +1,23 @@
 {
-    "keytypecode2d": "FF",
-    "keylenflag": "1",
+    "keyTypeCode2d": "FF",
+    "keyLenFlag": "1",
     "key": "U2DCCB5D9D9AB4B8BFD8980FEE839E6C6",
-    "keytypecode": "001",
-    "keyscheme": "",
-    "lmkid": "",
-    "keyusage": "72",
-    "modeofuse": "N",
+    "keyTypeCode": "001",
+    "keyScheme": "",
+    "lmkId": "",
+    "keyUsage": "72",
+    "modeOfUse": "N",
     "kvn": "00",
     "exportability": "S",
     "numberofoptionalblocks": "00",
-    "optionalblocks": [
+    "optionalBlocks": [
         {
-            "optionalblockidentifier": "",
-            "optionalblocklength": "",
-            "modifiedexportvalue": "",
-            "keyblockversionid": ""
+            "optionalBlockIdentifier": "",
+            "optionalBlockLength": "",
+            "modifiedExportValue": "",
+            "keyBlockVersionId": ""
         }
     ],
-    "kcvreturnflag": "1",
-    "kcvtype": "1"
+    "kcvReturnFlag": "1",
+    "kcvType": "1"
 }

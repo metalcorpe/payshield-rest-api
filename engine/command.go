@@ -206,7 +206,7 @@ func (repository *HsmRepository) BW(input models.Migrate) (res models.MigrateRes
 	delim1 := []byte(";")
 	keyTypeCode2d := []byte(input.KeyTypeCode)
 	delim2 := []byte("#")
-	keyusage := []byte(input.KeyUsage)
+	keyUsage := []byte(input.KeyUsage)
 	modeOfUse := []byte(input.ModeOfUse)
 	kvn := []byte(input.KVN)
 	exportability := []byte(input.Exportability)
@@ -224,7 +224,7 @@ func (repository *HsmRepository) BW(input models.Migrate) (res models.MigrateRes
 		delim1,
 		keyTypeCode2d,
 		delim2,
-		keyusage,
+		keyUsage,
 		modeOfUse,
 		kvn,
 		exportability,
@@ -308,7 +308,7 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 	ksn := []byte(input.KSN)
 	zmkTmkBdk := []byte(input.ZmkTmkBdk)
 	exportKeyScheme := []byte(input.ExportKeyScheme)
-	keyusage := []byte(input.KeyUsage)
+	keyUsage := []byte(input.KeyUsage)
 	algorithm := []byte(input.Algorithm)
 	modeOfUse := []byte(input.ModeOfUse)
 	kvn := []byte(input.KVN)
@@ -371,7 +371,7 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 		commandMessage = Join(
 			commandMessage,
 			kbDelim,
-			keyusage,
+			keyUsage,
 			algorithm,
 			modeOfUse,
 			kvn,
@@ -651,12 +651,12 @@ func (repository *HsmRepository) EM(input models.TranslatePrivate) (res models.T
 	messageHeader := []byte("HEAD")
 	commandCode := []byte("EM")
 	privateKeyLen := []byte(input.PrivateKeyLen)
-	privatekey, err := base64.StdEncoding.DecodeString(input.PrivateKey)
+	privateKey, err := base64.StdEncoding.DecodeString(input.PrivateKey)
 	if err != nil {
 		panic(err)
 	}
 	if input.PrivateKeyLen == "" {
-		privateKeyLen = []byte("0" + strconv.Itoa(len(privatekey)))
+		privateKeyLen = []byte("0" + strconv.Itoa(len(privateKey)))
 	}
 	lmkIdDelim := []byte("%")
 	lmkId := []byte(input.LMKId)
@@ -673,7 +673,7 @@ func (repository *HsmRepository) EM(input models.TranslatePrivate) (res models.T
 	commandMessage = Join(
 		commandMessage,
 		privateKeyLen,
-		privatekey,
+		privateKey,
 	)
 	if input.LMKId != "" {
 		commandMessage = Join(

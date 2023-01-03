@@ -1,32 +1,32 @@
 {
     "mode": "0",
-    "keytype": "001",
-    "keyscheme": "U",
-    "derivekeymode": "",
-    "dukptmasterkeytype": "",
-    "dukptmasterkey": "",
+    "keyType": "001",
+    "keyScheme": "U",
+    "deriveKeyMode": "",
+    "dukptMasterKeyType": "",
+    "dukptMasterKey": "",
     "ksn": "",
-    "zkamasterkeytype": "",
-    "zkamasterkey": "",
-    "zkaoption": "",
-    "zkarndi": "",
-    "zmk_tmkflag": "",
+    "zkaMasterKeyType": "",
+    "zkaMasterKey": "",
+    "zkaOption": "",
+    "zkaRndi": "",
+    "zmkTmkFlag": "",
     "zmk_tmk_bdk": "",
     "iksn": "",
-    "atallavariant": "",
-    "lmkid": "",
-    "keyusage": "",
+    "atallaVariant": "",
+    "lmkId": "",
+    "keyUsage": "",
     "algorithm": "",
-    "modeofuse": "",
+    "modeOfUse": "",
     "kvn": "",
     "exportability": "",
     "numberofoptionalblocks": "",
-    "optionalblocks": [
+    "optionalBlocks": [
         {
-            "optionalblockidentifier": "",
-            "optionalblocklength": "",
-            "modifiedexportvalue": "",
-            "keyblockversionid": ""
+            "optionalBlockIdentifier": "",
+            "optionalBlockLength": "",
+            "modifiedExportValue": "",
+            "keyBlockVersionId": ""
         }
     ]
 }

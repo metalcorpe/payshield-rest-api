@@ -13,18 +13,18 @@
   "kcvType":"1",
   "keyDataBlockType":"03",
   "kcvLen":"00",
-  "lmkid":"",
+  "lmkId":"",
   "keyUsage":"K0",
   "modeOfUse":"N",
   "kvn": "00",
   "exportability": "S",
   "numberofoptionalblocks": "00",
-  "optionalblocks": [
+  "optionalBlocks": [
     {
-      "optionalblockidentifier": "",
-      "optionalblocklength": "",
-      "modifiedexportvalue": "",
-      "keyblockversionid": ""
+      "optionalBlockIdentifier": "",
+      "optionalBlockLength": "",
+      "modifiedExportValue": "",
+      "keyBlockVersionId": ""
     }
   ]
 }

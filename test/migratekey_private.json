@@ -1,15 +1,15 @@
 {
-    "privatekeylen": "0656",
-    "privatekey": "Nc73JmOIVzB8RGAvcrefrBdPtKCrC9FI4nbMm344MgNMAfIEC/WfV/+x7O+rMwiXkXShE6qJrW/MKDdqAnayvdIuzYOZL89dtr3NEo+EvLdF/zu/bFhJfi9OYYw/p/xhT1hIkM0TO60cixY8qCztYY6vQT7nbXewHLMMo5hj7HpmI5ULAR1yA7zbSgP77nBwxCIvcJxyNexKQ2OhLDi29HNcF1AOJUTCz9ib8OjPqVCeg6sZF3D8BBI0D/NZxiGbPYgClGTvyZmJTofzMDkHU1Vep2d4LoIyBV0bX7YWIJK0LH5xx2KpncQlfH/z7zv+xWOLR5OTaIwNAk6TG/LP5TTHSLnIoIP/wlh+UOGmA85kRHHfnbN6BgK+u+BitYTdq1AoZWE42FNco89tu8+xBFvPsSG7FjGJCLhm7X6o5glA6izQkMaUacJjvogSr50lKcqQyjubMj9BJfAxgnphzkiH6ZnUSiBeEHyvvuZhNWOhtcwYdjUjJjNyzVonHgrAfy/1HP+0dLAF4nuXBJMgm8CewzPeb46UBGg+zTbTSNtc0EoKt5nZpXmPK6mMeJv48w6itfzhy3tELiILSdEEOhyreRq7pbmi7HKBXNwxajF1MVs5FaxBJcVHHqatd4dyYfhVm69UMyv36Ra2sZ5EfJvdHj9HXQ4siZgs+r7O/53K87IEJl1sNrArWqpAywJq+qwaKjI8fGBt7Eu2DPcYh4ddb1tiIBqIzjULt/3gnFsTGv/ziS54+YzsRw7eou2G3P5ALuzVpfgbDB0U6A7Bcpfu9zKsFzc8UMQZZhqmrfEtk0rDKV9wdf5DyqlGSh2qlQ1RI4Vf3ZDt148qVqiCz2QlPN0zFBSKbm35uMSvdyA=",
-    "lmkid": "",
+    "privateKeyLen": "0656",
+    "privateKey": "Nc73JmOIVzB8RGAvcrefrBdPtKCrC9FI4nbMm344MgNMAfIEC/WfV/+x7O+rMwiXkXShE6qJrW/MKDdqAnayvdIuzYOZL89dtr3NEo+EvLdF/zu/bFhJfi9OYYw/p/xhT1hIkM0TO60cixY8qCztYY6vQT7nbXewHLMMo5hj7HpmI5ULAR1yA7zbSgP77nBwxCIvcJxyNexKQ2OhLDi29HNcF1AOJUTCz9ib8OjPqVCeg6sZF3D8BBI0D/NZxiGbPYgClGTvyZmJTofzMDkHU1Vep2d4LoIyBV0bX7YWIJK0LH5xx2KpncQlfH/z7zv+xWOLR5OTaIwNAk6TG/LP5TTHSLnIoIP/wlh+UOGmA85kRHHfnbN6BgK+u+BitYTdq1AoZWE42FNco89tu8+xBFvPsSG7FjGJCLhm7X6o5glA6izQkMaUacJjvogSr50lKcqQyjubMj9BJfAxgnphzkiH6ZnUSiBeEHyvvuZhNWOhtcwYdjUjJjNyzVonHgrAfy/1HP+0dLAF4nuXBJMgm8CewzPeb46UBGg+zTbTSNtc0EoKt5nZpXmPK6mMeJv48w6itfzhy3tELiILSdEEOhyreRq7pbmi7HKBXNwxajF1MVs5FaxBJcVHHqatd4dyYfhVm69UMyv36Ra2sZ5EfJvdHj9HXQ4siZgs+r7O/53K87IEJl1sNrArWqpAywJq+qwaKjI8fGBt7Eu2DPcYh4ddb1tiIBqIzjULt/3gnFsTGv/ziS54+YzsRw7eou2G3P5ALuzVpfgbDB0U6A7Bcpfu9zKsFzc8UMQZZhqmrfEtk0rDKV9wdf5DyqlGSh2qlQ1RI4Vf3ZDt148qVqiCz2QlPN0zFBSKbm35uMSvdyA=",
+    "lmkId": "",
     "kvn": "00",
     "numberofoptionalblocks": "00",
-    "optionalblocks": [
+    "optionalBlocks": [
         {
-            "optionalblockidentifier": "",
-            "optionalblocklength": "",
-            "modifiedexportvalue": "",
-            "keyblockversionid": ""
+            "optionalBlockIdentifier": "",
+            "optionalBlockLength": "",
+            "modifiedExportValue": "",
+            "keyBlockVersionId": ""
         }
     ],
     "exportability": "S"

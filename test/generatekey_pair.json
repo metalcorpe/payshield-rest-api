@@ -1,18 +1,18 @@
 {
-    "keytypeindicator": "2",
-    "keylen": "2048",
-    "publickeyencoding": "02",
-    "publicexponentlen": "",
-    "publicexponent": "",
-    "lmkid": "",
+    "keyTypeIndicator": "2",
+    "keyLen": "2048",
+    "publicKeyEncoding": "02",
+    "publicExponentLen": "",
+    "publicExponent": "",
+    "lmkId": "",
     "kvn": "",
     "numberofoptionalblocks": "",
-    "optionalblocks": [
+    "optionalBlocks": [
         {
-            "optionalblockidentifier": "",
-            "optionalblocklength": "",
-            "modifiedexportvalue": "",
-            "keyblockversionid": ""
+            "optionalBlockIdentifier": "",
+            "optionalBlockLength": "",
+            "modifiedExportValue": "",
+            "keyBlockVersionId": ""
         }
     ],
     "exportability": ""
