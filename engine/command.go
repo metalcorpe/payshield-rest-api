@@ -50,6 +50,7 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 	mode := []byte(input.Mode)
 	keyType := []byte(input.KeyType)
 	keyScheme := []byte(input.KeyScheme)
+	lmkId := []byte(input.LMKId)
 	deriveKeyMode := []byte(input.DeriveKeyMode)
 	dukptMasterKeyType := []byte(input.DUKPTMasterKeyType)
 	dukptMasterKey := []byte(input.DUKPTMasterKey)
@@ -68,22 +69,23 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 		commandCode,
 	)
 
+	switch input.Mode {
 	// Generate
-	if input.Mode == "0" {
+	case "0":
 		commandMessage = Join(
 			commandMessage,
 			mode,
 			keyType,
 			keyScheme,
 		)
-		// Generate and Export
-	} else if input.Mode == "1" {
+	// Generate and Export
+	case "1":
 		panic(input.Mode)
-		// Derive
-	} else if input.Mode == "A" {
+	// Derive
+	case "A":
 		panic(input.Mode)
-		// Derive and Export
-	} else if input.Mode == "B" {
+	// Derive and Export
+	case "B":
 		commandMessage = Join(
 			commandMessage,
 			mode,
@@ -104,32 +106,38 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 			panic(input.DeriveKeyMode)
 		}
 		// Missing ZMK/TMK Flag check
-
 		commandMessage = Join(
 			commandMessage,
 			zmkTmkBdk,
 		)
 		// Missing Current BDK KSN
-
 		commandMessage = Join(
 			commandMessage,
 			exportKeyScheme,
 		)
-		kbDelim := []byte("#")
-		commandMessage = Join(
-			commandMessage,
-			kbDelim,
-			keyUsage,
-			algorithm,
-			modeOfUse,
-			kvn,
-			exportability,
-			numberOfOptionalBlocks,
-		)
 
-	} else {
+	default:
 		panic(input.Mode)
 	}
+	if input.LMKId != "" {
+		lmkIdDelim := []byte("%")
+		commandMessage = Join(
+			commandMessage,
+			lmkIdDelim,
+			lmkId,
+		)
+	}
+	kbDelim := []byte("#")
+	commandMessage = Join(
+		commandMessage,
+		kbDelim,
+		keyUsage,
+		algorithm,
+		modeOfUse,
+		kvn,
+		exportability,
+		numberOfOptionalBlocks,
+	)
 
 	responseMessage := repository.WriteRequest(commandMessage)
 
