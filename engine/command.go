@@ -42,6 +42,112 @@ type HsmRepository struct {
 	interfaces.IConnectionHandler
 }
 
+// Generate Key
+func (repository *HsmRepository) A0(input models.GenerateKey) (res models.GenerateKeyResp, errCode string) {
+
+	messageHeader := []byte("HEAD")
+	commandCode := []byte("A0")
+	mode := []byte(input.Mode)
+	keyType := []byte(input.KeyType)
+	keyScheme := []byte(input.KeyScheme)
+	deriveKeyMode := []byte(input.DeriveKeyMode)
+	dukptMasterKeyType := []byte(input.DUKPTMasterKeyType)
+	dukptMasterKey := []byte(input.DUKPTMasterKey)
+	ksn := []byte(input.KSN)
+	zmkTmkBdk := []byte(input.ZmkTmkBdk)
+	exportKeyScheme := []byte(input.ExportKeyScheme)
+	keyUsage := []byte(input.KeyUsage)
+	algorithm := []byte(input.Algorithm)
+	modeOfUse := []byte(input.ModeOfUse)
+	kvn := []byte(input.KVN)
+	exportability := []byte(input.Exportability)
+	numberOfOptionalBlocks := []byte(input.NumberOfOptionalBlocks)
+
+	commandMessage := Join(
+		messageHeader,
+		commandCode,
+	)
+
+	// Generate
+	if input.Mode == "0" {
+		commandMessage = Join(
+			commandMessage,
+			mode,
+			keyType,
+			keyScheme,
+		)
+		// Generate and Export
+	} else if input.Mode == "1" {
+		panic(input.Mode)
+		// Derive
+	} else if input.Mode == "A" {
+		panic(input.Mode)
+		// Derive and Export
+	} else if input.Mode == "B" {
+		commandMessage = Join(
+			commandMessage,
+			mode,
+			keyType,
+			keyScheme,
+		)
+		if input.DeriveKeyMode == "0" {
+			commandMessage = Join(
+				commandMessage,
+				deriveKeyMode,
+				dukptMasterKeyType,
+				dukptMasterKey,
+				ksn,
+			)
+		} else if input.DeriveKeyMode == "1" {
+			panic(input.DeriveKeyMode)
+		} else {
+			panic(input.DeriveKeyMode)
+		}
+		// Missing ZMK/TMK Flag check
+
+		commandMessage = Join(
+			commandMessage,
+			zmkTmkBdk,
+		)
+		// Missing Current BDK KSN
+
+		commandMessage = Join(
+			commandMessage,
+			exportKeyScheme,
+		)
+		kbDelim := []byte("#")
+		commandMessage = Join(
+			commandMessage,
+			kbDelim,
+			keyUsage,
+			algorithm,
+			modeOfUse,
+			kvn,
+			exportability,
+			numberOfOptionalBlocks,
+		)
+
+	} else {
+		panic(input.Mode)
+	}
+
+	responseMessage := repository.WriteRequest(commandMessage)
+
+	errCode = string(responseMessage)[8:10]
+
+	if errCode == "00" {
+		index := 10
+		res.Key, index = keyExtraction(responseMessage, index)
+
+		if input.Mode == "1" || input.Mode == "B" {
+			res.KeyExport, _ = keyExtraction(responseMessage, index)
+		}
+		res.KCV = string(responseMessage[len(responseMessage)-6:])
+
+	}
+	return
+}
+
 // Verify PIN
 func (repository *HsmRepository) DA(input models.PinVer) (errCode string) {
 
@@ -292,112 +398,6 @@ func keyExtraction(message []byte, index int) (key string, endIndex int) {
 	}
 	endIndex = index
 	return key, endIndex
-}
-
-// Generate Key
-func (repository *HsmRepository) A0(input models.GenerateKey) (res models.GenerateKeyResp, errCode string) {
-
-	messageHeader := []byte("HEAD")
-	commandCode := []byte("A0")
-	mode := []byte(input.Mode)
-	keyType := []byte(input.KeyType)
-	keyScheme := []byte(input.KeyScheme)
-	deriveKeyMode := []byte(input.DeriveKeyMode)
-	dukptMasterKeyType := []byte(input.DUKPTMasterKeyType)
-	dukptMasterKey := []byte(input.DUKPTMasterKey)
-	ksn := []byte(input.KSN)
-	zmkTmkBdk := []byte(input.ZmkTmkBdk)
-	exportKeyScheme := []byte(input.ExportKeyScheme)
-	keyUsage := []byte(input.KeyUsage)
-	algorithm := []byte(input.Algorithm)
-	modeOfUse := []byte(input.ModeOfUse)
-	kvn := []byte(input.KVN)
-	exportability := []byte(input.Exportability)
-	numberOfOptionalBlocks := []byte(input.NumberOfOptionalBlocks)
-
-	commandMessage := Join(
-		messageHeader,
-		commandCode,
-	)
-
-	// Generate
-	if input.Mode == "0" {
-		commandMessage = Join(
-			commandMessage,
-			mode,
-			keyType,
-			keyScheme,
-		)
-		// Generate and Export
-	} else if input.Mode == "1" {
-		panic(input.Mode)
-		// Derive
-	} else if input.Mode == "A" {
-		panic(input.Mode)
-		// Derive and Export
-	} else if input.Mode == "B" {
-		commandMessage = Join(
-			commandMessage,
-			mode,
-			keyType,
-			keyScheme,
-		)
-		if input.DeriveKeyMode == "0" {
-			commandMessage = Join(
-				commandMessage,
-				deriveKeyMode,
-				dukptMasterKeyType,
-				dukptMasterKey,
-				ksn,
-			)
-		} else if input.DeriveKeyMode == "1" {
-			panic(input.DeriveKeyMode)
-		} else {
-			panic(input.DeriveKeyMode)
-		}
-		// Missing ZMK/TMK Flag check
-
-		commandMessage = Join(
-			commandMessage,
-			zmkTmkBdk,
-		)
-		// Missing Current BDK KSN
-
-		commandMessage = Join(
-			commandMessage,
-			exportKeyScheme,
-		)
-		kbDelim := []byte("#")
-		commandMessage = Join(
-			commandMessage,
-			kbDelim,
-			keyUsage,
-			algorithm,
-			modeOfUse,
-			kvn,
-			exportability,
-			numberOfOptionalBlocks,
-		)
-
-	} else {
-		panic(input.Mode)
-	}
-
-	responseMessage := repository.WriteRequest(commandMessage)
-
-	errCode = string(responseMessage)[8:10]
-
-	if errCode == "00" {
-		index := 10
-		res.Key, index = keyExtraction(responseMessage, index)
-
-		if input.Mode == "1" || input.Mode == "B" {
-			res.KeyExport, _ = keyExtraction(responseMessage, index)
-		}
-		res.KCV = string(responseMessage[len(responseMessage)-6:])
-
-	}
-	return
 }
 
 func (repository *HsmRepository) A8(input models.ExportKey) (res models.ExportKeyResp, errCode string) {

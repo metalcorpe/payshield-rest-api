@@ -1,5 +1,37 @@
 package models
 
+type GenerateKey struct {
+	Mode                   string          `json:"mode"`
+	KeyType                string          `json:"keyType"`
+	KeyScheme              string          `json:"keyScheme"`
+	DeriveKeyMode          string          `json:"deriveKeyMode"`
+	DUKPTMasterKeyType     string          `json:"dukptMasterKeyType"`
+	DUKPTMasterKey         string          `json:"dukptMasterKey"`
+	KSN                    string          `json:"ksn"`
+	ZkaMasterKeyType       string          `json:"zkaMasterKeyType"`
+	ZkaMasterKey           string          `json:"zkaMasterKey"`
+	ZkaOption              string          `json:"zkaOption"`
+	ZkaRndi                string          `json:"zkaRndi"`
+	ZmkTmkFlag             string          `json:"zmkTmkFlag"`
+	ZmkTmkBdk              string          `json:"zmkTmkBdk"`
+	IKSN                   string          `json:"iksn"`
+	ExportKeyScheme        string          `json:"exportKeyScheme"`
+	AtallaVariant          string          `json:"atallaVariant"`
+	LMKId                  string          `json:"lmkId"`
+	KeyUsage               string          `json:"keyUsage"`
+	Algorithm              string          `json:"algorithm"`
+	ModeOfUse              string          `json:"modeOfUse"`
+	KVN                    string          `json:"kvn"`
+	Exportability          string          `json:"exportability"`
+	NumberOfOptionalBlocks string          `json:"NumberOfOptionalBlocks"`
+	OptionalBlocks         []OptionalBlock `json:"optionalBlocks"`
+}
+type GenerateKeyResp struct {
+	Key       string `json:"key"`
+	KeyExport string `json:"keyExport"`
+	KCV       string `json:"kcv"`
+	ZkaRndi   string `json:"zkaRndi"`
+}
 type Diagnostics struct {
 	LMKType string `json:"lmkType"`
 }
@@ -53,39 +85,6 @@ type OptionalBlock struct {
 	ModifiedExportValue     string `json:"modifiedExportValue"`
 	KeyBlockVersionID       string `json:"keyBlockVersionId"`
 }
-type GenerateKey struct {
-	Mode                   string          `json:"mode"`
-	KeyType                string          `json:"keyType"`
-	KeyScheme              string          `json:"keyScheme"`
-	DeriveKeyMode          string          `json:"deriveKeyMode"`
-	DUKPTMasterKeyType     string          `json:"dukptMasterKeyType"`
-	DUKPTMasterKey         string          `json:"dukptMasterKey"`
-	KSN                    string          `json:"ksn"`
-	ZkaMasterKeyType       string          `json:"zkaMasterKeyType"`
-	ZkaMasterKey           string          `json:"zkaMasterKey"`
-	ZkaOption              string          `json:"zkaOption"`
-	ZkaRndi                string          `json:"zkaRndi"`
-	ZmkTmkFlag             string          `json:"zmkTmkFlag"`
-	ZmkTmkBdk              string          `json:"zmkTmkBdk"`
-	IKSN                   string          `json:"iksn"`
-	ExportKeyScheme        string          `json:"exportKeyScheme"`
-	AtallaVariant          string          `json:"atallaVariant"`
-	LMKId                  string          `json:"lmkId"`
-	KeyUsage               string          `json:"keyUsage"`
-	Algorithm              string          `json:"algorithm"`
-	ModeOfUse              string          `json:"modeOfUse"`
-	KVN                    string          `json:"kvn"`
-	Exportability          string          `json:"exportability"`
-	NumberOfOptionalBlocks string          `json:"NumberOfOptionalBlocks"`
-	OptionalBlocks         []OptionalBlock `json:"optionalBlocks"`
-}
-type GenerateKeyResp struct {
-	Key       string `json:"key"`
-	KeyExport string `json:"keyExport"`
-	KCV       string `json:"kcv"`
-	ZkaRndi   string `json:"zkaRndi"`
-}
-
 type ExportKey struct {
 	KeyType                string          `json:"keyType"`
 	ZmkTmkFlag             string          `json:"zmkTmkFlag"`
