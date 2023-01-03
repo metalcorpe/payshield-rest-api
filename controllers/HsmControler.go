@@ -27,7 +27,13 @@ func (controller *HsmController) VerifyPin(w http.ResponseWriter, r *http.Reques
 	}
 }
 func (controller *HsmController) Version(w http.ResponseWriter, r *http.Request) {
-	resp, err := controller.NewVersionResponse()
+	var p models.Diagnostics
+	err := render.DecodeJSON(r.Body, &p)
+	if err != nil {
+		render.JSON(w, r, ErrRender(err))
+		return
+	}
+	resp, err := controller.NewVersionResponse(p)
 	if err != nil {
 		render.JSON(w, r, ErrRender(err))
 		return

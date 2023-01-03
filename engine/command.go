@@ -173,7 +173,7 @@ func (repository *HsmRepository) M2(input models.InpDec) (res string, errCode st
 }
 
 // Check Version
-func (repository *HsmRepository) NC() (lmk string, firmware string, errCode string) {
+func (repository *HsmRepository) NC(input models.Diagnostics) (res models.DiagnosticsRes, errCode string) {
 
 	messageHeader := []byte("HEAD")
 	commandCode := []byte("NC")
@@ -188,14 +188,9 @@ func (repository *HsmRepository) NC() (lmk string, firmware string, errCode stri
 	errCode = string(responseMessage)[8:10]
 
 	if errCode == "00" {
-		lmk = string(responseMessage)[10 : 10+16]
-		firmware = string(responseMessage)[26:]
+		res.LMKCheck = string(responseMessage)[10 : 10+16]
+		res.FirmwareNumber = string(responseMessage)[26:]
 	}
-	if errCode != "00" {
-		lmk = ""
-		firmware = ""
-	}
-
 	return
 
 }

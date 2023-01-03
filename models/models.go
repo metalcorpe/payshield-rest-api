@@ -1,5 +1,13 @@
 package models
 
+type Diagnostics struct {
+	LMKType string `json:"lmktype"`
+}
+type DiagnosticsRes struct {
+	LMKCheck       string `json:"lmkcheck"`
+	FirmwareNumber string `json:"firmwarenumber"`
+}
+
 type PinVer struct {
 	Tpk                 string `json:"tpk"`
 	Pvk                 string `json:"pvk"`
@@ -8,10 +16,6 @@ type PinVer struct {
 	DecimalizationTable string `json:"dectable"`
 	PinValidationData   string `json:"pinvaldata"`
 	PinOffset           string `json:"pinoffset"`
-}
-type VersionResponse struct {
-	LmkCheck       string `json:"lmkCheck"`
-	FirmwareNumber string `json:"firmwareNumber"`
 }
 type InpEnc struct {
 	Key       string `json:"key"`

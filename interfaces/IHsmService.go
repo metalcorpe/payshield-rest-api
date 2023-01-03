@@ -3,7 +3,7 @@ package interfaces
 import "github.com/metalcorpe/payshield-rest-gopher/models"
 
 type IHsmService interface {
-	NewVersionResponse() (models.VersionResponse, error)
+	NewVersionResponse(r models.Diagnostics) (models.DiagnosticsRes, error)
 	NewVerifyPinResponse(r models.PinVer) error
 	NewGenerateKeyPairResponse(p models.GeneratePair) (models.GeneratePairResp, error)
 	NewMigrateResponse(r models.Migrate) (models.MigrateRes, error)

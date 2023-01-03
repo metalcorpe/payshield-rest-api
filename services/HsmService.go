@@ -18,14 +18,11 @@ func (service *HsmService) NewVerifyPinResponse(r models.PinVer) error {
 	}
 	return nil
 }
-func (service *HsmService) NewVersionResponse() (models.VersionResponse, error) {
-	resp := models.VersionResponse{}
-	ec, lmk, firmware := service.NC()
+func (service *HsmService) NewVersionResponse(r models.Diagnostics) (models.DiagnosticsRes, error) {
+	resp, ec := service.NC(r)
 	if ec != "00" {
-		return resp, errors.New(ec)
+		return models.DiagnosticsRes{}, errors.New(ec)
 	}
-	resp.LmkCheck = lmk
-	resp.FirmwareNumber = firmware
 	return resp, nil
 }
 func (service *HsmService) NewGenerateKeyPairResponse(r models.GeneratePair) (models.GeneratePairResp, error) {

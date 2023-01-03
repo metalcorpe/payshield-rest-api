@@ -12,5 +12,5 @@ type IHsmRepository interface {
 	GI(models.ImportKeyOrDataUnderRSAPubKey) (res models.ImportKeyOrDataUnderRSAPubKeyResp, errCode string)
 	M0(models.InpEnc) (res string, errCode string)
 	M2(models.InpDec) (res string, errCode string)
-	NC() (lmk string, firmware string, errCode string)
+	NC(models.Diagnostics) (res models.DiagnosticsRes, errCode string)
 }
