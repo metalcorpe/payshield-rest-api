@@ -1,0 +1,184 @@
+syntax = "proto3";
+
+option go_package = "github.com/metalcorpe/payshield-rest-gopher/protobuf";
+
+package protobuf;
+
+// The greeting service definition.
+service HSM {
+  // Sends a greeting
+  rpc VerifyPin (PinVer) returns (PinVer) {}
+  rpc Version (Diagnostics) returns (DiagnosticsRes) {}
+  rpc Migrate (MigrateReq) returns (MigrateRes) {}
+  rpc MigratePrivate (TranslatePrivate) returns (TranslatePrivateResp) {}
+  rpc Generatekey (GenerateKey) returns (GenerateKeyResp) {}
+  rpc ExportKey (ExportKeyReq) returns (ExportKeyResp) {}
+  rpc GenerateKeyPair (GeneratePair) returns (GeneratePairResp) {}
+  rpc ImportKeyRSA (ImportKeyOrDataUnderRSAPubKey) returns (ImportKeyOrDataUnderRSAPubKeyResp) {}
+}
+
+message GenerateKey {
+string	Mode          =1;
+string	Keymessage    =2;
+string	KeyScheme     =3;
+string	DeriveKeyMode =4;
+string	DUKPTMasterKeymessage     =5;
+string	DUKPTMasterKey         =6;
+string	KSN  =7;
+string	ZkaMasterKeymessage       =8;
+string	ZkaMasterKey  =9;
+string	ZkaOption     =10;
+string	ZkaRndi       =11;
+string	ZmkTmkFlag    =12;
+string	ZmkTmkBdk     =13;
+string	IKSN          =14;
+string	ExportKeyScheme        =15;
+string	AtallaVariant =16;
+string	LMKId         =17;
+string	KeyUsage      =18;
+string	Algorithm     =19;
+string	ModeOfUse     =20;
+string	KVN  =21;
+string	Exportability =22;
+string	NumberOfOptionalBlocks =23;
+OptionalBlock	OptionalBlocks =24;
+}
+message GenerateKeyResp {
+string Key       =1;
+string	KeyExport =2;
+string	KCV       =3;
+string	ZkaRndi   =4;
+}
+message Diagnostics {
+string	LMKmessage =1;
+}
+message DiagnosticsRes {
+string	LMKCheck       =1;
+string	FirmwareNumber =2;
+}
+
+message PinVer {
+string	Tpk        =1;
+string	Pvk        =2;
+string	PinBlock   =3;
+string	Pan        =4;
+string	DecimalizationTable =5;
+string	PinValidationData   =6;
+string	PinOffset  =7;
+}
+message InpEnc {
+string	Key       =1;
+string	ClearText =2;
+}
+message InpDec {
+string	Key        =1;
+string	CipherText =2;
+}
+
+message MigrateReq {
+string	KeyTypeCode2d =1;
+string	KeyLenFlag    =2;
+string	Key  =3;
+string	KeyTypeCode   =4;
+string	KeyScheme     =5;
+string	LMKId         =6;
+string	KeyUsage      =7;
+string	ModeOfUse     =8;
+string	KVN     =9;
+string	Exportability =10;
+string	NumberOfOptionalBlocks =11;
+OptionalBlock	OptionalBlocks =12;
+string	KCVReturnFlag  =13;
+string	KCVmessage       =14;
+}
+
+message MigrateRes {
+    string	Key =1;
+string	KCV =2;
+}
+message OptionalBlock {
+    string	OptionalBlockIdentifier =1;
+string	OptionalBlockLenght     =2;
+string	ModifiedExportValue     =3;
+string	KeyBlockVersionID       =4;
+}
+message ExportKeyReq {
+string	Keymessage       =1;
+string	ZmkTmkFlag    =2;
+string	ZMK_TMK       =3;
+string	Key  =4;
+string	KeyScheme     =5;
+string	IV   =6;
+string	AtallaVariant =7;
+string	LMKId         =8;
+string	Exportability =9;
+string	NumberOfOptionalBlocks =10;
+OptionalBlock	OptionalBlocks =11;
+string	KVN  =12;
+}
+message ExportKeyResp {
+string	Key =1;
+string	KCV =2;
+}
+
+message GeneratePair {
+    string	KeyTypeIndicator       =1;
+string	KeyLen        =2;
+string	PublicKeyEncoding      =3;
+string	PublicExponentLen      =4;
+string	PublicExponent         =5;
+string	LMKId         =6;
+string	KVN  =7;
+string	NumberOfOptionalBlocks =8;
+OptionalBlock	OptionalBlocks =9;
+string	Exportability =10;
+}
+message GeneratePairResp {
+    string	PublicKey     =1;
+int32	PrivateKeyLen    =2;
+string	PrivateKey    =3;
+}
+
+message TranslatePrivate {
+    string	PrivateKeyLen =1;
+string	PrivateKey    =2;
+string	LMKId         =3;
+string	KVN  =4;
+string	NumberOfOptionalBlocks =5;
+OptionalBlock	OptionalBlocks =6;
+string	Exportability =7;
+}
+message TranslatePrivateResp {
+    int32	PrivateKeyLen  =1;
+string	PrivateKey    =2;
+}
+
+message ImportKeyOrDataUnderRSAPubKey {
+string	EncryptionId =1;
+string	PadModeId    =2;
+string	MaskGenFunc  =3;
+string	MGFHashFunc  =4;
+string	OAEPEncodingParam =5;
+string	Keymessage  =6;
+string	DataBlock     =7;
+string	PrivateKeyFlag         =8;
+string	PrivateKeyLen =9;
+string	PrivateKey    =10;
+string	ImportKeymessage =11;
+string	KeySchemeLMK  =12;
+string	KCVmessage       =13;
+string	KeyDataBlockmessage       =14;
+string	KcvLen        =15;
+string	LMKId         =16;
+string	KeyUsage      =17;
+string	ModeOfUse     =18;
+string	KVN  =19;
+string	Exportability =20;
+string	NumberOfOptionalBlocks =21;
+OptionalBlock	OptionalBlocks =22;
+}
+message ImportKeyOrDataUnderRSAPubKeyResp {
+string	InitializationValue =1;
+string	Key        =2;
+string	KCV        =3;
+}
