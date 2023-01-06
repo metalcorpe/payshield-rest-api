@@ -2,29 +2,26 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
 
+	"github.com/metalcorpe/payshield-rest-gopher/engine"
+	"github.com/metalcorpe/payshield-rest-gopher/engine/mock"
 	"github.com/metalcorpe/payshield-rest-gopher/misc"
 	pb "github.com/metalcorpe/payshield-rest-gopher/protobuf"
+	"github.com/metalcorpe/payshield-rest-gopher/services"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+	"github.com/metalcorpe/payshield-rest-gopher/controllers/rpc"
 	"go.uber.org/zap"
 )
 
-type server struct {
-	pb.UnimplementedHSMServer
-}
-
-func (s *server) Version(ctx context.Context, in *pb.Diagnostics) (*pb.DiagnosticsRes, error) {
-	log.Printf("Received: %v", in.GetLMKmessage())
-	return &pb.DiagnosticsRes{LMKCheck: "Hello " + in.GetLMKmessage()}, nil
-}
 func main() {
 
 	flag.Parse()
@@ -32,8 +29,18 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	s := grpc.NewServer()
-	pb.RegisterHSMServer(s, &server{})
+	s := grpc.NewServer(
+		grpc_middleware.WithUnaryServerChain(
+			grpc_recovery.UnaryServerInterceptor(),
+		),
+		grpc_middleware.WithStreamServerChain(
+			grpc_recovery.StreamServerInterceptor(),
+		),
+	)
+	connectionPool := mock.TcpConnMock{}
+	hsmRepository := &engine.HsmRepository{IConnectionHandler: &connectionPool}
+	hsmService := &services.HsmService{IHsmRepository: hsmRepository}
+	pb.RegisterHSMServer(s, &rpc.HsmRpcController{IHsmService: hsmService, UnimplementedHSMServer: pb.UnimplementedHSMServer{}})
 	reflection.Register(s)
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {

@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"sync"
 
-	"github.com/metalcorpe/payshield-rest-gopher/controllers"
+	"github.com/metalcorpe/payshield-rest-gopher/controllers/rest"
 	"github.com/metalcorpe/payshield-rest-gopher/engine"
 	"github.com/metalcorpe/payshield-rest-gopher/misc"
 	"github.com/metalcorpe/payshield-rest-gopher/services"
@@ -12,7 +12,7 @@ import (
 )
 
 type IServiceContainer interface {
-	InjectHsmController() controllers.HsmController
+	InjectHsmController() rest.HsmController
 }
 
 type kernel struct {
@@ -20,7 +20,7 @@ type kernel struct {
 	conf misc.Config
 }
 
-func (k *kernel) InjectHsmController() controllers.HsmController {
+func (k *kernel) InjectHsmController() rest.HsmController {
 	k.log.Debug("Injecting Dependencies")
 	cert, _ := tls.LoadX509KeyPair(k.conf.Hsm.ClientCert, k.conf.Hsm.ClientKey)
 	config := tls.Config{Certificates: []tls.Certificate{cert}, InsecureSkipVerify: true}
@@ -28,7 +28,7 @@ func (k *kernel) InjectHsmController() controllers.HsmController {
 	connectionPool, _ := engine.CreateTcpConnPool(&tcpConfig)
 	hsmRepository := &engine.HsmRepository{IConnectionHandler: connectionPool}
 	hsmService := &services.HsmService{IHsmRepository: hsmRepository}
-	hsmController := controllers.HsmController{IHsmService: hsmService}
+	hsmController := rest.HsmController{IHsmService: hsmService}
 	return hsmController
 }
 

@@ -5,6 +5,8 @@ import (
 
 	"github.com/go-chi/render"
 	"github.com/metalcorpe/payshield-rest-gopher/engine"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type ErrResponse struct {
@@ -28,4 +30,8 @@ func ErrRender(err error) render.Renderer {
 		StatusText:     engine.CheckErrorCode(err.Error()),
 		ErrorText:      err.Error(),
 	}
+}
+
+func ErrRenderGrpc(err error) error {
+	return status.Error(codes.FailedPrecondition, engine.CheckErrorCode(err.Error()))
 }
