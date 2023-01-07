@@ -36,8 +36,8 @@ func main() {
 	addr := conf.Server.Host + ":" + conf.Server.Port
 	log.Info("starting up API at: " + addr)
 
-	protcolHandler := grpcHandlerFunc(RpcRouter(log, conf).InitRpcRouter(), MuxRouter(log, conf).InitMuxRouter())
-	errHttp := http.ListenAndServeTLS(addr, conf.Server.ServerCert, conf.Server.ServerKey, protcolHandler)
+	protocolHandler := grpcHandlerFunc(RpcRouter(log, conf).InitRpcRouter(), MuxRouter(log, conf).InitMuxRouter())
+	errHttp := http.ListenAndServeTLS(addr, conf.Server.ServerCert, conf.Server.ServerKey, protocolHandler)
 
 	if errHttp != nil {
 		log.Fatal(errHttp.Error())
