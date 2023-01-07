@@ -5,12 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/metalcorpe/payshield-rest-gopher/misc"
-	"github.com/metalcorpe/payshield-rest-gopher/protobuf"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 
 	"go.uber.org/zap"
 )
@@ -41,19 +36,7 @@ func main() {
 	addr := conf.Server.Host + ":" + conf.Server.Port
 	log.Info("starting up API at: " + addr)
 
-	s := grpc.NewServer(
-		grpc_middleware.WithUnaryServerChain(
-			grpc_recovery.UnaryServerInterceptor(),
-		),
-		grpc_middleware.WithStreamServerChain(
-			grpc_recovery.StreamServerInterceptor(),
-		),
-	)
-	rpcInit := ServiceContainer(log, conf).InjectHsmRpc()
-	protobuf.RegisterHSMServer(s, rpcInit)
-	reflection.Register(s)
-
-	protcolHandler := grpcHandlerFunc(s, ChiRouter(log, conf).InitRouter())
+	protcolHandler := grpcHandlerFunc(RpcRouter(log, conf).InitRpcRouter(), MuxRouter(log, conf).InitMuxRouter())
 	errHttp := http.ListenAndServeTLS(addr, conf.Server.ServerCert, conf.Server.ServerKey, protcolHandler)
 
 	if errHttp != nil {
