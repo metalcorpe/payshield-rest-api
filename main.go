@@ -24,7 +24,6 @@ func grpcHandlerFunc(grpcServer http.Handler, otherHandler http.Handler) http.Ha
 }
 
 func main() {
-
 	// configure log
 	log, _ := zap.NewDevelopment(zap.WithCaller(true))
 	defer func() {
