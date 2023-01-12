@@ -8,20 +8,28 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/metalcorpe/payshield-rest-gopher/misc"
+	"github.com/metalcorpe/payshield-rest-gopher/protobuf"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
-type IChiRouter interface {
-	InitRouter() *chi.Mux
+type IMuxRouter interface {
+	InitMuxRouter() *chi.Mux
+}
+type IRpcRouter interface {
+	InitRpcRouter() *grpc.Server
 }
 
-type router struct {
+type muxRouter struct {
 	log  *zap.Logger
 	conf misc.Config
 }
 
-func (router *router) InitRouter() *chi.Mux {
+func (router *muxRouter) InitMuxRouter() *chi.Mux {
 	hsmController := ServiceContainer(router.log, router.conf).InjectHsmController()
 	r := chi.NewRouter()
 
@@ -60,16 +68,46 @@ func (router *router) InitRouter() *chi.Mux {
 	return r
 }
 
+type rpcRouter struct {
+	log  *zap.Logger
+	conf misc.Config
+}
+
+func (router *rpcRouter) InitRpcRouter() *grpc.Server {
+	rpcInit := ServiceContainer(router.log, router.conf).InjectHsmRpc()
+	s := grpc.NewServer(
+		grpc_middleware.WithUnaryServerChain(
+			grpc_recovery.UnaryServerInterceptor(),
+		),
+		grpc_middleware.WithStreamServerChain(
+			grpc_recovery.StreamServerInterceptor(),
+		),
+	)
+	protobuf.RegisterHSMServer(s, rpcInit)
+	reflection.Register(s)
+	return s
+}
+
 var (
-	m          *router
-	routerOnce sync.Once
+	m             *muxRouter
+	muxRouterOnce sync.Once
+	r             *rpcRouter
+	rpcRouterOnce sync.Once
 )
 
-func ChiRouter(log *zap.Logger, conf misc.Config) IChiRouter {
+func MuxRouter(log *zap.Logger, conf misc.Config) IMuxRouter {
 	if m == nil {
-		routerOnce.Do(func() {
-			m = &router{log: log, conf: conf}
+		muxRouterOnce.Do(func() {
+			m = &muxRouter{log: log, conf: conf}
 		})
 	}
 	return m
+}
+func RpcRouter(log *zap.Logger, conf misc.Config) IRpcRouter {
+	if r == nil {
+		rpcRouterOnce.Do(func() {
+			r = &rpcRouter{log: log, conf: conf}
+		})
+	}
+	return r
 }

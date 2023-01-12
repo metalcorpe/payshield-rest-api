@@ -3,11 +3,25 @@ package main
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/metalcorpe/payshield-rest-gopher/misc"
 
 	"go.uber.org/zap"
 )
+
+// GrpcHandlerFunc returns an http.Handler that delegates to grpcServer on incoming gRPC
+// connections or otherHandler otherwise. Copied from cockroachdb.
+func grpcHandlerFunc(grpcServer http.Handler, otherHandler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// This is a partial recreation of gRPC's internal checks https://github.com/grpc/grpc-go/pull/514/files#diff-95e9a25b738459a2d3030e1e6fa2a718R61
+		if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
+			grpcServer.ServeHTTP(w, r)
+		} else {
+			otherHandler.ServeHTTP(w, r)
+		}
+	})
+}
 
 func main() {
 	// configure log
@@ -19,20 +33,10 @@ func main() {
 	conf := misc.GetConfig()
 
 	addr := conf.Server.Host + ":" + conf.Server.Port
-	log.Info("starting up API at: " + func(a bool, address string) string {
-		if a {
-			return "https://" + address
-		} else {
-			return "http://" + address
-		}
-	}(conf.Server.Tls, addr))
+	log.Info("starting up API at: " + addr)
 
-	var errHttp error
-	if conf.Server.Tls {
-		errHttp = http.ListenAndServeTLS(addr, conf.Server.ServerCert, conf.Server.ServerKey, ChiRouter(log, conf).InitRouter())
-	} else {
-		errHttp = http.ListenAndServe(addr, ChiRouter(log, conf).InitRouter())
-	}
+	protocolHandler := grpcHandlerFunc(RpcRouter(log, conf).InitRpcRouter(), MuxRouter(log, conf).InitMuxRouter())
+	errHttp := http.ListenAndServeTLS(addr, conf.Server.ServerCert, conf.Server.ServerKey, protocolHandler)
 
 	if errHttp != nil {
 		log.Fatal(errHttp.Error())

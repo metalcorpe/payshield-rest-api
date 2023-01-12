@@ -30,8 +30,10 @@ import (
 	"encoding/asn1"
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 
 	"github.com/metalcorpe/payshield-rest-gopher/interfaces"
@@ -40,6 +42,19 @@ import (
 
 type HsmRepository struct {
 	interfaces.IConnectionHandler
+}
+
+func tmp(buff1 []byte, buff2 []byte, user string, res string) {
+	f, err := os.OpenFile("log.csv", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		panic(err)
+	}
+
+	defer f.Close()
+
+	if _, err = f.WriteString(string(buff1[4:6]) + ";" + base64.StdEncoding.EncodeToString(buff1) + ";" + base64.StdEncoding.EncodeToString(buff2) + user + res + "\n"); err != nil {
+		panic(err)
+	}
 }
 
 // Generate Key
@@ -179,6 +194,7 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 		res.KCV = string(responseMessage[len(responseMessage)-6:])
 
 	}
+	tmp(commandMessage, responseMessage, func() string { input, _ := json.Marshal(input); return string(input) }(), func() string { res, _ := json.Marshal(res); return string(res) }())
 	return
 }
 

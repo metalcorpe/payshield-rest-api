@@ -78,3 +78,5 @@ You can use curl application or another GUI apps such as Postman as a client to 
 > curl -k -X POST https://localhost:8080/detokenise -u "custservice:p@ssw0rd" --data-binary @detokenise-profile2.txt
 {"error":"Unauthorized"}
 ```
+
+& 'C:\protoc\bin\protoc.exe' --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative .\protobuf\payshield.proto

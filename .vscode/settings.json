@@ -1,0 +1,18 @@
+{
+    "protoc": {
+        // "path": "payshield.proto",
+        "compile_on_save": true,
+        "options": [
+            "--go_out=.",
+            "--go_opt=paths=source_relative",
+            "--go-grpc_out=.",
+            " --go-grpc_opt=paths=source_relative",
+            // "--proto_path=protos/v3",
+            // "--proto_path=protos/v2",
+            // "--proto_path=${workspaceRoot}/proto",
+            // "--proto_path=${env.GOPATH}/src",
+            // "--java_out=gen/java"
+        ]
+    }
+}
+// --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative
