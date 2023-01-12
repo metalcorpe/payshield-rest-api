@@ -131,12 +131,12 @@ func (controller *HsmController) GenerateKCV(w http.ResponseWriter, r *http.Requ
 	var p models.GenerateKCV
 	err := render.DecodeJSON(r.Body, &p)
 	if err != nil {
-		render.JSON(w, r, ErrRender(err))
+		render.JSON(w, r, controllers.ErrRender(err))
 		return
 	}
 	resp, err := controller.GenerateKCVResponce(p)
 	if err != nil {
-		render.JSON(w, r, ErrRender(err))
+		render.JSON(w, r, controllers.ErrRender(err))
 		return
 	}
 	render.JSON(w, r, resp)

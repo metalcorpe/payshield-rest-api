@@ -31,6 +31,7 @@ type HSMClient interface {
 	ExportKey(ctx context.Context, in *ExportKeyReq, opts ...grpc.CallOption) (*ExportKeyResp, error)
 	GenerateKeyPair(ctx context.Context, in *GeneratePair, opts ...grpc.CallOption) (*GeneratePairResp, error)
 	ImportKeyRSA(ctx context.Context, in *ImportKeyOrDataUnderRSAPubKey, opts ...grpc.CallOption) (*ImportKeyOrDataUnderRSAPubKeyResp, error)
+	GenetateKCV(ctx context.Context, in *GenerateKCV, opts ...grpc.CallOption) (*GenerateKCVResp, error)
 }
 
 type hSMClient struct {
@@ -113,6 +114,15 @@ func (c *hSMClient) ImportKeyRSA(ctx context.Context, in *ImportKeyOrDataUnderRS
 	return out, nil
 }
 
+func (c *hSMClient) GenetateKCV(ctx context.Context, in *GenerateKCV, opts ...grpc.CallOption) (*GenerateKCVResp, error) {
+	out := new(GenerateKCVResp)
+	err := c.cc.Invoke(ctx, "/protobuf.HSM/GenetateKCV", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // HSMServer is the server API for HSM service.
 // All implementations must embed UnimplementedHSMServer
 // for forward compatibility
@@ -126,6 +136,7 @@ type HSMServer interface {
 	ExportKey(context.Context, *ExportKeyReq) (*ExportKeyResp, error)
 	GenerateKeyPair(context.Context, *GeneratePair) (*GeneratePairResp, error)
 	ImportKeyRSA(context.Context, *ImportKeyOrDataUnderRSAPubKey) (*ImportKeyOrDataUnderRSAPubKeyResp, error)
+	GenetateKCV(context.Context, *GenerateKCV) (*GenerateKCVResp, error)
 	mustEmbedUnimplementedHSMServer()
 }
 
@@ -156,6 +167,9 @@ func (UnimplementedHSMServer) GenerateKeyPair(context.Context, *GeneratePair) (*
 }
 func (UnimplementedHSMServer) ImportKeyRSA(context.Context, *ImportKeyOrDataUnderRSAPubKey) (*ImportKeyOrDataUnderRSAPubKeyResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ImportKeyRSA not implemented")
+}
+func (UnimplementedHSMServer) GenetateKCV(context.Context, *GenerateKCV) (*GenerateKCVResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GenetateKCV not implemented")
 }
 func (UnimplementedHSMServer) mustEmbedUnimplementedHSMServer() {}
 
@@ -314,6 +328,24 @@ func _HSM_ImportKeyRSA_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _HSM_GenetateKCV_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GenerateKCV)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HSMServer).GenetateKCV(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/protobuf.HSM/GenetateKCV",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HSMServer).GenetateKCV(ctx, req.(*GenerateKCV))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // HSM_ServiceDesc is the grpc.ServiceDesc for HSM service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -352,6 +384,10 @@ var HSM_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ImportKeyRSA",
 			Handler:    _HSM_ImportKeyRSA_Handler,
+		},
+		{
+			MethodName: "GenetateKCV",
+			Handler:    _HSM_GenetateKCV_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

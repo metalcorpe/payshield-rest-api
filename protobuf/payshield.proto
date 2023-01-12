@@ -15,6 +15,7 @@ service HSM {
   rpc ExportKey (ExportKeyReq) returns (ExportKeyResp) {}
   rpc GenerateKeyPair (GeneratePair) returns (GeneratePairResp) {}
   rpc ImportKeyRSA (ImportKeyOrDataUnderRSAPubKey) returns (ImportKeyOrDataUnderRSAPubKeyResp) {}
+  rpc GenetateKCV (GenerateKCV) returns (GenerateKCVResp) {}
 }
 
 message GenerateKey {
@@ -182,3 +183,16 @@ string	InitializationValue =1;
 string	Key        =2;
 string	KCV        =3;
 }
+
+message GenerateKCV  {
+string	KeyTypeCode2d =1;
+string	KeyLenFlag    =2;
+string	Key           =3;
+string	KeyTypeCode   =4;
+string	KCV           =5;
+string	LMKId         =6;
+}
+message GenerateKCVResp {
+string	KCV =1;
+}
+
