@@ -56,6 +56,7 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 	dukptMasterKey := []byte(input.DUKPTMasterKey)
 	ksn := []byte(input.KSN)
 	zmkTmkBdk := []byte(input.ZmkTmkBdk)
+	iksn := []byte(input.IKSN)
 	exportKeyScheme := []byte(input.ExportKeyScheme)
 	keyUsage := []byte(input.KeyUsage)
 	algorithm := []byte(input.Algorithm)
@@ -83,7 +84,26 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 		panic(input.Mode)
 	// Derive
 	case "A":
-		panic(input.Mode)
+		commandMessage = Join(
+			commandMessage,
+			mode,
+			keyType,
+			keyScheme,
+		)
+		if input.DeriveKeyMode == "0" {
+			commandMessage = Join(
+				commandMessage,
+				deriveKeyMode,
+				dukptMasterKeyType,
+				dukptMasterKey,
+				ksn,
+			)
+		} else if input.DeriveKeyMode == "1" {
+			panic(input.DeriveKeyMode)
+		} else {
+			panic(input.DeriveKeyMode)
+		}
+		// panic(input.Mode)
 	// Derive and Export
 	case "B":
 		commandMessage = Join(
@@ -111,6 +131,12 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 			zmkTmkBdk,
 		)
 		// Missing Current BDK KSN
+		if input.IKSN != "" {
+			commandMessage = Join(
+				commandMessage,
+				iksn,
+			)
+		}
 		commandMessage = Join(
 			commandMessage,
 			exportKeyScheme,
