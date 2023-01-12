@@ -199,6 +199,52 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 }
 
 // Verify PIN
+func (repository *HsmRepository) BU(input models.GenerateKCV) (res models.GenerateKCVResp, errCode string) {
+	messageHeader := []byte("HEAD")
+	commandCode := []byte("BU")
+	keyTypeCode2d := []byte(input.KeyTypeCode2d)
+	keyLenFlag := []byte(input.KeyLenFlag)
+	key := []byte(input.Key)
+	keyTypeCodeDelim := []byte(";")
+	keyTypeCode := []byte(input.KeyTypeCode)
+	lmkIdDelim := []byte("%")
+	lmkId := []byte(input.LMKId)
+	commandMessage := Join(
+		messageHeader,
+		commandCode,
+		keyTypeCode2d,
+		keyLenFlag,
+		key,
+	)
+	if input.KeyTypeCode2d == "FF" {
+		commandMessage = Join(
+			commandMessage,
+			keyTypeCodeDelim,
+			keyTypeCode,
+		)
+	}
+	if input.LMKId != "" {
+		commandMessage = Join(
+			commandMessage,
+			lmkIdDelim,
+			lmkId,
+		)
+	}
+
+	responseMessage := repository.WriteRequest(commandMessage)
+
+	errCode = string(responseMessage)[8:10]
+
+	if errCode == "00" {
+		errCode = string(responseMessage)[8:]
+	}
+	if errCode != "00" {
+		errCode = string(responseMessage)[8:]
+	}
+	return
+}
+
+// Verify PIN
 func (repository *HsmRepository) DA(input models.PinVer) (errCode string) {
 
 	messageHeader := []byte("HEAD")

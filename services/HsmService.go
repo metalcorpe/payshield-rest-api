@@ -72,3 +72,10 @@ func (service *HsmService) ImportKeyRSAResponse(r models.ImportKeyOrDataUnderRSA
 	}
 	return resp, nil
 }
+func (service *HsmService) GenerateKCVResponce(r models.GenerateKCV) (models.GenerateKCVResp, error) {
+	resp, ec := service.BU(r)
+	if ec != "00" {
+		return models.GenerateKCVResp{}, errors.New(ec)
+	}
+	return resp, nil
+}

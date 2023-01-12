@@ -181,3 +181,15 @@ type ImportKeyOrDataUnderRSAPubKeyResp struct {
 	Key                 string `json:"key"`
 	KCV                 string `json:"kcv"`
 }
+
+type GenerateKCV struct {
+	KeyTypeCode2d string `json:"keyTypeCode2d"`
+	KeyLenFlag    string `json:"keyLenFlag"`
+	Key           string `json:"key"`
+	KeyTypeCode   string `json:"keyTypeCode"`
+	KCV           string `json:"kcv"`
+	LMKId         string `json:"lmkId"`
+}
+type GenerateKCVResp struct {
+	KCV string `json:"kcv"`
+}

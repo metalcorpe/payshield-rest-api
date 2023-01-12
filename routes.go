@@ -58,6 +58,8 @@ func (router *muxRouter) InitMuxRouter() *chi.Mux {
 	r.Post("/generatekey/pair", hsmController.GenerateKeyPair)
 	//Import Key or data under an RSA Public Key
 	r.Post("/import/rsa", hsmController.ImportKeyRSA)
+	//Generate a Key Check Value
+	r.Post("/generatekey/kcv", hsmController.GenerateKCV)
 
 	//the walking function
 	chi.Walk(r, func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {

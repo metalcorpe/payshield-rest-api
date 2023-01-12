@@ -5,6 +5,7 @@ import "github.com/metalcorpe/payshield-rest-gopher/models"
 type IHsmRepository interface {
 	A0(models.GenerateKey) (res models.GenerateKeyResp, errCode string)
 	A8(models.ExportKey) (res models.ExportKeyResp, errCode string)
+	BU(models.GenerateKCV) (res models.GenerateKCVResp, errCode string)
 	BW(models.Migrate) (res models.MigrateRes, errCode string)
 	DA(models.PinVer) string
 	EI(models.GeneratePair) (res models.GeneratePairResp, errCode string)

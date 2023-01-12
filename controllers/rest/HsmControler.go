@@ -127,3 +127,17 @@ func (controller *HsmController) ImportKeyRSA(w http.ResponseWriter, r *http.Req
 	}
 	render.JSON(w, r, resp)
 }
+func (controller *HsmController) GenerateKCV(w http.ResponseWriter, r *http.Request) {
+	var p models.GenerateKCV
+	err := render.DecodeJSON(r.Body, &p)
+	if err != nil {
+		render.JSON(w, r, ErrRender(err))
+		return
+	}
+	resp, err := controller.GenerateKCVResponce(p)
+	if err != nil {
+		render.JSON(w, r, ErrRender(err))
+		return
+	}
+	render.JSON(w, r, resp)
+}
