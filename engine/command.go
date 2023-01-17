@@ -40,6 +40,29 @@ import (
 	"github.com/metalcorpe/payshield-rest-gopher/models"
 )
 
+func keyExtraction(message []byte, index int) (key string, endIndex int) {
+	keyPrefix := string(message[index : index+1])
+	if keyPrefix == "U" || keyPrefix == "X" || keyPrefix == "P" {
+		key = string(message[index : index+32+1])
+		index += 32 + 1
+	} else if keyPrefix == "T" || keyPrefix == "Y" || keyPrefix == "Q" {
+		key = string(message[index : index+48+1])
+		index += 48 + 1
+	} else if keyPrefix == "W" {
+		key = string(message[index : index+48+1])
+		index += 64 + 1
+	} else if keyPrefix == "S" || keyPrefix == "R" {
+		keysize, _ := strconv.Atoi(string(message[index+3 : index+6]))
+		key = string(message[index : index+keysize+1])
+		index = index + keysize + 1
+	} else {
+		key = string(message[index : index+16])
+		index += 16
+	}
+	endIndex = index
+	return key, endIndex
+}
+
 type HsmRepository struct {
 	interfaces.IConnectionHandler
 }
@@ -70,6 +93,7 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 	dukptMasterKeyType := []byte(input.DUKPTMasterKeyType)
 	dukptMasterKey := []byte(input.DUKPTMasterKey)
 	ksn := []byte(input.KSN)
+	zmkTmkFlag := []byte(input.ZmkTmkFlag)
 	zmkTmkBdk := []byte(input.ZmkTmkBdk)
 	iksn := []byte(input.IKSN)
 	exportKeyScheme := []byte(input.ExportKeyScheme)
@@ -140,7 +164,14 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 		} else {
 			panic(input.DeriveKeyMode)
 		}
-		// Missing ZMK/TMK Flag check
+		if input.ZmkTmkFlag != "" {
+			zmkTmkFlagDelim := []byte(";")
+			commandMessage = Join(
+				commandMessage,
+				zmkTmkFlagDelim,
+				zmkTmkFlag,
+			)
+		}
 		commandMessage = Join(
 			commandMessage,
 			zmkTmkBdk,
@@ -168,17 +199,19 @@ func (repository *HsmRepository) A0(input models.GenerateKey) (res models.Genera
 			lmkId,
 		)
 	}
-	kbDelim := []byte("#")
-	commandMessage = Join(
-		commandMessage,
-		kbDelim,
-		keyUsage,
-		algorithm,
-		modeOfUse,
-		kvn,
-		exportability,
-		numberOfOptionalBlocks,
-	)
+	if input.ExportKeyScheme == "R" || input.ExportKeyScheme == "S" {
+		kbDelim := []byte("#")
+		commandMessage = Join(
+			commandMessage,
+			kbDelim,
+			keyUsage,
+			algorithm,
+			modeOfUse,
+			kvn,
+			exportability,
+			numberOfOptionalBlocks,
+		)
+	}
 
 	responseMessage := repository.WriteRequest(commandMessage)
 
@@ -476,26 +509,6 @@ func (repository *HsmRepository) BW(input models.Migrate) (res models.MigrateRes
 	return
 }
 
-func keyExtraction(message []byte, index int) (key string, endIndex int) {
-	keyPrefix := string(message[index : index+1])
-	if keyPrefix == "U" {
-		key = string(message[index : index+32+1])
-		index += 32 + 1
-	} else if keyPrefix == "T" {
-		key = string(message[index : index+48+1])
-		index += 48 + 1
-	} else if keyPrefix == "S" || keyPrefix == "R" {
-		keysize, _ := strconv.Atoi(string(message[index+3 : index+6]))
-		key = string(message[index : index+keysize+1])
-		index = index + keysize + 1
-	} else {
-		key = string(message[index : index+16])
-		index += 16
-	}
-	endIndex = index
-	return key, endIndex
-}
-
 func (repository *HsmRepository) A8(input models.ExportKey) (res models.ExportKeyResp, errCode string) {
 
 	messageHeader := []byte("HEAD")
@@ -504,6 +517,7 @@ func (repository *HsmRepository) A8(input models.ExportKey) (res models.ExportKe
 	zmkTmk := []byte(input.ZMK_TMK)
 	key := []byte(input.Key)
 	keyScheme := []byte(input.KeyScheme)
+	iv := []byte(input.IV)
 
 	commandMessage := Join(
 		messageHeader,
@@ -516,6 +530,12 @@ func (repository *HsmRepository) A8(input models.ExportKey) (res models.ExportKe
 		key,
 		keyScheme,
 	)
+	if input.KeyScheme == "P" || input.KeyScheme == "Q" || input.KeyScheme == "W" {
+		commandMessage = Join(
+			commandMessage,
+			iv,
+		)
+	}
 
 	responseMessage := repository.WriteRequest(commandMessage)
 
@@ -523,19 +543,7 @@ func (repository *HsmRepository) A8(input models.ExportKey) (res models.ExportKe
 
 	if errCode == "00" {
 		index := 10
-		if input.KeyScheme == "U" {
-			res.Key = string(responseMessage[index : index+32+1])
-			index += 32 + 1
-		} else if input.KeyScheme == "T" {
-			res.Key = string(responseMessage[index : index+48+1])
-			index += 48 + 1
-		} else if input.KeyScheme == "S" || input.KeyScheme == "R" {
-			res.Key = string(responseMessage[index : len(responseMessage)-6])
-			index += 16
-		} else {
-			res.Key = string(responseMessage[index : index+16])
-			index += 16
-		}
+		res.Key, index = keyExtraction(responseMessage, index)
 
 		res.KCV = string(responseMessage[len(responseMessage)-6:])
 
