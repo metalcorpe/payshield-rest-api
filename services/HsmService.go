@@ -79,3 +79,17 @@ func (service *HsmService) GenerateKCVResponce(r models.GenerateKCV) (models.Gen
 	}
 	return resp, nil
 }
+func (service *HsmService) ImportKeyResponse(r models.ImportKey) (models.ImportKeyResp, error) {
+	resp, ec := service.A6(r)
+	if ec != "00" {
+		return models.ImportKeyResp{}, errors.New(ec)
+	}
+	return resp, nil
+}
+func (service *HsmService) GenerateVerifyMacDukptResponce(r models.GenerateVerifyMacDukpt) (models.GenerateVerifyMacDukptResp, error) {
+	resp, ec := service.GW(r)
+	if ec != "00" {
+		return models.GenerateVerifyMacDukptResp{}, errors.New(ec)
+	}
+	return resp, nil
+}

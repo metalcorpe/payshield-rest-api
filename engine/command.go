@@ -679,6 +679,134 @@ func (repository *HsmRepository) GI(input models.ImportKeyOrDataUnderRSAPubKey) 
 
 	return
 }
+func (repository *HsmRepository) A6(input models.ImportKey) (res models.ImportKeyResp, errCode string) {
+	messageHeader := []byte("HEAD")
+	commandCode := []byte("A6")
+	keyType := []byte(input.KeyType)
+	zmk := []byte(input.ZMK)
+	key := []byte(input.Key)
+	keyScheme := []byte(input.KeyScheme)
+	lmkId := []byte(input.LMKId)
+	modifiedKeyUsage := []byte(input.ModifiedKeyUsage)
+	numberOfOptionalBlocks := []byte(input.NumberOfOptionalBlocks)
+
+	commandMessage := Join(
+		messageHeader,
+		commandCode,
+		keyType,
+		zmk,
+		key,
+		keyScheme,
+	)
+	if input.LMKId != "" {
+		lmkIdDelim := []byte("%")
+		commandMessage = Join(
+			commandMessage,
+			lmkIdDelim,
+			lmkId,
+		)
+	}
+	if input.ModifiedKeyUsage != "" {
+		kbdelim := []byte("#")
+		commandMessage = Join(
+			commandMessage,
+			kbdelim,
+			modifiedKeyUsage,
+			numberOfOptionalBlocks,
+		)
+
+	}
+
+	responseMessage := repository.WriteRequest(commandMessage)
+
+	errCode = string(responseMessage)[8:10]
+
+	if errCode == "00" {
+		index := 10
+		res.Key, index = keyExtraction(responseMessage, index)
+		res.KCV = string(responseMessage[index : index+6])
+
+	}
+	if errCode != "00" {
+		errCode = string(responseMessage)[8:]
+	}
+	return
+}
+func (repository *HsmRepository) GW(input models.GenerateVerifyMacDukpt) (res models.GenerateVerifyMacDukptResp, errCode string) {
+	messageHeader := []byte("HEAD")
+	commandCode := []byte("GW")
+	macMode := []byte(input.MacMode)
+	macMethod := []byte(input.MacMethod)
+	bdk := []byte(input.Bdk)
+	ksnDescriptor := []byte(input.KsnDescriptor)
+	ksn := []byte(input.Ksn)
+	mac := []byte(input.Mac)
+	messageData, _ := base64.StdEncoding.DecodeString(input.MessageData)
+	// messageDataLen := []byte("0" + strconv.Itoa(len(messageData)))
+	dataPad := zeroPadding([]byte(messageData), 8)
+	dataLen := leftPad(string(dataPad), "0", 4)
+	messageDataLen := []byte(dataLen)
+	lmkId := []byte(input.LMKId)
+
+	commandMessage := Join(
+		messageHeader,
+		commandCode,
+		macMode,
+		macMethod,
+		bdk,
+		ksnDescriptor,
+		ksn,
+	)
+	if input.MacMode == "1" || input.MacMode == "2" || input.MacMode == "3" ||
+		input.MacMode == "A" || input.MacMode == "B" || input.MacMode == "C" ||
+		input.MacMode == "G" || input.MacMode == "H" || input.MacMode == "I" {
+		commandMessage = Join(
+			commandMessage,
+			mac,
+		)
+	}
+	commandMessage = Join(
+		commandMessage,
+		messageDataLen,
+		messageData,
+	)
+
+	if input.LMKId != "" {
+		lmkIdDelim := []byte("%")
+		commandMessage = Join(
+			commandMessage,
+			lmkIdDelim,
+			lmkId,
+		)
+	}
+
+	responseMessage := repository.WriteRequest(commandMessage)
+
+	fmt.Println(hex.Dump(responseMessage))
+
+	errCode = string(responseMessage)[8:10]
+
+	if errCode != "00" {
+		errCode = string(responseMessage)[8:]
+	}
+
+	if errCode == "00" {
+		index := 10
+		var endIndex int
+		if input.MacMode == "4" || input.MacMode == "D" || input.MacMode == "J" {
+			endIndex = 16
+		} else if input.MacMode == "5" || input.MacMode == "6" ||
+			input.MacMode == "E" || input.MacMode == "F" ||
+			input.MacMode == "K" || input.MacMode == "L" {
+			endIndex = 8
+		} else {
+			return
+		}
+		res.Mac = string(responseMessage)[index : index+endIndex]
+	}
+
+	return
+}
 
 func (repository *HsmRepository) EI(input models.GeneratePair) (res models.GeneratePairResp, errCode string) {
 

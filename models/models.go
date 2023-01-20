@@ -193,3 +193,40 @@ type GenerateKCV struct {
 type GenerateKCVResp struct {
 	KCV string `json:"kcv"`
 }
+
+type ImportKey struct {
+	KeyType                string          `json:"keyType"`
+	ZMK                    string          `json:"zmk"`
+	Key                    string          `json:"key"`
+	KeyScheme              string          `json:"keyScheme"`
+	AtallaVariant          string          `json:"atallaVariant"`
+	LMKId                  string          `json:"lmkId"`
+	ModifiedKeyUsage       string          `json:"modifiedKeyUsage"`
+	KeyUsage               string          `json:"keyUsage"`
+	ModeOfUse              string          `json:"modeOfUse"`
+	KVN                    string          `json:"kvn"`
+	Exportability          string          `json:"exportability"`
+	NumberOfOptionalBlocks string          `json:"NumberOfOptionalBlocks"`
+	OptionalBlocks         []OptionalBlock `json:"optionalBlocks"`
+}
+
+type ImportKeyResp struct {
+	Key string `json:"key"`
+	KCV string `json:"kcv"`
+}
+
+type GenerateVerifyMacDukpt struct {
+	MacMode        string `json:"macMode"`
+	MacMethod      string `json:"macMethod"`
+	Bdk            string `json:"bdk"`
+	KsnDescriptor  string `json:"ksnDescriptor"`
+	Ksn            string `json:"ksn"`
+	Mac            string `json:"mac"`
+	MessageDataLen string `json:"messageDataLen"`
+	MessageData    string `json:"messageData"`
+	LMKId          string `json:"lmkId"`
+}
+
+type GenerateVerifyMacDukptResp struct {
+	Mac string `json:"mac"`
+}

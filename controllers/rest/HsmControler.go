@@ -141,3 +141,31 @@ func (controller *HsmController) GenerateKCV(w http.ResponseWriter, r *http.Requ
 	}
 	render.JSON(w, r, resp)
 }
+func (controller *HsmController) ImportKey(w http.ResponseWriter, r *http.Request) {
+	var p models.ImportKey
+	err := render.DecodeJSON(r.Body, &p)
+	if err != nil {
+		render.JSON(w, r, controllers.ErrRender(err))
+		return
+	}
+	resp, err := controller.ImportKeyResponse(p)
+	if err != nil {
+		render.JSON(w, r, controllers.ErrRender(err))
+		return
+	}
+	render.JSON(w, r, resp)
+}
+func (controller *HsmController) GenerateMacDukpt(w http.ResponseWriter, r *http.Request) {
+	var p models.GenerateVerifyMacDukpt
+	err := render.DecodeJSON(r.Body, &p)
+	if err != nil {
+		render.JSON(w, r, controllers.ErrRender(err))
+		return
+	}
+	resp, err := controller.GenerateVerifyMacDukptResponce(p)
+	if err != nil {
+		render.JSON(w, r, controllers.ErrRender(err))
+		return
+	}
+	render.JSON(w, r, resp)
+}
