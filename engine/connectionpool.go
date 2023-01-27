@@ -141,6 +141,7 @@ func (p *TcpConnPool) clear() (result bool) {
 		result = false
 	}
 	p.mu.Unlock()
+	fmt.Println("Cleared connection pool. Num of cennections cleared: ", numIdle)
 	return
 }
 
@@ -156,7 +157,7 @@ func (p *TcpConnPool) openNewTcpConnection() (*tcpConn, error) {
 		c, err = net.Dial("tcp", addr)
 	}
 	if err != nil {
-		println(err.Error())
+		fmt.Println(err.Error())
 	}
 	if err != nil {
 		return nil, err
@@ -301,7 +302,7 @@ func (p *TcpConnPool) BuildAndWriteBuffer(buff []byte) (res []byte, err error) {
 	}()
 	conn, err := p.get()
 	if err != nil {
-		println(err.Error())
+		fmt.Println(err.Error())
 	}
 	commandLength := calculateCommandLen(&buff)
 
@@ -312,7 +313,7 @@ func (p *TcpConnPool) BuildAndWriteBuffer(buff []byte) (res []byte, err error) {
 	result := make([]byte, 2048)
 	n, err := conn.conn.Read(result)
 	if err != nil {
-		println(err.Error())
+		fmt.Println(err.Error())
 		return nil, err
 	}
 	p.put(conn)
@@ -331,6 +332,7 @@ func (p *TcpConnPool) WriteRequest(buff []byte) (res []byte) {
 		if err == nil { // Connected to socket!
 			return res
 		} else {
+			fmt.Println("Connection failed. Retry in: ", timeToSleep, ". Trial No.: ", i+1)
 			p.clear()
 		}
 		// Make sure that on the final attempt we won't wait
@@ -340,5 +342,6 @@ func (p *TcpConnPool) WriteRequest(buff []byte) (res []byte) {
 		}
 	}
 	// If we reached here it means we failed to connect in all the atttempts
-	return nil
+	panic("Failed to write buffer to socket")
+	// return nil
 }
