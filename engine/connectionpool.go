@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand"
 	"net"
 	"sync"
 	"time"
@@ -14,7 +15,10 @@ import (
 	"github.com/metalcorpe/payshield-rest-gopher/interfaces"
 )
 
-const maxQueueLength = 10_000
+const (
+	maxQueueLength   = 10_000
+	numberOfAttempts = 3
+)
 
 // TcpConfig is a set of configuration for a TCP connection pool
 type TcpConfig struct {
@@ -120,6 +124,24 @@ func (p *TcpConnPool) get() (*tcpConn, error) {
 	}
 
 	return newTcpConn, nil
+}
+
+func (p *TcpConnPool) clear() (result bool) {
+	p.mu.Lock()
+	numIdle := len(p.idleConns)
+	if numIdle > 0 {
+		// Loop map to get one conn
+		for _, c := range p.idleConns {
+			// remove from pool
+			delete(p.idleConns, c.id)
+		}
+		p.numOpen = 0
+		result = true
+	} else {
+		result = false
+	}
+	p.mu.Unlock()
+	return
 }
 
 // openNewTcpConnection() creates a new TCP connection at p.host and p.port
@@ -271,7 +293,12 @@ func (c *tcpConn) Read() ([]byte, error) {
 	return data, nil
 }
 
-func (p *TcpConnPool) WriteRequest(buff []byte) []byte {
+func (p *TcpConnPool) BuildAndWriteBuffer(buff []byte) (res []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered. Error: ", r)
+		}
+	}()
 	conn, err := p.get()
 	if err != nil {
 		println(err.Error())
@@ -286,10 +313,32 @@ func (p *TcpConnPool) WriteRequest(buff []byte) []byte {
 	n, err := conn.conn.Read(result)
 	if err != nil {
 		println(err.Error())
+		return nil, err
 	}
 	p.put(conn)
 
 	//log
 	fmt.Println(hex.Dump(result[:n]))
-	return result[:n]
+	return result[:n], nil
+}
+
+func (p *TcpConnPool) WriteRequest(buff []byte) (res []byte) {
+	waitBetweenRetriesInMilisec := rand.Intn(1000) // Make sure we don’t have more than one second between retries
+	timeToSleep := time.Duration(waitBetweenRetriesInMilisec) * time.Millisecond
+	var err error
+	for i := 0; i < numberOfAttempts; i++ {
+		res, err = p.BuildAndWriteBuffer(buff)
+		if err == nil { // Connected to socket!
+			return res
+		} else {
+			p.clear()
+		}
+		// Make sure that on the final attempt we won't wait
+		if i != numberOfAttempts-1 {
+			time.Sleep(timeToSleep)
+			timeToSleep *= 2
+		}
+	}
+	// If we reached here it means we failed to connect in all the atttempts
+	return nil
 }
