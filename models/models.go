@@ -123,6 +123,7 @@ type GeneratePair struct {
 	OptionalBlocks         []OptionalBlock `json:"optionalBlocks"`
 	Exportability          string          `json:"exportability"`
 }
+
 type GeneratePairResp struct {
 	PublicKey     string `json:"publicKey"`
 	PrivateKeyLen int    `json:"privateKeyLen"`
@@ -181,7 +182,47 @@ type ImportKeyOrDataUnderRSAPubKeyResp struct {
 	Key                 string `json:"key"`
 	KCV                 string `json:"kcv"`
 }
-
+type ExportKeyUnderRSAPublicKey struct {
+	EncryptionId string `json:"encryptionId"`
+	PadModeId    string `json:"padModeId"`
+	// MaskGenFunc  string `json:"maskGenFunc"`
+	// MGFHashFunc  string `json:"mgfHashFunc"`
+	//OAEPEncodingParamLen string `json:"oaepEncodingParamLen"`
+	// OAEPEncodingParam string `json:"oaepEncodingParam"`
+	KeyType string `json:"keyType"`
+	//SignatureHashId   string `json:"signatureHashId"`
+	//SignatureId       string `json:"signatureId"`
+	//SignaturePadMode  string `json:"signaturePadMode"`
+	//EncrKeyOffset     string `json:"encrKeyOffset"`
+	//EncrKeyLen        string `json:"encrKeyLen"`
+	//SigLen            string `json:"sigLen"`
+	//Signature         string `json:"signature"`
+	//PubKey                 string          `json:"pubKey"`
+	KeyFlag   string `json:"keyFlag"`
+	Key       string `json:"key"`
+	KCV       string `json:"kcv"`
+	PublicKey string `json:"publicKey"`
+	// PrivateKeyFlag         string          `json:"privateKeyFlag"`
+	// PrivateKeyLen          string          `json:"privateKeyLen"`
+	// PrivateKey             string          `json:"privateKey"`
+	// ImportKeyType          string          `json:"importKeyType"`
+	KCVType          string `json:"kcvType"`
+	KeyDataBlockType string `json:"keyDataBlockType"`
+	KcvLen           string `json:"kcvLen"`
+	LMKId            string `json:"lmkId"`
+	// KeyUsage               string          `json:"keyUsage"`
+	// ModeOfUse              string          `json:"modeOfUse"`
+	// KVN                    string          `json:"kvn"`
+	// Exportability          string          `json:"exportability"`
+	// NumberOfOptionalBlocks string          `json:"NumberOfOptionalBlocks"`
+	// OptionalBlocks         []OptionalBlock `json:"optionalBlocks"`
+	// KeySchemeLMK           string          `json:"keySchemeLMK"`
+}
+type ExportKeyUnderRSAPublicKeyResp struct {
+	InitializationValue string `json:"initializationValue"`
+	EncryptedKey        string `json:"encryptedKey"`
+	Signature           string `json:"signature"`
+}
 type GenerateKCV struct {
 	KeyTypeCode2d string `json:"keyTypeCode2d"`
 	KeyLenFlag    string `json:"keyLenFlag"`
@@ -229,4 +270,40 @@ type GenerateVerifyMacDukpt struct {
 
 type GenerateVerifyMacDukptResp struct {
 	Mac string `json:"mac"`
+}
+
+type EncryptDataBlock struct {
+	ModeFlag         string `json:"modeFlag"`
+	InputFormatFlag  string `json:"inputFormatFlag"`
+	OutputFormatFlag string `json:"outputFormatFlag"`
+	KeyType          string `json:"keyType"`
+	Key              string `json:"key"`
+	KsnDescriptor    string `json:"ksnDescriptor"`
+	Ksn              string `json:"ksn"`
+	Iv               string `json:"iv"`
+	CounterOffset    string `json:"counterOffset"`
+	CounterLen       string `json:"counterLen"`
+	OfbModeFlag      string `json:"ofbModeFlag"`
+	MessageLen       string `json:"messageLen"`
+	Message          string `json:"message"`
+	LMKId            string `json:"lmkId"`
+}
+type EncryptDataBlockResp struct {
+	Iv         string `json:"iv"`
+	MessageLen string `json:"messageLen"`
+	Message    string `json:"message"`
+}
+
+type ImportPublicKey struct {
+	PublicKeyEncoding      string          `json:"publicKeyEncoding"`
+	PublicKey              string          `json:"publicKey"`
+	LMKId                  string          `json:"lmkId"`
+	ModeOfUse              string          `json:"modeOfUse"`
+	KVN                    string          `json:"kvn"`
+	Exportability          string          `json:"exportability"`
+	NumberOfOptionalBlocks string          `json:"NumberOfOptionalBlocks"`
+	OptionalBlocks         []OptionalBlock `json:"optionalBlocks"`
+}
+type ImportPublicKeyResp struct {
+	PublicKey string `json:"publicKey"`
 }

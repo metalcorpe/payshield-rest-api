@@ -72,7 +72,21 @@ func (service *HsmService) ImportKeyRSAResponse(r models.ImportKeyOrDataUnderRSA
 	}
 	return resp, nil
 }
-func (service *HsmService) GenerateKCVResponce(r models.GenerateKCV) (models.GenerateKCVResp, error) {
+func (service *HsmService) ExportKeyRSAResponse(r models.ExportKeyUnderRSAPublicKey) (models.ExportKeyUnderRSAPublicKeyResp, error) {
+	resp, ec := service.GK(r)
+	if ec != "00" {
+		return models.ExportKeyUnderRSAPublicKeyResp{}, errors.New(ec)
+	}
+	return resp, nil
+}
+func (service *HsmService) ImportPublicKeyResponse(r models.ImportPublicKey) (models.ImportPublicKeyResp, error) {
+	resp, ec := service.EO(r)
+	if ec != "00" {
+		return models.ImportPublicKeyResp{}, errors.New(ec)
+	}
+	return resp, nil
+}
+func (service *HsmService) GenerateKCVResponse(r models.GenerateKCV) (models.GenerateKCVResp, error) {
 	resp, ec := service.BU(r)
 	if ec != "00" {
 		return models.GenerateKCVResp{}, errors.New(ec)
@@ -86,10 +100,17 @@ func (service *HsmService) ImportKeyResponse(r models.ImportKey) (models.ImportK
 	}
 	return resp, nil
 }
-func (service *HsmService) GenerateVerifyMacDukptResponce(r models.GenerateVerifyMacDukpt) (models.GenerateVerifyMacDukptResp, error) {
+func (service *HsmService) GenerateVerifyMacDukptResponse(r models.GenerateVerifyMacDukpt) (models.GenerateVerifyMacDukptResp, error) {
 	resp, ec := service.GW(r)
 	if ec != "00" {
 		return models.GenerateVerifyMacDukptResp{}, errors.New(ec)
+	}
+	return resp, nil
+}
+func (service *HsmService) EncryptDataBlockResponse(r models.EncryptDataBlock) (models.EncryptDataBlockResp, error) {
+	resp, ec := service.M0(r)
+	if ec != "00" {
+		return models.EncryptDataBlockResp{}, errors.New(ec)
 	}
 	return resp, nil
 }

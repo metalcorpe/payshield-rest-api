@@ -10,10 +10,12 @@ type IHsmRepository interface {
 	BW(models.Migrate) (res models.MigrateRes, errCode string)
 	DA(models.PinVer) string
 	EI(models.GeneratePair) (res models.GeneratePairResp, errCode string)
+	EO(models.ImportPublicKey) (res models.ImportPublicKeyResp, errCode string)
 	EM(models.TranslatePrivate) (res models.TranslatePrivateResp, errCode string)
 	GI(models.ImportKeyOrDataUnderRSAPubKey) (res models.ImportKeyOrDataUnderRSAPubKeyResp, errCode string)
+	GK(models.ExportKeyUnderRSAPublicKey) (res models.ExportKeyUnderRSAPublicKeyResp, errCode string)
 	GW(input models.GenerateVerifyMacDukpt) (res models.GenerateVerifyMacDukptResp, errCode string)
-	M0(models.InpEnc) (res string, errCode string)
+	M0(models.EncryptDataBlock) (res models.EncryptDataBlockResp, errCode string)
 	M2(models.InpDec) (res string, errCode string)
 	NC(models.Diagnostics) (res models.DiagnosticsRes, errCode string)
 }
