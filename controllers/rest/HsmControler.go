@@ -100,7 +100,7 @@ func (controller *HsmController) ExportKey(w http.ResponseWriter, r *http.Reques
 }
 func (controller *HsmController) GenerateKeyPair(w http.ResponseWriter, r *http.Request) {
 	var p models.GeneratePair
-	err := render.DecodeJSON(r.Body, p)
+	err := render.DecodeJSON(r.Body, &p)
 	if err != nil {
 		render.JSON(w, r, controllers.ErrRender(err))
 		return
@@ -127,6 +127,34 @@ func (controller *HsmController) ImportKeyRSA(w http.ResponseWriter, r *http.Req
 	}
 	render.JSON(w, r, resp)
 }
+func (controller *HsmController) ExportKeyRSA(w http.ResponseWriter, r *http.Request) {
+	var p models.ExportKeyUnderRSAPublicKey
+	err := render.DecodeJSON(r.Body, &p)
+	if err != nil {
+		render.JSON(w, r, controllers.ErrRender(err))
+		return
+	}
+	resp, err := controller.ExportKeyRSAResponse(p)
+	if err != nil {
+		render.JSON(w, r, controllers.ErrRender(err))
+		return
+	}
+	render.JSON(w, r, resp)
+}
+func (controller *HsmController) ImportPublicKey(w http.ResponseWriter, r *http.Request) {
+	var p models.ImportPublicKey
+	err := render.DecodeJSON(r.Body, &p)
+	if err != nil {
+		render.JSON(w, r, controllers.ErrRender(err))
+		return
+	}
+	resp, err := controller.ImportPublicKeyResponse(p)
+	if err != nil {
+		render.JSON(w, r, controllers.ErrRender(err))
+		return
+	}
+	render.JSON(w, r, resp)
+}
 func (controller *HsmController) GenerateKCV(w http.ResponseWriter, r *http.Request) {
 	var p models.GenerateKCV
 	err := render.DecodeJSON(r.Body, &p)
@@ -134,7 +162,7 @@ func (controller *HsmController) GenerateKCV(w http.ResponseWriter, r *http.Requ
 		render.JSON(w, r, controllers.ErrRender(err))
 		return
 	}
-	resp, err := controller.GenerateKCVResponce(p)
+	resp, err := controller.GenerateKCVResponse(p)
 	if err != nil {
 		render.JSON(w, r, controllers.ErrRender(err))
 		return
@@ -162,7 +190,21 @@ func (controller *HsmController) GenerateMacDukpt(w http.ResponseWriter, r *http
 		render.JSON(w, r, controllers.ErrRender(err))
 		return
 	}
-	resp, err := controller.GenerateVerifyMacDukptResponce(p)
+	resp, err := controller.GenerateVerifyMacDukptResponse(p)
+	if err != nil {
+		render.JSON(w, r, controllers.ErrRender(err))
+		return
+	}
+	render.JSON(w, r, resp)
+}
+func (controller *HsmController) EncryptDataBlock(w http.ResponseWriter, r *http.Request) {
+	var p models.EncryptDataBlock
+	err := render.DecodeJSON(r.Body, &p)
+	if err != nil {
+		render.JSON(w, r, controllers.ErrRender(err))
+		return
+	}
+	resp, err := controller.EncryptDataBlockResponse(p)
 	if err != nil {
 		render.JSON(w, r, controllers.ErrRender(err))
 		return
