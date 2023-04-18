@@ -11,7 +11,10 @@ type IHsmService interface {
 	NewGenerateKeyResponse(r models.GenerateKey) (models.GenerateKeyResp, error)
 	NewExportKeyResponse(r models.ExportKey) (models.ExportKeyResp, error)
 	ImportKeyRSAResponse(r models.ImportKeyOrDataUnderRSAPubKey) (models.ImportKeyOrDataUnderRSAPubKeyResp, error)
+	ExportKeyRSAResponse(r models.ExportKeyUnderRSAPublicKey) (models.ExportKeyUnderRSAPublicKeyResp, error)
+	ImportPublicKeyResponse(r models.ImportPublicKey) (models.ImportPublicKeyResp, error)
 	ImportKeyResponse(r models.ImportKey) (models.ImportKeyResp, error)
-	GenerateKCVResponce(r models.GenerateKCV) (models.GenerateKCVResp, error)
-	GenerateVerifyMacDukptResponce(r models.GenerateVerifyMacDukpt) (models.GenerateVerifyMacDukptResp, error)
+	GenerateKCVResponse(r models.GenerateKCV) (models.GenerateKCVResp, error)
+	GenerateVerifyMacDukptResponse(r models.GenerateVerifyMacDukpt) (models.GenerateVerifyMacDukptResp, error)
+	EncryptDataBlockResponse(r models.EncryptDataBlock) (models.EncryptDataBlockResp, error)
 }
