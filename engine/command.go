@@ -433,7 +433,7 @@ func (repository *HsmRepository) BW(input models.Migrate) (res models.MigrateRes
 		exportability,
 		optionalBlockNumber,
 	)
-	
+
 	if input.KCVReturnFlag == "1" {
 		commandMessage = Join(
 			commandMessage,
@@ -654,11 +654,13 @@ func (repository *HsmRepository) GK(input models.ExportKeyUnderRSAPublicKey) (re
 	commandCode := []byte("GK")
 	encryptionId := []byte(input.EncryptionId)
 	padModeId := []byte(input.PadModeId)
+	maskGenFunc := []byte(input.MaskGenFunc)
+	mgfHashFunc := []byte(input.MGFHashFunc)
 	keyType := []byte(input.KeyType)
 	keyFlag := []byte(input.KeyFlag)
 	key := []byte(input.Key)
 	kcv := []byte(input.KCV)
-	publicKey := []byte(input.PublicKey)
+	publicKey, _ := base64.StdEncoding.DecodeString(input.PublicKey)
 	keyBlockDelim := []byte(";")
 
 	keyDataBlockType := []byte(input.KeyDataBlockType)
@@ -685,7 +687,14 @@ func (repository *HsmRepository) GK(input models.ExportKeyUnderRSAPublicKey) (re
 			padModeId,
 		)
 	case "02":
-		log.Panicf("Wrong Pad Mod Id: %s", input.PadModeId)
+		commandMessage = Join(
+			commandMessage,
+			padModeId,
+			maskGenFunc,
+			mgfHashFunc,
+			[]byte("00"),
+			[]byte(";"),
+		)
 	default:
 		log.Panicf("Wrong Pad Mod Id: %s", input.PadModeId)
 	}
@@ -695,7 +704,7 @@ func (repository *HsmRepository) GK(input models.ExportKeyUnderRSAPublicKey) (re
 		keyType,
 	)
 
-	// The following 4 fields are only required when importing a DES/AES Key
+	// The following 3 fields are only required when importing a DES/AES Key
 	commandMessage = Join(
 		commandMessage,
 		keyFlag,
@@ -705,7 +714,6 @@ func (repository *HsmRepository) GK(input models.ExportKeyUnderRSAPublicKey) (re
 	commandMessage = Join(
 		commandMessage,
 		publicKey,
-		keyDataBlockType,
 	)
 	commandMessage = Join(
 		commandMessage,
@@ -724,22 +732,20 @@ func (repository *HsmRepository) GK(input models.ExportKeyUnderRSAPublicKey) (re
 	responseMessage := repository.WriteRequest(commandMessage)
 
 	errCode = string(responseMessage[8:10])
-	// index := 10
-	// // if input.KeyDataBlockType == "01" {
-	// // 	switch input.ImportKeyType {
-	// // 	case "0":
-	// // 		endIndex := index + 16
-	// // 		res.InitializationValue = string(responseMessage[index:endIndex])
-	// // 		index = endIndex
-	// // 	case "1":
-	// // 		endIndex := index + 32
-	// // 		res.InitializationValue = string(responseMessage[index:endIndex])
-	// // 		index = endIndex
-	// // 	}
-	// // }
-	// // res.Key, index = keyExtraction(responseMessage, index)
-	// // res.KCV = string(responseMessage[index : index+6])
+	
+	if errCode == "00" {
+		index := 10
 
+		if input.KeyDataBlockType == "01" {
+			log.Panic("Not implemented parser for Key Data Block Type" + input.KeyDataBlockType)
+		}
+
+		res.EncryptedKeyLen, _ = strconv.Atoi(string(responseMessage[index:4]))
+		index += 4
+		res.EncryptedKey = base64.StdEncoding.EncodeToString(responseMessage[index : index+res.EncryptedKeyLen])
+	} else {
+		errCode = string(responseMessage)[8:]
+	}
 	return
 }
 func (repository *HsmRepository) A6(input models.ImportKey) (res models.ImportKeyResp, errCode string) {
@@ -950,6 +956,7 @@ func (repository *HsmRepository) EO(input models.ImportPublicKey) (res models.Im
 	if err != nil {
 		panic(err)
 	}
+	delim := []byte("~")
 	lmkId := []byte(input.LMKId)
 	kbDelim := []byte("#")
 	modeOfUse := []byte(input.ModeOfUse)
@@ -966,6 +973,10 @@ func (repository *HsmRepository) EO(input models.ImportPublicKey) (res models.Im
 		commandMessage,
 		publicKeyEncoding,
 		publicKey,
+	)
+	commandMessage = Join(
+		commandMessage,
+		delim,
 	)
 
 	if input.LMKId != "" {
@@ -989,6 +1000,7 @@ func (repository *HsmRepository) EO(input models.ImportPublicKey) (res models.Im
 	errCode = string(responseMessage)[8:10]
 
 	if errCode == "00" {
+		res.PublicKey = base64.StdEncoding.EncodeToString(responseMessage[10:])
 	}
 	return
 }

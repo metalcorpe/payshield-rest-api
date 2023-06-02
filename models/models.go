@@ -185,8 +185,8 @@ type ImportKeyOrDataUnderRSAPubKeyResp struct {
 type ExportKeyUnderRSAPublicKey struct {
 	EncryptionId string `json:"encryptionId"`
 	PadModeId    string `json:"padModeId"`
-	// MaskGenFunc  string `json:"maskGenFunc"`
-	// MGFHashFunc  string `json:"mgfHashFunc"`
+	MaskGenFunc  string `json:"maskGenFunc"`
+	MGFHashFunc  string `json:"mgfHashFunc"`
 	//OAEPEncodingParamLen string `json:"oaepEncodingParamLen"`
 	// OAEPEncodingParam string `json:"oaepEncodingParam"`
 	KeyType string `json:"keyType"`
@@ -220,7 +220,9 @@ type ExportKeyUnderRSAPublicKey struct {
 }
 type ExportKeyUnderRSAPublicKeyResp struct {
 	InitializationValue string `json:"initializationValue"`
+	EncryptedKeyLen     int    `json:"encryptedKeyLen"`
 	EncryptedKey        string `json:"encryptedKey"`
+	SignatureLen        int    `json:"signatureLen"`
 	Signature           string `json:"signature"`
 }
 type GenerateKCV struct {
